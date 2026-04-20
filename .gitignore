@@ -1,2 +1,40 @@
 _build/
 node_modules/
+<<<<<<< HEAD
+# Portable apps (not part of the framework)
+Apps/Beyond/
+Apps/DISK1/
+Apps/Notepad++Portable/
+Apps/Putty/
+Apps/Robo 3T 1.4.3/
+Apps/sqldeveloper/
+Apps/sts-3.9.10.RELEASE/
+Apps/XMLSpy2013/
+
+# Sensitive / personal files
+Apps/Token Bitbucket.txt
+Apps/*.fra.txt
+=======
+
+# Portable apps (not part of the framework)
+Apps/Beyond/
+Apps/DISK1/
+Apps/Notepad++Portable/
+Apps/Putty/
+Apps/Robo 3T 1.4.3/
+Apps/sqldeveloper/
+Apps/sts-3.9.10.RELEASE/
+Apps/XMLSpy2013/
+
+# Sensitive / personal files
+Apps/Token Bitbucket.txt
+Apps/*.fra.txt
+
+# IDE files
+.idea/
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
+>>>>>>> bd78908 (Initial commit: Knowledge-Driven Development Framework)
