@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge-Driven Development — Operational Documentation</title>
+    <style>
+        /* === CORPORATE BASE === */
+        :root {
+            --nfq-dark: #100D25;
+            --nfq-orange: #EC683E;
+            --nfq-blue: #217BEE;
+            --nfq-pink: #D13B5F;
+            --nfq-grey: #595959;
+            --nfq-light-grey: #F5F5F5;
+            --nfq-white: #FFFFFF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--nfq-dark);
+            background: var(--nfq-white);
+            line-height: 1.6;
+        }
+
+        /* === LOGO === */
+        .logo { display: inline-block; }
+        .logo svg { height: 100%; width: auto; }
+        .logo-cover { position: absolute; top: 3rem; left: 4rem; height: 65px; }
+
+        /* === COVER === */
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+            position: relative;
+            overflow: hidden;
+        }
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: -40%; right: -20%;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: var(--nfq-orange);
+            opacity: 0.1;
+        }
+        .cover .label {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 1rem;
+        }
+        .cover h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        .cover .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+        }
+        .cover .year {
+            position: absolute;
+            bottom: 3rem; right: 4rem;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* === STICKY NAV === */
+        .sticky-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 900;
+            background: rgba(16,13,37,0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            height: 48px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            gap: 0.25rem;
+        }
+        .sticky-nav.visible { transform: translateY(0); }
+        .sticky-nav a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 0.45rem 0.6rem;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+        .sticky-nav a:hover { color: var(--nfq-white); background: rgba(255,255,255,0.08); }
+        .sticky-nav a.active { color: var(--nfq-orange); background: rgba(236,104,62,0.12); }
+        .sticky-nav .nav-logo { height: 22px; margin-right: 1rem; flex-shrink: 0; }
+        .sticky-nav .nav-logo svg { height: 100%; width: auto; }
+        .sticky-nav .nav-spacer { flex: 1; }
+        .sticky-nav .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .sticky-nav .nav-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6);
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .sticky-nav .nav-btn:hover { border-color: var(--nfq-orange); color: var(--nfq-white); }
+
+        /* === SECTIONS === */
+        .section {
+            padding: 5rem 4rem;
+            max-width: 100%;
+        }
+        .section.alt { background: var(--nfq-light-grey); }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .section-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--nfq-orange);
+            white-space: nowrap;
+        }
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+        }
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--nfq-grey);
+            margin-top: 0.25rem;
+        }
+
+        /* === CONTENT TYPOGRAPHY === */
+        .content { max-width: 900px; }
+        .content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--nfq-light-grey);
+        }
+        .section.alt .content h2 { border-bottom-color: #E0E0E0; }
+        .content h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 2rem 0 0.75rem;
+        }
+        .content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 1.5rem 0 0.5rem;
+        }
+        .content p {
+            font-size: 1rem;
+            color: var(--nfq-grey);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        .content ul, .content ol {
+            margin: 0.75rem 0 1.25rem 1.5rem;
+            color: var(--nfq-grey);
+        }
+        .content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .content strong { color: var(--nfq-dark); }
+        .content em { font-style: italic; }
+        .content blockquote {
+            border-left: 3px solid var(--nfq-orange);
+            padding: 0.75rem 1.25rem;
+            margin: 1.25rem 0;
+            background: rgba(236,104,62,0.04);
+            border-radius: 0 8px 8px 0;
+        }
+        .content blockquote p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* === TABLES === */
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+        .content thead th {
+            text-align: left;
+            padding: 0.7rem 1rem;
+            font-weight: 700;
+            color: var(--nfq-grey);
+            border-bottom: 2px solid #E8E8E8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .content tbody td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid #F0F0F0;
+            color: var(--nfq-grey);
+            vertical-align: top;
+        }
+        .content tbody td:first-child { font-weight: 600; color: var(--nfq-dark); }
+        .content tbody tr:hover { background: rgba(236,104,62,0.02); }
+
+        /* === CODE BLOCKS === */
+        .content pre {
+            background: #1a1730;
+            color: #e0dfe6;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .content code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            font-size: 0.88em;
+        }
+        .content p code, .content li code, .content td code {
+            background: rgba(236,104,62,0.08);
+            color: var(--nfq-orange);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        /* === CHECKLIST === */
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 0.5rem 0 0.5rem 2rem;
+            position: relative;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        .checklist li::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0.65rem;
+            width: 16px; height: 16px;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* === FLOW DIAGRAM === */
+        .flow-diagram {
+            background: var(--nfq-light-grey);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: var(--nfq-dark);
+            line-height: 2;
+        }
+        .section.alt .flow-diagram { background: var(--nfq-white); }
+
+        /* === OVERVIEW CARD === */
+        .overview {
+            background: var(--nfq-light-grey);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .section.alt .overview { background: var(--nfq-white); }
+        .overview-label {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--nfq-orange);
+            margin-bottom: 0.75rem;
+        }
+        .overview-text {
+            font-size: 1.1rem;
+            color: var(--nfq-grey);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+
+        /* === PILLARS === */
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .pillar {
+            border-left: 3px solid var(--nfq-orange);
+            padding-left: 1rem;
+        }
+        .pillar h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .pillar p { font-size: 0.95rem; color: var(--nfq-grey); margin: 0; }
+
+        /* === INSIGHT CARDS === */
+        .insights-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .insight-card {
+            background: var(--nfq-white);
+            border-radius: 12px;
+            padding: 1.8rem;
+            border-left: 4px solid var(--nfq-orange);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .section.alt .insight-card { background: var(--nfq-white); }
+        .insight-card h5 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .insight-card p { font-size: 0.9rem; color: var(--nfq-grey); line-height: 1.5; margin: 0; }
+        .insight-card.info { border-left-color: var(--nfq-blue); }
+        .insight-card.alert { border-left-color: var(--nfq-pink); }
+
+        /* === KPI ROW === */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .kpi-card {
+            background: var(--nfq-white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .kpi-card .kpi-value { font-size: 2rem; font-weight: 700; color: var(--nfq-dark); }
+        .kpi-card .kpi-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--nfq-grey); margin-top: 0.3rem; }
+
+        /* === EXEC BLOCK === */
+        .exec-block {
+            padding: 3rem 4rem;
+            background: var(--nfq-dark);
+            color: rgba(255,255,255,0.85);
+        }
+        .exec-block h3 { font-size: 1.8rem; font-weight: 700; color: var(--nfq-white); margin-bottom: 1.5rem; }
+        .exec-block p { font-size: 1rem; line-height: 1.7; margin-bottom: 1rem; }
+        .exec-highlight {
+            border-left: 3px solid var(--nfq-orange);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-size: 1.05rem;
+            color: var(--nfq-white);
+            font-weight: 600;
+        }
+
+        /* === DIVIDER === */
+        .divider { height: 4px; background: linear-gradient(90deg, var(--nfq-orange), var(--nfq-pink), var(--nfq-blue)); }
+
+        /* === TOC === */
+        .toc {
+            padding: 5rem 4rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .toc h2 { font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .toc .toc-sub { font-size: 1.1rem; color: var(--nfq-grey); margin-bottom: 3rem; }
+        .toc ol { list-style: none; padding: 0; margin: 0; }
+        .toc li { border-top: 1px solid #E8E8E8; }
+        .toc li:last-child { border-bottom: 1px solid #E8E8E8; }
+        .toc a {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.1rem 0.5rem;
+            text-decoration: none;
+            color: var(--nfq-dark);
+            transition: background .15s;
+        }
+        .toc a:hover { background: rgba(236,104,62,0.03); }
+        .toc .toc-num { font-size: 1.4rem; font-weight: 700; color: var(--nfq-orange); min-width: 40px; }
+        .toc .toc-title { font-size: 1.15rem; font-weight: 600; }
+        .toc .toc-desc { font-size: 0.9rem; color: var(--nfq-grey); margin-left: auto; }
+        .toc .toc-group {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--nfq-orange);
+            padding: 1.5rem 0.5rem 0.3rem;
+            border-top: 1px solid #E8E8E8;
+        }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--nfq-dark);
+            color: var(--nfq-white);
+        }
+        .footer h2 { font-size: 2.5rem; }
+        .footer p { color: rgba(255,255,255,0.5); margin-top: 0.5rem; }
+
+        /* === FADE-IN === */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .fade-in-delay-1 { transition-delay: 0.1s; }
+        .fade-in-delay-2 { transition-delay: 0.2s; }
+
+        /* === PRINT === */
+        @media print {
+            .cover { min-height: auto; padding: 2rem; page-break-after: always; }
+            .toc { min-height: auto; page-break-after: always; }
+            .section { padding: 2rem; page-break-before: always; }
+            .footer { page-break-before: always; }
+            .sticky-nav { display: none !important; }
+            .fade-in { opacity: 1 !important; transform: none !important; }
+            * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            @page { margin-bottom: 2cm; }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .cover, .section { padding: 2.5rem 1.5rem; }
+            .cover h1 { font-size: 2.8rem; }
+            .section-title { font-size: 2rem; }
+            .section-number { font-size: 2rem; }
+            .toc { padding: 2.5rem 1.5rem; }
+            .toc .toc-desc { display: none; }
+            .pillars { grid-template-columns: 1fr; }
+            .insights-row { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .exec-block { padding: 2.5rem 1.5rem; }
+            .sticky-nav { padding: 0 0.75rem; }
+            .sticky-nav a { font-size: 0.65rem; padding: 0.4rem 0.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SVG DEFS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="nfq-white" viewBox="0 0 312.29 145.88">
+        <defs>
+            <linearGradient id="wg1" x1="16.08" y1="4553.95" x2="16.08" y2="4644.91" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#ec683e"/><stop offset="1" stop-color="#d13b5f"/>
+            </linearGradient>
+            <linearGradient id="wg2" x1="16.08" y1="4584.43" x2="16.08" y2="4660.83" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <linearGradient id="wg3" x1="14.82" y1="4649.54" x2="81.61" y2="4552.17" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset=".25" stop-color="#d13b5f"/><stop offset="1" stop-color="#217bee"/>
+            </linearGradient>
+            <linearGradient id="wg4" x1="46.31" y1="4603.85" x2="80.07" y2="4550.73" gradientTransform="translate(0 4667.61) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <clipPath id="wclip"><rect x=".17" y="6.44" width="96.46" height="120"/></clipPath>
+        </defs>
+        <g clip-path="url(#wclip)">
+            <path fill="url(#wg1)" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg2)" fill-opacity=".3" d="M32.16,108.22L0,126.78V25.34L32.15,6.78v101.44Z"/>
+            <path fill="url(#wg3)" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="url(#wg4)" fill-opacity=".2" d="M96.46,108.22l-32.16,18.56L0,25.34,32.15,6.78l64.31,101.44Z"/>
+            <path fill="#217bee" d="M96.46,108.22l-32.16,18.56V25.34L96.46,6.78v101.44Z"/>
+        </g>
+        <path fill="#fff" d="M312.01,35.56l-17.64,12.6c-3.92-8.54-12.46-13.16-21.28-13.16-13.58,0-28,10.92-28,35.42s13.02,35.56,26.18,35.56c10.08,0,20.3-6.86,24.92-20.3v60.2h16.1V35.56h-.28ZM296.19,70.98c-.14,18.06-8.68,27.02-17.22,27.02s-17.22-9.1-17.22-27.58c0-20.02,9.1-29.68,17.92-29.68,8.26,0,16.38,8.54,16.52,24.64v5.6Z"/>
+        <path fill="#fff" d="M251.33,19.46c-11.06-10.5-18.62-15.68-22.82-15.68-2.94,0-4.34,2.38-4.34,7.14v25.62h21.98v3.08h-21.98v64.82h-16.24V39.62h-9.8v-3.08h9.8v-1.54c0-27.86,13.72-35,28.56-35,5.04,0,10.22.84,14.98,1.96l-.14,17.5Z"/>
+        <path fill="#fff" d="M146.41,51.24c5.88-11.2,15.12-16.24,23.94-16.24,12.46,0,24.08,9.94,24.08,26.04v43.4h-16.1v-40.32c0-14.84-6.72-22.12-14.42-22.12-6.16,0-13.16,4.9-17.5,14.42v48.02h-16.1V38.92l15.82-3.36h.28v15.68Z"/>
+    </symbol>
+</svg>
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav" id="sticky-nav">
+    <div class="nav-logo"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <a href="#sec-1" data-nav="sec-1">Start</a>
+    <a href="#sec-2" data-nav="sec-2">Knowledge</a>
+    <a href="#sec-3" data-nav="sec-3">Work</a>
+    <a href="#sec-4" data-nav="sec-4">Governance</a>
+    <a href="#sec-5" data-nav="sec-5">Activation</a>
+    <a href="#sec-6" data-nav="sec-6">Consolidation</a>
+    <a href="#sec-7" data-nav="sec-7">Quick Ref</a>
+    <a href="#sec-8" data-nav="sec-8">Checklist</a>
+    <a href="#sec-9" data-nav="sec-9">Levels</a>
+    <a href="#sec-10" data-nav="sec-10">Brownfield</a>
+    <a href="#sec-11" data-nav="sec-11">Taxonomy</a>
+    <a href="#sec-12" data-nav="sec-12">Spec→Prompt</a>
+    <div class="nav-spacer"></div>
+    <div class="nav-actions">
+        <button class="nav-btn" onclick="window.print()" title="Export to PDF">PDF ↗</button>
+    </div>
+</nav>
+
+<!-- COVER -->
+<section class="cover">
+    <div class="logo logo-cover"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <div class="label">Knowledge-Driven Development</div>
+    <h1>Operational<br>Documentation</h1>
+    <p class="subtitle">Guides, reference, and patterns for teams adopting Knowledge-Driven Development. From your first spec to full agentic orchestration.</p>
+    <span class="year">March 2026</span>
+</section>
+
+<!-- TOC -->
+<nav class="toc">
+    <h2>Contents</h2>
+    <p class="toc-sub">Guides, reference material, and adoption patterns</p>
+    <ol>
+        <li class="toc-group">Getting Started</li>
+        <li><a href="#sec-1"><span class="toc-num">01</span><span class="toc-title">Getting Started</span><span class="toc-desc">Your first spec in 10 minutes</span></a></li>
+
+        <li class="toc-group">Guides</li>
+        <li><a href="#sec-2"><span class="toc-num">02</span><span class="toc-title">Create a Knowledge Spec</span><span class="toc-desc">ARCH, DOM, PROD, FEAT, DOC step by step</span></a></li>
+        <li><a href="#sec-3"><span class="toc-num">03</span><span class="toc-title">Create Work Artifacts</span><span class="toc-desc">WRK-SPEC → WRK-PLAN → WRK-TASK</span></a></li>
+        <li><a href="#sec-4"><span class="toc-num">04</span><span class="toc-title">Governance Cycle</span><span class="toc-desc">RFC → SPEC → ADR</span></a></li>
+        <li><a href="#sec-5"><span class="toc-num">05</span><span class="toc-title">Contextual Activation</span><span class="toc-desc">Inject the right knowledge into work</span></a></li>
+        <li><a href="#sec-6"><span class="toc-num">06</span><span class="toc-title">Consolidation</span><span class="toc-desc">Close the Work → Knowledge loop</span></a></li>
+
+        <li class="toc-group">Reference</li>
+        <li><a href="#sec-7"><span class="toc-num">07</span><span class="toc-title">Artifact Quick Reference</span><span class="toc-desc">All types in one page</span></a></li>
+        <li><a href="#sec-8"><span class="toc-num">08</span><span class="toc-title">Spec Checklist</span><span class="toc-desc">Pre-PR validation</span></a></li>
+        <li><a href="#sec-9"><span class="toc-num">09</span><span class="toc-title">Adoption Levels</span><span class="toc-desc">L1–L5 with criteria and examples</span></a></li>
+
+        <li class="toc-group">Patterns</li>
+        <li><a href="#sec-10"><span class="toc-num">10</span><span class="toc-title">Brownfield Adoption</span><span class="toc-desc">Adopt KDD in existing projects</span></a></li>
+        <li><a href="#sec-11"><span class="toc-num">11</span><span class="toc-title">Vertical Taxonomy</span><span class="toc-desc">Build a taxonomy for your industry</span></a></li>
+        <li><a href="#sec-12"><span class="toc-num">12</span><span class="toc-title">Spec as Prompt</span><span class="toc-desc">Use specs as context for AI agents</span></a></li>
+    </ol>
+</nav>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 01 — GETTING STARTED -->
+<!-- ============================================================ -->
+<section id="sec-1" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">01</span>
+        <div>
+            <div class="section-title">Getting Started</div>
+            <div class="section-subtitle">Your first spec in 10 minutes</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">What is KDD?</div>
+            <p class="overview-text">Knowledge-Driven Development (KDD) is a methodology where <strong>structured specifications are the primary artifact</strong> that drives software delivery. Instead of ad-hoc documents or tribal knowledge, every significant decision, domain rule, and architectural constraint lives as a versioned, machine-readable spec.</p>
+        </div>
+
+        <h2>Three Axes</h2>
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Knowledge (persistent)</h4>
+                <p>ARCH, DOM, PROD, FEAT, DOC — what the organization <em>knows</em>. Persists across projects.</p>
+            </div>
+            <div class="pillar">
+                <h4>Work (ephemeral)</h4>
+                <p>WRK-SPEC, WRK-PLAN, WRK-TASK — what a team <em>does</em>. Scoped to a delivery.</p>
+            </div>
+            <div class="pillar">
+                <h4>Governance (bridge)</h4>
+                <p>RFC, ADR, RULE — how knowledge <em>evolves</em> through decisions.</p>
+            </div>
+        </div>
+
+        <h2>Your First Spec in 10 Minutes</h2>
+
+        <h3>Step 1: Create the file</h3>
+        <pre><code>mkdir -p specs/domain
+touch specs/domain/DOM-PAYMENTS-001-transfer-limits.md</code></pre>
+
+        <h3>Step 2: Write the frontmatter</h3>
+        <pre><code>---
+id: DOM-PAYMENTS-001
+type: knowledge
+layer: domain
+title: Domestic Transfer Limits
+status: draft
+confidence: medium
+version: "0.1.0"
+owner: payments-team
+domain: payments
+subdomain: transfers
+tags: [limits, compliance]
+dependencies: []
+---</code></pre>
+
+        <h3>Step 3: Write the body</h3>
+        <pre><code>## Intent
+
+Define the maximum transfer amounts for domestic payments,
+ensuring compliance with AML thresholds.
+
+## Definition
+
+### Transfer Limits
+
+| Customer Tier | Single Transfer | Daily Aggregate |
+|---------------|---------------:|----------------:|
+| Standard      |        €10,000 |         €25,000 |
+| Premium       |        €50,000 |        €100,000 |
+| Corporate     |       €500,000 |      €1,000,000 |
+
+### Rules
+
+- Transfers exceeding the single limit require dual approval.
+- Daily aggregate is calculated on a rolling 24-hour window.
+- Corporate limits may be overridden per-client via RULE artifacts.
+
+## Acceptance Criteria
+
+- [ ] Payment service enforces single-transfer limits by tier
+- [ ] Daily aggregate check runs before authorization
+- [ ] Dual approval flow triggers above threshold
+
+## Evidence
+
+- AML regulation reference: EU Directive 2015/849
+- Business validation: Product owner sign-off pending</code></pre>
+
+        <h3>Step 4: Validate</h3>
+        <pre><code>node apps/spec-graph/spec-graph.mjs --specs specs validate</code></pre>
+
+        <h2>Progressive Adoption</h2>
+        <table>
+            <thead><tr><th>Level</th><th>Name</th><th>What you do</th><th>What you get</th></tr></thead>
+            <tbody>
+                <tr><td>L1</td><td>Document</td><td>Write specs in Markdown with YAML frontmatter</td><td>Single source of truth, version control</td></tr>
+                <tr><td>L2</td><td>Validate</td><td>Run <code>spec-graph validate</code>, enforce in CI</td><td>Broken links caught early, dependency integrity</td></tr>
+                <tr><td>L3</td><td>Automate</td><td>Generate boilerplate from specs</td><td>Consistency between spec and code</td></tr>
+                <tr><td>L4</td><td>Generate</td><td>AI agents consume specs as context</td><td>Domain-aligned generation, less hallucination</td></tr>
+                <tr><td>L5</td><td>Orchestrate</td><td>Agents activate knowledge automatically per task</td><td>Full agentic workflow with knowledge loop</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p><strong>Start at L1.</strong> Most teams get value within the first sprint. See <a href="#sec-9">Section 09: Adoption Levels</a> for detailed criteria and examples.</p></blockquote>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 02 — CREATE A KNOWLEDGE SPEC -->
+<!-- ============================================================ -->
+<section id="sec-2" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">02</span>
+        <div>
+            <div class="section-title">Create a Knowledge Spec</div>
+            <div class="section-subtitle">ARCH, DOM, PROD, FEAT, DOC — step by step</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>Knowledge Artifacts capture persistent organizational knowledge — architecture decisions, domain rules, product vision, feature definitions, and documentation. They outlive any single project.</p>
+
+        <h2>Step 1: Choose the Type and Layer</h2>
+        <table>
+            <thead><tr><th>Layer</th><th>Type ID</th><th>Use when...</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Architecture</td><td><code>ARCH</code></td><td>Defining cross-cutting technical decisions</td><td>Event-driven architecture, API gateway pattern</td></tr>
+                <tr><td>Domain</td><td><code>DOM</code></td><td>Capturing business rules and domain logic</td><td>VaR calculation rules, transfer limits</td></tr>
+                <tr><td>Product</td><td><code>PROD</code></td><td>Describing product-level capabilities</td><td>Portfolio analytics platform vision</td></tr>
+                <tr><td>Feature</td><td><code>FEAT</code></td><td>Specifying a concrete feature</td><td>Real-time P&amp;L dashboard</td></tr>
+                <tr><td>Documentation</td><td><code>DOC</code></td><td>Recording conventions, guides, standards</td><td>API naming conventions, onboarding guide</td></tr>
+            </tbody>
+        </table>
+
+        <div class="insights-row">
+            <div class="insight-card">
+                <h5>Constrains many features?</h5>
+                <p>→ ARCH</p>
+            </div>
+            <div class="insight-card info">
+                <h5>Domain expert owns it?</h5>
+                <p>→ DOM</p>
+            </div>
+            <div class="insight-card">
+                <h5>Product owner owns it?</h5>
+                <p>→ PROD</p>
+            </div>
+            <div class="insight-card info">
+                <h5>User-facing behavior?</h5>
+                <p>→ FEAT</p>
+            </div>
+            <div class="insight-card">
+                <h5>Explains how to do something?</h5>
+                <p>→ DOC</p>
+            </div>
+        </div>
+
+        <h2>Step 2: Create the Frontmatter</h2>
+        <pre><code>---
+id: DOM-RISK-001              # TYPE-AREA-NNN
+type: knowledge               # always "knowledge" for this axis
+layer: domain                 # architecture | domain | product | feature | documentation
+title: Market Risk Calculation (VaR)
+status: draft                 # draft → active → deprecated
+confidence: medium            # low | medium | high
+version: "0.1.0"
+owner: risk-analytics-team
+domain: markets               # functional domain
+subdomain: risk-management    # subdomain within the vertical
+tags: [var, market-risk, regulatory]
+dependencies:
+  - id: ARCH-002
+    type: constrained-by      # implements | constrained-by | extends | uses-data-from
+  - id: DOM-REG-001
+    type: implements
+reviewers: []
+---</code></pre>
+
+        <h3>Required Fields</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>Unique identifier: <code>TYPE-AREA-NNN</code></td></tr>
+                <tr><td><code>type</code></td><td>Always <code>knowledge</code></td></tr>
+                <tr><td><code>layer</code></td><td>One of: <code>architecture</code>, <code>domain</code>, <code>product</code>, <code>feature</code>, <code>documentation</code></td></tr>
+                <tr><td><code>title</code></td><td>Human-readable title</td></tr>
+                <tr><td><code>status</code></td><td><code>draft</code> → <code>active</code> → <code>deprecated</code></td></tr>
+                <tr><td><code>confidence</code></td><td><code>low</code> (inferred), <code>medium</code> (validated OR reviewed), <code>high</code> (validated AND reviewed)</td></tr>
+                <tr><td><code>version</code></td><td>Semver string</td></tr>
+                <tr><td><code>owner</code></td><td>Team or person responsible</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Step 3: Write the Body</h2>
+        <p>Every Knowledge spec follows this structure:</p>
+
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Intent</h4>
+                <p>Why does this spec exist? 2–3 sentences. The most important section.</p>
+            </div>
+            <div class="pillar">
+                <h4>Definition</h4>
+                <p>The actual content. Structure depends on the layer: rules, decisions, capabilities, behavior, or procedures.</p>
+            </div>
+            <div class="pillar">
+                <h4>Acceptance Criteria</h4>
+                <p>How do we know it's correctly implemented? Write as a checklist.</p>
+            </div>
+            <div class="pillar">
+                <h4>Evidence</h4>
+                <p>What validates this spec? Test results, regulatory references, sign-offs.</p>
+            </div>
+        </div>
+
+        <h2>Step 4: Declare Dependencies</h2>
+        <table>
+            <thead><tr><th>Relation</th><th>Meaning</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>implements</code></td><td>This spec implements a higher-level spec</td><td>FEAT implements PROD</td></tr>
+                <tr><td><code>constrained-by</code></td><td>Must respect constraints from another</td><td>DOM constrained-by ARCH</td></tr>
+                <tr><td><code>extends</code></td><td>Adds detail to another at the same layer</td><td>DOM-002 extends DOM-001</td></tr>
+                <tr><td><code>uses-data-from</code></td><td>Consumes data defined in another</td><td>FEAT uses-data-from DOM</td></tr>
+                <tr><td><code>depends-on</code></td><td>Generic dependency</td><td>Any layer</td></tr>
+                <tr><td><code>supersedes</code></td><td>Replaces another spec</td><td>New version of deprecated spec</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Step 5: Validate</h2>
+        <pre><code>node apps/spec-graph/spec-graph.mjs --specs &lt;your-specs-dir&gt; validate</code></pre>
+        <p>Common issues: missing required frontmatter fields, dependencies referencing non-existent spec IDs, invalid status or confidence values.</p>
+
+        <h2>Step 6: PR Review</h2>
+        <ul>
+            <li>Run through the <a href="#sec-8">spec checklist</a> before submitting</li>
+            <li>Explain <em>why</em> this spec exists (not just what it contains)</li>
+            <li>Tag the <code>owner</code> and relevant <code>reviewers</code></li>
+            <li>If this spec changes dependencies, note the impact (use <code>spec-graph impact &lt;id&gt;</code>)</li>
+        </ul>
+        <p>After merge, update <code>confidence</code>: Reviewed + validated → <code>high</code>. Reviewed OR validated → <code>medium</code>. Neither → <code>low</code>.</p>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 03 — CREATE WORK ARTIFACTS -->
+<!-- ============================================================ -->
+<section id="sec-3" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">03</span>
+        <div>
+            <div class="section-title">Create Work Artifacts</div>
+            <div class="section-subtitle">WRK-SPEC → WRK-PLAN → WRK-TASK</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>Work Artifacts capture <strong>what a team is doing right now</strong>. They are ephemeral — scoped to a delivery and archived when done.</p>
+
+        <div class="flow-diagram">
+            WRK-SPEC (what &amp; why) &nbsp;→&nbsp; WRK-PLAN (how) &nbsp;→&nbsp; WRK-TASK (do)
+        </div>
+
+        <h2>The Three Levels</h2>
+        <table>
+            <thead><tr><th>Artifact</th><th>Purpose</th><th>Owner</th><th>Lifecycle</th></tr></thead>
+            <tbody>
+                <tr><td>WRK-SPEC</td><td>Defines scope, constraints, and activated knowledge</td><td>Tech lead / architect</td><td>Draft → Active → Completed → Archived</td></tr>
+                <tr><td>WRK-PLAN</td><td>Decomposes into tasks, defines architecture approach</td><td>Tech lead</td><td>Draft → Active → Completed → Archived</td></tr>
+                <tr><td>WRK-TASK</td><td>Atomic unit of work, implementable by one person/agent</td><td>Developer</td><td>Draft → Active → Completed → Archived</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Step 1: Create a WRK-SPEC</h2>
+        <p>The WRK-SPEC answers: <em>What are we building and why? What knowledge do we need?</em></p>
+
+        <pre><code>---
+id: WRK-SPEC-001
+type: work
+layer: spec
+title: VaR Engine Redesign
+status: draft
+version: "0.1.0"
+owner: risk-analytics-team
+activates:
+  - DOM-RISK-001      # Domain rules we must respect
+  - ARCH-002          # Architecture constraints
+  - DOM-REG-001       # Regulatory requirements
+tags: [var, performance, redesign]
+---</code></pre>
+
+        <blockquote><p>The <code>activates</code> field is the most important: it declares which Knowledge Artifacts provide context for this work.</p></blockquote>
+
+        <h3>WRK-SPEC Body Structure</h3>
+        <div class="pillars">
+            <div class="pillar">
+                <h4>Problem Statement</h4>
+                <p>Why are we doing this? What's broken or missing?</p>
+            </div>
+            <div class="pillar">
+                <h4>Proposed Solution</h4>
+                <p>High-level approach (not implementation details).</p>
+            </div>
+            <div class="pillar">
+                <h4>Activated Knowledge</h4>
+                <p>For each activated spec, explain why it's relevant.</p>
+            </div>
+            <div class="pillar">
+                <h4>Constraints &amp; Acceptance</h4>
+                <p>Non-negotiable boundaries + how we know work is done.</p>
+            </div>
+        </div>
+
+        <h2>Step 2: Create a WRK-PLAN</h2>
+        <p>The WRK-PLAN answers: <em>How will we build it? What are the tasks?</em></p>
+
+        <pre><code>---
+id: WRK-PLAN-001
+type: work
+layer: plan
+title: VaR Engine Implementation Plan
+status: draft
+version: "0.1.0"
+owner: risk-analytics-team
+parent: WRK-SPEC-001           # Links to the parent WRK-SPEC
+activates:
+  - DOM-RISK-001
+  - ARCH-002
+tags: [var, implementation]
+---</code></pre>
+
+        <p>Key sections: Architecture Approach, Task Decomposition (table of WRK-TASKs with estimates), Constraints, Risk Assessment, Dependencies.</p>
+
+        <h2>Step 3: Create WRK-TASKs</h2>
+        <p>Each WRK-TASK is an <strong>atomic unit of work</strong> — implementable by one developer or AI agent.</p>
+
+        <pre><code>---
+id: WRK-TASK-001
+type: work
+layer: task
+title: VaR Calculation Service
+status: draft
+version: "0.1.0"
+owner: developer-a
+parent: WRK-PLAN-001
+scope:
+  includes:
+    - src/var/calculation/**
+  excludes:
+    - src/var/api/**
+tags: [var, core-engine]
+---</code></pre>
+
+        <p>Key sections: Objective, Technical Specification, Acceptance Criteria, Test Strategy.</p>
+
+        <h2>Quick Reference</h2>
+        <table>
+            <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+            <tbody>
+                <tr><td>How many WRK-TASKs per WRK-PLAN?</td><td>3–8 is typical. More suggests the WRK-SPEC scope is too large.</td></tr>
+                <tr><td>Can I skip WRK-PLAN?</td><td>For very small work (1–2 tasks), you can go WRK-SPEC → WRK-TASK directly.</td></tr>
+                <tr><td>Who writes each level?</td><td>WRK-SPEC: architect/lead. WRK-PLAN: lead. WRK-TASK: developer or lead.</td></tr>
+                <tr><td>Can AI agents write WRK-TASKs?</td><td>Yes — this is a key L4/L5 pattern. The agent uses activated knowledge as context.</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 04 — GOVERNANCE CYCLE -->
+<!-- ============================================================ -->
+<section id="sec-4" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">04</span>
+        <div>
+            <div class="section-title">Governance Cycle</div>
+            <div class="section-subtitle">RFC → SPEC → ADR</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>The governance cycle is how knowledge <strong>evolves</strong>. It ensures that changes to organizational knowledge are proposed, discussed, decided, and recorded — not applied ad hoc.</p>
+
+        <div class="flow-diagram">
+            RFC (proposal) &nbsp;→&nbsp; Discussion &nbsp;→&nbsp; Decision &nbsp;→&nbsp; SPEC (new/updated) + ADR (record)
+        </div>
+
+        <h2>When to Use What</h2>
+        <table>
+            <thead><tr><th>Situation</th><th>Artifact</th></tr></thead>
+            <tbody>
+                <tr><td>Proposing a new approach or significant change</td><td><strong>RFC</strong></td></tr>
+                <tr><td>The decision is straightforward and uncontested</td><td>Go directly to <strong>SPEC</strong></td></tr>
+                <tr><td>Recording why a decision was made</td><td><strong>ADR</strong></td></tr>
+                <tr><td>Defining a standing constraint or policy</td><td><strong>RULE</strong></td></tr>
+            </tbody>
+        </table>
+
+        <blockquote><p><strong>Rule of thumb:</strong> If the change affects multiple teams or reverses a previous decision, write an RFC first. If it's a local improvement within your domain, update the SPEC directly.</p></blockquote>
+
+        <h2>Writing an RFC</h2>
+        <p>An RFC (Request for Comments) proposes a change and invites discussion.</p>
+
+        <pre><code>---
+id: RFC-001
+type: governance
+layer: rfc
+title: Migrate from REST to gRPC for Internal Services
+status: proposed           # proposed → accepted → superseded | rejected
+version: "0.1.0"
+owner: platform-team
+tags: [api, grpc, migration]
+dependencies:
+  - id: ARCH-001
+    type: supersedes
+---</code></pre>
+
+        <h3>RFC Body Sections</h3>
+        <ul>
+            <li><strong>Context</strong> — What is the current situation?</li>
+            <li><strong>Proposal</strong> — What specifically are you proposing?</li>
+            <li><strong>Rationale</strong> — Why this approach over alternatives?</li>
+            <li><strong>Alternatives Considered</strong> — What else was evaluated?</li>
+            <li><strong>Impact</strong> — Which specs change? Which teams are affected?</li>
+            <li><strong>Open Questions</strong> — What needs discussion?</li>
+        </ul>
+
+        <h3>RFC Lifecycle</h3>
+        <ol>
+            <li><strong>Proposed</strong>: Author creates and shares with stakeholders</li>
+            <li><strong>Discussion</strong>: Team reviews, comments, suggests modifications</li>
+            <li><strong>Decision</strong>: Accept, reject, or defer</li>
+            <li><strong>Accepted</strong> → Creates/updates SPECs + records an ADR</li>
+            <li><strong>Rejected</strong> → Record the ADR explaining why (knowledge is preserved)</li>
+        </ol>
+
+        <h2>Writing an ADR</h2>
+        <p>An ADR captures <strong>why</strong> a decision was made. Written <em>after</em> the decision.</p>
+
+        <pre><code>---
+id: ADR-001
+type: governance
+layer: adr
+title: Use Event-Driven Architecture for Trade Lifecycle
+status: accepted           # accepted → superseded
+version: "1.0.0"
+owner: platform-team
+dependencies:
+  - id: ARCH-002
+    type: depends-on
+---</code></pre>
+
+        <h3>ADR Body Sections</h3>
+        <ul>
+            <li><strong>Status</strong> — Accepted / Superseded + date</li>
+            <li><strong>Context</strong> — Situation requiring a decision</li>
+            <li><strong>Decision</strong> — One clear sentence</li>
+            <li><strong>Rationale</strong> — Factors weighted</li>
+            <li><strong>Consequences</strong> — Positive, negative, risks</li>
+            <li><strong>Alternatives Considered</strong> — Table with rejection reasons</li>
+        </ul>
+
+        <h2>Writing a RULE</h2>
+        <p>A RULE is a <strong>standing constraint</strong> — more durable than ADRs, defines ongoing policy.</p>
+
+        <pre><code>---
+id: RULE-001
+type: governance
+layer: rule
+title: All Services Must Publish Domain Events
+status: active
+version: "1.0.0"
+owner: architecture-guild
+---</code></pre>
+
+        <p>Sections: Rule (the constraint), Rationale, Enforcement (how it's checked), Exceptions (documented as ADRs).</p>
+
+        <div class="insights-row">
+            <div class="insight-card">
+                <h5>Keep RFCs focused</h5>
+                <p>One proposal per RFC. Don't bundle unrelated changes.</p>
+            </div>
+            <div class="insight-card info">
+                <h5>Record rejected proposals</h5>
+                <p>Write ADRs even for rejected proposals — the reasoning prevents re-litigating.</p>
+            </div>
+            <div class="insight-card">
+                <h5>Link everything</h5>
+                <p>RFCs reference affected specs. ADRs reference produced specs. Use <code>dependencies</code>.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 05 — CONTEXTUAL ACTIVATION -->
+<!-- ============================================================ -->
+<section id="sec-5" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">05</span>
+        <div>
+            <div class="section-title">Contextual Activation</div>
+            <div class="section-subtitle">Inject the right knowledge into work</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>Contextual activation is the process of <strong>injecting the right organizational knowledge into a work stream</strong>. It ensures that when a team (or AI agent) works on a task, they have the relevant domain rules, architecture constraints, and product context.</p>
+
+        <h2>Why It Matters</h2>
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Without activation</h5>
+                <p>Developers re-discover constraints by trial and error. AI agents hallucinate domain rules. Architecture decisions are violated.</p>
+            </div>
+            <div class="insight-card">
+                <h5>With activation</h5>
+                <p>Right knowledge available before implementation. Constraints respected by design. AI agents produce domain-aligned output.</p>
+            </div>
+        </div>
+
+        <h2>The Activation Pipeline</h2>
+        <div class="flow-diagram">
+            1. Explicit &nbsp;→&nbsp; 2. Transitive &nbsp;→&nbsp; 3. Filtered &nbsp;→&nbsp; 4. Budgeted
+        </div>
+
+        <h3>1. Explicit Activation</h3>
+        <p>Start with the specs that <strong>directly define</strong> what you're building. Ask: <em>"Which specs describe the domain rules, architecture patterns, or product requirements I need?"</em></p>
+
+        <h3>2. Transitive Activation</h3>
+        <p>Follow the dependency graph from your explicitly activated specs:</p>
+        <pre><code>node apps/spec-graph/spec-graph.mjs --specs &lt;dir&gt; context DOM-RISK-001 --depth 2</code></pre>
+
+        <h3>3. Filtered Activation</h3>
+        <p>Remove specs that describe a different aspect, are at the wrong abstraction layer, or are deprecated. <strong>Filter heuristic:</strong> If removing a spec wouldn't change how you implement the work, it doesn't belong.</p>
+
+        <h3>4. Budgeted Activation</h3>
+        <table>
+            <thead><tr><th>Work level</th><th>Typical budget</th></tr></thead>
+            <tbody>
+                <tr><td>WRK-SPEC</td><td>5–10 specs</td></tr>
+                <tr><td>WRK-PLAN</td><td>3–7 specs (subset)</td></tr>
+                <tr><td>WRK-TASK</td><td>2–5 specs (only what this task touches)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Activation Matrix</h2>
+        <table>
+            <thead><tr><th>Phase</th><th>Primary layers</th><th>Secondary layers</th></tr></thead>
+            <tbody>
+                <tr><td>Requirements</td><td>PROD, DOM</td><td>ARCH</td></tr>
+                <tr><td>Design</td><td>ARCH, DOM</td><td>PROD, FEAT</td></tr>
+                <tr><td>Build</td><td>FEAT, DOM</td><td>ARCH</td></tr>
+                <tr><td>Test</td><td>DOM, FEAT</td><td>ARCH</td></tr>
+                <tr><td>Deploy</td><td>ARCH</td><td>DOM</td></tr>
+            </tbody>
+        </table>
+
+        <h2>CLI Commands for Activation</h2>
+        <pre><code># Filter specs by criteria
+node apps/spec-graph/spec-graph.mjs --specs &lt;dir&gt; filter --layer domain --tag risk
+
+# Full context around a spec (depth 2 = direct + transitive)
+node apps/spec-graph/spec-graph.mjs --specs &lt;dir&gt; context DOM-RISK-001 --depth 2
+
+# Impact analysis: what depends on a spec you're changing?
+node apps/spec-graph/spec-graph.mjs --specs &lt;dir&gt; impact ARCH-002
+
+# Shortest path between two specs
+node apps/spec-graph/spec-graph.mjs --specs &lt;dir&gt; path DOM-RISK-001 FEAT-ANALYTICS-001</code></pre>
+
+        <h2>Example: VaR Engine Redesign</h2>
+        <table>
+            <thead><tr><th>Step</th><th>Action</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>Explicit</td><td>"We're redesigning the VaR engine"</td><td>DOM-RISK-001, ARCH-002</td></tr>
+                <tr><td>Transitive</td><td><code>context DOM-RISK-001 --depth 2</code></td><td>+ DOM-REG-001, ARCH-001, DOM-DATA-001</td></tr>
+                <tr><td>Filtered</td><td>ARCH-001 too abstract, DOM-DATA-001 different data</td><td>Remove both</td></tr>
+                <tr><td>Budgeted</td><td>3 specs is within budget</td><td>Final: DOM-RISK-001, ARCH-002, DOM-REG-001</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 06 — CONSOLIDATION -->
+<!-- ============================================================ -->
+<section id="sec-6" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">06</span>
+        <div>
+            <div class="section-title">Consolidation</div>
+            <div class="section-subtitle">Closing the Work → Knowledge loop</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>Consolidation is the process by which <strong>completed work feeds back into organizational knowledge</strong>. Without it, teams learn things during implementation that never make it back into specs.</p>
+
+        <div class="flow-diagram">
+            Knowledge ──activates──→ Work ──consolidates──→ Knowledge (updated)
+        </div>
+
+        <h2>The Consolidation Checklist</h2>
+        <p>Run through this when closing a WRK-SPEC:</p>
+
+        <h3>1. Architecture Decisions → ADRs</h3>
+        <p><em>"Did we make any significant technical decisions during this work?"</em></p>
+        <p>Common triggers: chose between approaches, rejected original plan, discovered an uncaptured constraint, made a trade-off.</p>
+
+        <h3>2. Domain Learnings → Updated Knowledge Specs</h3>
+        <p><em>"Did we discover domain rules, edge cases, or invariants not in existing DOM specs?"</em></p>
+        <ul>
+            <li>Minor additions: Update existing DOM spec (bump version)</li>
+            <li>New subdomain: Create a new DOM spec</li>
+            <li>Correction: Update spec, note correction in Evidence</li>
+        </ul>
+
+        <h3>3. Architecture Patterns → Updated ARCH Specs</h3>
+        <p><em>"Did we establish patterns that should be reused?"</em></p>
+
+        <h3>4. Product/Feature Insights → Updated PROD/FEAT Specs</h3>
+        <p><em>"Did we learn something about user needs or product behavior?"</em></p>
+
+        <h3>5. Open Questions → Resolved or Escalated</h3>
+        <p>Answered → Capture in the appropriate Knowledge Artifact. Still open → Create RFC or new WRK-SPEC.</p>
+
+        <h2>Example: VaR Engine Consolidation</h2>
+        <table>
+            <thead><tr><th>Discovery</th><th>Action</th><th>Artifact</th></tr></thead>
+            <tbody>
+                <tr><td>Partition by asset class outperformed portfolio</td><td>Write ADR</td><td>ADR-003</td></tr>
+                <tr><td>Cache invalidation requires event-driven TTL</td><td>Update ARCH-002</td><td>Add pattern</td></tr>
+                <tr><td>Regulatory VaR needs specific rounding rules</td><td>Update DOM-RISK-001</td><td>Bump to v1.2.0</td></tr>
+                <tr><td>0.01% precision divergence is acceptable</td><td>Write RULE</td><td>RULE-005</td></tr>
+                <tr><td>Intraday recalculation still open</td><td>Create new work</td><td>WRK-SPEC-002</td></tr>
+            </tbody>
+        </table>
+
+        <div class="insights-row">
+            <div class="insight-card">
+                <h5>Don't skip this step</h5>
+                <p>Block 1–2 hours for consolidation at the end of each WRK-SPEC.</p>
+            </div>
+            <div class="insight-card info">
+                <h5>Tech lead owns it</h5>
+                <p>The lead has the best view of what was learned, even if developers contribute.</p>
+            </div>
+            <div class="insight-card">
+                <h5>Small and frequent</h5>
+                <p>If a WRK-TASK reveals something important, update knowledge immediately.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- EXEC BLOCK — TRANSITION TO REFERENCE -->
+<!-- ============================================================ -->
+<div class="exec-block">
+    <h3>Reference Material</h3>
+    <p>The following sections provide quick-lookup reference material for day-to-day use. Keep them bookmarked.</p>
+    <div class="exec-highlight">Artifact matrix · Pre-PR checklist · Adoption levels L1–L5</div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 07 — ARTIFACT QUICK REFERENCE -->
+<!-- ============================================================ -->
+<section id="sec-7" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">07</span>
+        <div>
+            <div class="section-title">Artifact Quick Reference</div>
+            <div class="section-subtitle">All artifact types in one page</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <h2>Knowledge Artifacts (Persistent)</h2>
+        <table>
+            <thead><tr><th>Type</th><th>Layer</th><th>ID Pattern</th><th>Purpose</th><th>Key Relations</th></tr></thead>
+            <tbody>
+                <tr><td><strong>ARCH</strong></td><td>Architecture</td><td><code>ARCH-AREA-NNN</code></td><td>Cross-cutting technical decisions</td><td>Constrains DOM, PROD, FEAT</td></tr>
+                <tr><td><strong>DOM</strong></td><td>Domain</td><td><code>DOM-AREA-NNN</code></td><td>Business rules, domain logic</td><td>Implements regulations, constrained-by ARCH</td></tr>
+                <tr><td><strong>PROD</strong></td><td>Product</td><td><code>PROD-AREA-NNN</code></td><td>Product-level capabilities</td><td>Implements strategy, constrains FEAT</td></tr>
+                <tr><td><strong>FEAT</strong></td><td>Feature</td><td><code>FEAT-AREA-NNN</code></td><td>User-facing features</td><td>Implements PROD, uses-data-from DOM</td></tr>
+                <tr><td><strong>DOC</strong></td><td>Documentation</td><td><code>DOC-AREA-NNN</code></td><td>Conventions, guides</td><td>Supports all layers</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Lifecycle:</strong> <code>draft</code> → <code>active</code> → <code>deprecated</code><br>
+        <strong>Confidence:</strong> <code>low</code> (inferred) · <code>medium</code> (validated OR reviewed) · <code>high</code> (validated AND reviewed)</p>
+
+        <h2>Work Artifacts (Ephemeral)</h2>
+        <table>
+            <thead><tr><th>Type</th><th>Layer</th><th>ID Pattern</th><th>Purpose</th><th>Parent</th></tr></thead>
+            <tbody>
+                <tr><td><strong>WRK-SPEC</strong></td><td>Spec</td><td><code>WRK-SPEC-NNN</code></td><td>Scope, constraints, activated knowledge</td><td>—</td></tr>
+                <tr><td><strong>WRK-PLAN</strong></td><td>Plan</td><td><code>WRK-PLAN-NNN</code></td><td>Architecture approach, task decomposition</td><td>WRK-SPEC</td></tr>
+                <tr><td><strong>WRK-TASK</strong></td><td>Task</td><td><code>WRK-TASK-NNN</code></td><td>Atomic implementable unit</td><td>WRK-PLAN</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Lifecycle:</strong> <code>draft</code> → <code>active</code> → <code>completed</code> → <code>archived</code></p>
+
+        <h2>Governance Artifacts (Bridge)</h2>
+        <table>
+            <thead><tr><th>Type</th><th>ID Pattern</th><th>Purpose</th><th>Lifecycle</th></tr></thead>
+            <tbody>
+                <tr><td><strong>RFC</strong></td><td><code>RFC-NNN</code></td><td>Proposal for change</td><td><code>proposed</code> → <code>accepted</code>/<code>rejected</code> → <code>superseded</code></td></tr>
+                <tr><td><strong>ADR</strong></td><td><code>ADR-NNN</code></td><td>Record of decision</td><td><code>accepted</code> → <code>superseded</code></td></tr>
+                <tr><td><strong>RULE</strong></td><td><code>RULE-NNN</code></td><td>Standing constraint</td><td><code>active</code> → <code>deprecated</code></td></tr>
+            </tbody>
+        </table>
+
+        <h2>Dependency Relations</h2>
+        <table>
+            <thead><tr><th>Relation</th><th>Meaning</th><th>Typical usage</th></tr></thead>
+            <tbody>
+                <tr><td><code>implements</code></td><td>Realizes a higher-level spec</td><td>FEAT → PROD, DOM → Regulation</td></tr>
+                <tr><td><code>constrained-by</code></td><td>Must respect constraints</td><td>DOM → ARCH, FEAT → DOM</td></tr>
+                <tr><td><code>extends</code></td><td>Adds detail at same layer</td><td>DOM-002 → DOM-001</td></tr>
+                <tr><td><code>uses-data-from</code></td><td>Consumes data defined elsewhere</td><td>FEAT → DOM</td></tr>
+                <tr><td><code>activates</code></td><td>Knowledge injected into work</td><td>WRK-SPEC → DOM, ARCH</td></tr>
+                <tr><td><code>depends-on</code></td><td>Generic dependency</td><td>Any</td></tr>
+                <tr><td><code>supersedes</code></td><td>Replaces another spec</td><td>New → deprecated version</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Required Frontmatter Fields</h2>
+        <table>
+            <thead><tr><th>Field</th><th>All types</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>Yes</td><td>Unique identifier</td></tr>
+                <tr><td><code>type</code></td><td>Yes</td><td><code>knowledge</code>, <code>work</code>, or <code>governance</code></td></tr>
+                <tr><td><code>layer</code></td><td>Yes</td><td>Depends on type</td></tr>
+                <tr><td><code>title</code></td><td>Yes</td><td>Human-readable</td></tr>
+                <tr><td><code>status</code></td><td>Yes</td><td>Lifecycle stage</td></tr>
+                <tr><td><code>confidence</code></td><td>Knowledge only</td><td><code>low</code> / <code>medium</code> / <code>high</code></td></tr>
+                <tr><td><code>version</code></td><td>Yes</td><td>Semver</td></tr>
+                <tr><td><code>owner</code></td><td>Yes</td><td>Team or person</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 08 — SPEC CHECKLIST -->
+<!-- ============================================================ -->
+<section id="sec-8" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">08</span>
+        <div>
+            <div class="section-title">Spec Checklist</div>
+            <div class="section-subtitle">Pre-PR validation</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <h2>Frontmatter</h2>
+        <ul class="checklist">
+            <li><code>id</code> is present and follows the pattern (<code>TYPE-AREA-NNN</code> or <code>WRK-TYPE-NNN</code>)</li>
+            <li><code>type</code> is one of: <code>knowledge</code>, <code>work</code>, <code>governance</code></li>
+            <li><code>layer</code> matches the type</li>
+            <li><code>title</code> is present and descriptive</li>
+            <li><code>status</code> is a valid lifecycle value</li>
+            <li><code>confidence</code> is set (knowledge artifacts only)</li>
+            <li><code>version</code> follows semver</li>
+            <li><code>owner</code> is set to a real team or person</li>
+        </ul>
+
+        <h2>Dependencies</h2>
+        <ul class="checklist">
+            <li>Every <code>dependencies[].id</code> references an existing spec</li>
+            <li>Every <code>dependencies[].type</code> uses a valid relation</li>
+            <li>No circular dependencies</li>
+            <li>Relations make semantic sense (e.g., FEAT doesn't constrain ARCH)</li>
+        </ul>
+
+        <h2>Work Artifacts (additional)</h2>
+        <ul class="checklist">
+            <li><code>activates</code> lists at least one Knowledge Artifact (WRK-SPEC)</li>
+            <li><code>parent</code> references an existing Work Artifact (WRK-PLAN, WRK-TASK)</li>
+            <li><code>scope</code> defined with <code>includes</code>/<code>excludes</code> (WRK-TASK)</li>
+        </ul>
+
+        <h2>Body — Knowledge Artifacts</h2>
+        <ul class="checklist">
+            <li><strong>Intent</strong> section explains <em>why</em> the spec exists</li>
+            <li><strong>Definition</strong> section contains the actual specification</li>
+            <li><strong>Acceptance Criteria</strong> has testable items</li>
+            <li><strong>Evidence</strong> references validation sources</li>
+        </ul>
+
+        <h2>Body — Work Artifacts</h2>
+        <ul class="checklist">
+            <li><strong>Problem Statement</strong> or <strong>Objective</strong> is clear</li>
+            <li><strong>Activated Knowledge</strong> explains why each spec is relevant (WRK-SPEC)</li>
+            <li><strong>Task Decomposition</strong> lists all tasks with estimates (WRK-PLAN)</li>
+            <li><strong>Acceptance Criteria</strong> are specific and testable</li>
+        </ul>
+
+        <h2>Body — Governance Artifacts</h2>
+        <ul class="checklist">
+            <li><strong>Context</strong> explains the situation</li>
+            <li><strong>Decision/Proposal</strong> is clearly stated</li>
+            <li><strong>Rationale</strong> explains reasoning</li>
+            <li><strong>Alternatives Considered</strong> are documented</li>
+        </ul>
+
+        <h2>Validation</h2>
+        <ul class="checklist">
+            <li>CLI validation passes: <code>spec-graph validate</code></li>
+            <li>No orphaned specs: <code>spec-graph orphans</code></li>
+        </ul>
+
+        <h2>Review Readiness</h2>
+        <ul class="checklist">
+            <li>PR description explains <em>why</em> this spec exists</li>
+            <li><code>owner</code> and <code>reviewers</code> are tagged</li>
+            <li>If modifying existing spec: version bumped</li>
+            <li>If superseding: old spec marked <code>deprecated</code></li>
+        </ul>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 09 — ADOPTION LEVELS -->
+<!-- ============================================================ -->
+<section id="sec-9" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">09</span>
+        <div>
+            <div class="section-title">Adoption Levels</div>
+            <div class="section-subtitle">L1–L5 with criteria and examples</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>KDD is designed for incremental adoption. Each level builds on the previous one.</p>
+
+        <div class="kpi-row">
+            <div class="kpi-card"><div class="kpi-value">L1</div><div class="kpi-label">Document</div></div>
+            <div class="kpi-card"><div class="kpi-value">L2</div><div class="kpi-label">Validate</div></div>
+            <div class="kpi-card"><div class="kpi-value">L3</div><div class="kpi-label">Automate</div></div>
+            <div class="kpi-card"><div class="kpi-value">L4</div><div class="kpi-label">Generate</div></div>
+            <div class="kpi-card"><div class="kpi-value">L5</div><div class="kpi-label">Orchestrate</div></div>
+        </div>
+
+        <h2>L1 — Document</h2>
+        <p><strong>What you do:</strong> Write specs as Markdown with YAML frontmatter. Store in version control.</p>
+        <p><strong>What you get:</strong> Single source of truth, version history, searchable knowledge base.</p>
+        <h4>Criteria</h4>
+        <ul class="checklist">
+            <li>Team has a <code>specs/</code> directory</li>
+            <li>Critical domain rules captured as DOM specs</li>
+            <li>Architecture decisions recorded as ARCH or ADR</li>
+            <li>Specs follow standard anatomy</li>
+            <li>Specs reviewed in PRs</li>
+        </ul>
+        <p><strong>Timeline:</strong> 1–2 sprints to establish.</p>
+
+        <h2>L2 — Validate</h2>
+        <p><strong>What you do:</strong> Run automated validation on specs. Enforce in CI.</p>
+        <p><strong>What you get:</strong> Broken dependencies caught before merge, frontmatter consistency enforced.</p>
+        <h4>Criteria (in addition to L1)</h4>
+        <ul class="checklist">
+            <li><code>spec-graph validate</code> runs in CI and blocks PRs</li>
+            <li><code>spec-graph orphans</code> runs as warning</li>
+            <li>Dependency graph is visualizable</li>
+            <li>Team reviews graph periodically</li>
+        </ul>
+        <p><strong>Timeline:</strong> 1 sprint after L1.</p>
+
+        <h2>L3 — Automate</h2>
+        <p><strong>What you do:</strong> Generate code artifacts from specs — API stubs, schemas, test scaffolds.</p>
+        <p><strong>What you get:</strong> Guaranteed consistency between spec and implementation.</p>
+        <h4>Criteria (in addition to L2)</h4>
+        <ul class="checklist">
+            <li>At least one code generation pipeline exists</li>
+            <li>Generated artifacts not manually edited</li>
+            <li>Templates for common spec types exist</li>
+        </ul>
+        <p><strong>Timeline:</strong> 2–3 sprints.</p>
+
+        <h2>L4 — Generate</h2>
+        <p><strong>What you do:</strong> AI agents consume specs as context to produce code, tests, documentation.</p>
+        <p><strong>What you get:</strong> Domain-aligned AI output, faster delivery, consistent architecture.</p>
+        <h4>Criteria (in addition to L3)</h4>
+        <ul class="checklist">
+            <li>WRK-SPEC → WRK-PLAN → WRK-TASK flow is standard</li>
+            <li><code>activates</code> field used consistently</li>
+            <li>AI agents receive activated specs as context</li>
+            <li>Agent output reviewed against acceptance criteria</li>
+        </ul>
+        <p><strong>Timeline:</strong> 2–4 sprints after L3.</p>
+
+        <h2>L5 — Orchestrate</h2>
+        <p><strong>What you do:</strong> Agents autonomously navigate the knowledge graph, plan work, execute tasks, and consolidate learnings.</p>
+        <p><strong>What you get:</strong> End-to-end knowledge-driven delivery with continuous evolution.</p>
+        <h4>Criteria (in addition to L4)</h4>
+        <ul class="checklist">
+            <li>Agents run full activation pipeline</li>
+            <li>Consolidation partially automated</li>
+            <li>Governance cycle integrated into agent workflow</li>
+            <li>Human review gates at key checkpoints</li>
+        </ul>
+        <p><strong>Timeline:</strong> Long-term vision. 2–3 quarters after L4.</p>
+
+        <h2>Choosing Your Starting Level</h2>
+        <table>
+            <thead><tr><th>Your situation</th><th>Start at</th></tr></thead>
+            <tbody>
+                <tr><td>No specs, no structured knowledge</td><td><strong>L1</strong></td></tr>
+                <tr><td>Some specs exist but no validation</td><td><strong>L2</strong></td></tr>
+                <tr><td>Specs + CI validation in place</td><td><strong>L3</strong></td></tr>
+                <tr><td>Already using AI for code generation</td><td><strong>L4</strong></td></tr>
+                <tr><td>Full knowledge graph + agent tooling</td><td><strong>L5</strong></td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- EXEC BLOCK — TRANSITION TO PATTERNS -->
+<!-- ============================================================ -->
+<div class="exec-block">
+    <h3>Patterns</h3>
+    <p>Recipes for common adoption scenarios. Each pattern addresses a specific challenge teams face when implementing KDD.</p>
+    <div class="exec-highlight">Brownfield adoption · Vertical taxonomy construction · Spec-as-prompt for AI agents</div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 10 — BROWNFIELD ADOPTION -->
+<!-- ============================================================ -->
+<section id="sec-10" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">10</span>
+        <div>
+            <div class="section-title">Brownfield Adoption</div>
+            <div class="section-subtitle">Adopt KDD in existing projects</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">The Challenge</div>
+            <p class="overview-text">Existing projects have domain knowledge scattered across wikis, Slack threads, and people's heads. Architecture decisions were never recorded. Code embodies rules nobody documented.</p>
+        </div>
+
+        <h2>Strategy: Start Where It Hurts</h2>
+        <p>Don't try to document everything. Start with the knowledge that causes the most pain when missing.</p>
+
+        <h3>Phase 1: Critical Domain Rules (Weeks 1–2)</h3>
+        <p>Identify the 3–5 domain rules that cause bugs when developers get them wrong, require asking a specific person every time, or are different from what you'd naively assume. Write them as DOM specs.</p>
+
+        <h3>Phase 2: Architecture Decisions (Weeks 3–4)</h3>
+        <p>Mine existing decisions from git history, meeting notes, senior team members. Write retroactive ADRs.</p>
+
+        <h3>Phase 3: Validation (Week 5)</h3>
+        <p>Set up <code>spec-graph validate</code> in CI. You're now at <strong>L2</strong>.</p>
+
+        <h3>Phase 4: Integrate with Workflow (Ongoing)</h3>
+        <p>New features get WRK-SPECs. Architecture changes go through RFC → ADR. Bug fixes that reveal undocumented rules produce new DOM specs.</p>
+
+        <h2>Coexistence with Existing Docs</h2>
+        <table>
+            <thead><tr><th>Existing format</th><th>KDD approach</th></tr></thead>
+            <tbody>
+                <tr><td>Confluence/wiki</td><td>Extract rules into DOM specs. Keep wiki for narratives.</td></tr>
+                <tr><td>Swagger/OpenAPI</td><td>Already specs — add ARCH/FEAT frontmatter that references them.</td></tr>
+                <tr><td>Code comments</td><td>Extract business rules into DOM specs. Leave impl comments.</td></tr>
+                <tr><td>README files</td><td>Keep as entry points. Add links to specs.</td></tr>
+                <tr><td>Architecture diagrams</td><td>Reference from ARCH specs. Spec = why, diagram = visual.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Anti-Patterns to Avoid</h2>
+        <div class="insights-row">
+            <div class="insight-card alert">
+                <h5>Big bang spec-writing</h5>
+                <p>Don't stop feature work to document everything. Adopt incrementally.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Specifying the obvious</h5>
+                <p>If a rule is clear from the code, it doesn't need a spec. Spec the surprising and complex.</p>
+            </div>
+            <div class="insight-card alert">
+                <h5>Gold-plating specs</h5>
+                <p>A 10-line DOM spec capturing a critical rule is more valuable than a 500-line one nobody reads.</p>
+            </div>
+        </div>
+
+        <h2>Measuring Success</h2>
+        <h4>After 1 month</h4>
+        <ul class="checklist">
+            <li>At least 5 critical domain rules captured</li>
+            <li>New team members reference specs instead of Slack</li>
+            <li>At least one bug caught because a spec existed</li>
+            <li>Architecture decisions from last quarter have ADRs</li>
+        </ul>
+        <h4>After 3 months</h4>
+        <ul class="checklist">
+            <li>CI validates spec integrity</li>
+            <li>WRK-SPECs reference activated knowledge</li>
+            <li>The consolidation habit is forming</li>
+        </ul>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 11 — VERTICAL TAXONOMY -->
+<!-- ============================================================ -->
+<section id="sec-11" class="section alt">
+    <div class="section-header fade-in">
+        <span class="section-number">11</span>
+        <div>
+            <div class="section-title">Vertical Taxonomy</div>
+            <div class="section-subtitle">Build a taxonomy for your industry</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <p>A vertical taxonomy is a <strong>hierarchical organization of domains and subdomains</strong> specific to an industry. It provides naming structure for spec IDs and browsing structure for knowledge discovery.</p>
+
+        <h2>Step-by-Step</h2>
+
+        <h3>Step 1: Identify Functional Domains</h3>
+        <p>Start with 3–6 top-level business areas. Ask stakeholders: <em>"What are the major areas of our business?"</em></p>
+        <pre><code>Insurance
+├── Underwriting
+├── Claims
+├── Policy Administration
+├── Distribution
+├── Actuarial
+└── Regulatory &amp; Compliance</code></pre>
+
+        <h3>Step 2: Decompose into Subdomains</h3>
+        <p>3–8 subdomains per domain. Ask domain experts: <em>"Within [domain], what are the distinct capability areas?"</em></p>
+        <pre><code>Claims
+├── First Notice of Loss (FNOL)
+├── Claims Assessment
+├── Fraud Detection
+├── Settlement
+└── Subrogation</code></pre>
+
+        <h3>Step 3: Add Cross-Cutting Capabilities</h3>
+        <pre><code>Cross-Cutting
+├── Client Lifecycle (KYC, onboarding)
+├── Regulatory &amp; Compliance
+├── Data Management
+└── Operations</code></pre>
+
+        <h3>Step 4: Define the Technical Domain Tree</h3>
+        <p>Shared across verticals — describes technical patterns, not business domains:</p>
+        <pre><code>Technical
+├── Architecture Patterns (application, integration, data, security)
+├── NFR Catalog (performance, reliability, security, operability)
+├── Technology Standards (languages, platforms, data stores)
+└── Quality Standards (code, API, testing, documentation)</code></pre>
+
+        <h3>Step 5: Create the Activation Matrix</h3>
+        <p>Map which knowledge layers activate at each phase of work.</p>
+
+        <h2>Taxonomy Template</h2>
+        <pre><code># [Vertical Name] Taxonomy
+
+## Functional Domain Tree
+
+### [Domain 1]
+- [Subdomain 1.1]: Brief description
+- [Subdomain 1.2]: Brief description
+
+### [Domain 2]
+- [Subdomain 2.1]: Brief description
+
+### Cross-[Vertical] Capabilities
+- [Shared Capability 1]: Brief description
+
+## Business Rules Catalog
+
+| Category | Examples          | Typical Source       |
+|----------|-------------------|----------------------|
+| Validation  | Input constraints | Product + compliance |
+| Calculation | Formulas, rounding | Domain experts      |
+| Workflow    | State machines    | Operations           |
+| Regulatory  | Mandatory checks  | Legal + compliance   |
+
+## Technical Domain Tree
+(Use the standard tree — shared across verticals)
+
+## Activation Matrix
+(Map knowledge layers to work phases)</code></pre>
+
+        <div class="insights-row">
+            <div class="insight-card">
+                <h5>Start coarse, refine later</h5>
+                <p>A 3-domain taxonomy that the team uses beats a 20-domain one nobody maintains.</p>
+            </div>
+            <div class="insight-card info">
+                <h5>Validate with experts</h5>
+                <p>The taxonomy should match how the business thinks, not how the code is organized.</p>
+            </div>
+            <div class="insight-card">
+                <h5>One vertical at a time</h5>
+                <p>If your org spans verticals, create separate taxonomy files. Share the Technical Domain Tree.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 12 — SPEC AS PROMPT -->
+<!-- ============================================================ -->
+<section id="sec-12" class="section">
+    <div class="section-header fade-in">
+        <span class="section-number">12</span>
+        <div>
+            <div class="section-title">Spec as Prompt</div>
+            <div class="section-subtitle">Use specs as context for AI agents</div>
+        </div>
+    </div>
+    <div class="content fade-in fade-in-delay-1">
+
+        <div class="overview">
+            <div class="overview-label">The Problem</div>
+            <p class="overview-text">When AI agents generate code without domain context, they hallucinate business rules, violate architecture constraints, and produce generic patterns. Each regeneration may produce different results.</p>
+        </div>
+
+        <h2>The Pattern</h2>
+        <p>Feed activated specs into the agent's context window as structured input. The spec becomes the <strong>system-level context</strong> that constrains the agent's output.</p>
+
+        <div class="flow-diagram">
+            Activated Knowledge (DOM, ARCH) + WRK-TASK → Agent → Domain-aligned code
+        </div>
+
+        <h2>Implementation Patterns</h2>
+
+        <h3>Pattern 1: Activation Bundle as System Prompt</h3>
+        <p>Concatenate activated specs into a single context block. <strong>When:</strong> Simple workflows, single-agent tasks, L4 adoption.</p>
+        <pre><code># Activated Knowledge
+
+## DOM-RISK-001: Market Risk Calculation (VaR)
+[full spec body]
+
+## ARCH-002: Event-Driven Architecture
+[full spec body]
+
+---
+
+# Your Task
+
+## WRK-TASK-001: VaR Calculation Service
+[full task body]
+
+Implement this task respecting the activated knowledge above.</code></pre>
+
+        <h3>Pattern 2: Layered Context Injection</h3>
+        <p>Structure context by priority — domain rules first, then architecture, then task. <strong>When:</strong> Complex tasks where priority ordering matters.</p>
+        <pre><code># Domain Rules (MUST follow)
+[DOM specs — business rules, calculations, invariants]
+
+# Architecture Constraints (MUST respect)
+[ARCH specs — patterns, technology decisions, NFRs]
+
+# Product Context (SHOULD align with)
+[PROD/FEAT specs — user outcomes, success metrics]
+
+# Task
+[WRK-TASK with acceptance criteria]</code></pre>
+
+        <h3>Pattern 3: Spec Reference with Retrieval</h3>
+        <p>Inject summaries, let agent request full specs on demand. <strong>When:</strong> L5 adoption, large knowledge graphs, tool-use agents.</p>
+        <pre><code># Available Knowledge (summaries)
+- DOM-RISK-001: VaR uses 250-day historical simulation
+- ARCH-002: Services communicate via Kafka events
+- DOM-REG-001: MiFID II reporting, T+1 deadline
+
+# Full specs available via tool: read_spec(id)
+
+# Task
+[WRK-TASK body]</code></pre>
+
+        <h2>Context Window Optimization</h2>
+        <table>
+            <thead><tr><th>Spec section</th><th>Include?</th><th>Why</th></tr></thead>
+            <tbody>
+                <tr><td>Frontmatter</td><td>Yes (summary)</td><td>ID, type, confidence — helps agent understand role</td></tr>
+                <tr><td>Intent</td><td>Yes</td><td>Essential for understanding purpose</td></tr>
+                <tr><td>Definition</td><td>Yes</td><td>Core content the agent needs</td></tr>
+                <tr><td>Acceptance Criteria</td><td>Yes</td><td>Defines the contract</td></tr>
+                <tr><td>Evidence</td><td>Optional</td><td>Only if agent needs validation approach</td></tr>
+                <tr><td>Traceability</td><td>No</td><td>Not useful for generation</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Budget guideline:</strong> A typical WRK-TASK activation (2–5 specs) should fit in 3,000–8,000 tokens.</p>
+
+        <h2>Validation Loop</h2>
+        <div class="flow-diagram">
+            Agent generates → Run acceptance criteria → Pass? Done : Feed failure back → Iterate
+        </div>
+
+        <div class="insights-row">
+            <div class="insight-card">
+                <h5>Frontmatter matters</h5>
+                <p>Include <code>confidence: high</code> vs <code>low</code> — signals how much to trust the spec.</p>
+            </div>
+            <div class="insight-card info">
+                <h5>Don't over-activate</h5>
+                <p>5 focused specs &gt; 20 loosely related ones. More context ≠ better output.</p>
+            </div>
+            <div class="insight-card">
+                <h5>Fix activation, not prompts</h5>
+                <p>If agents get rules wrong, activate a missing spec — don't rewrite the prompt.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="logo" style="height: 50px; margin: 0 auto 1.5rem;"><svg viewBox="0 0 312.29 145.88"><use href="#nfq-white"/></svg></div>
+    <h2>Knowledge-Driven Development</h2>
+    <p>Operational Documentation — March 2026</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+// Sticky Nav
+(function(){
+    var nav = document.getElementById('sticky-nav');
+    var sections = ['sec-1','sec-2','sec-3','sec-4','sec-5','sec-6','sec-7','sec-8','sec-9','sec-10','sec-11','sec-12'];
+    var navLinks = {};
+    nav.querySelectorAll('a[data-nav]').forEach(function(a){
+        navLinks[a.getAttribute('data-nav')] = a;
+    });
+    var coverEnd = 0;
+    var ticking = false;
+    function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function(){
+            ticking = false;
+            var scrollY = window.scrollY || window.pageYOffset;
+            if (!coverEnd) {
+                var cover = document.querySelector('.cover');
+                if (cover) coverEnd = cover.offsetTop + cover.offsetHeight;
+            }
+            if (scrollY > coverEnd - 60) nav.classList.add('visible');
+            else nav.classList.remove('visible');
+            var current = '';
+            for (var i = sections.length - 1; i >= 0; i--) {
+                var el = document.getElementById(sections[i]);
+                if (el && scrollY >= el.offsetTop - 120) { current = sections[i]; break; }
+            }
+            sections.forEach(function(id){
+                if (navLinks[id]) {
+                    if (id === current) navLinks[id].classList.add('active');
+                    else navLinks[id].classList.remove('active');
+                }
+            });
+        });
+    }
+    window.addEventListener('scroll', onScroll, {passive: true});
+    onScroll();
+})();
+
+// Smooth Scroll
+(function(){
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            var t = document.querySelector(a.getAttribute('href'));
+            if(t) t.scrollIntoView({behavior:'smooth'});
+        });
+    });
+})();
+
+// Fade-in
+(function(){
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-in').forEach(function(el){ observer.observe(el); });
+})();
+</script>
+
+</body>
+</html>
