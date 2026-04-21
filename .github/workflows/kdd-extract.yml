@@ -1,0 +1,91 @@
+# ─────────────────────────────────────────────────────────────
+# GitHub Actions — KDD PMO Copilot Pipeline
+#
+# Se dispara cuando el Apps Script (o cualquiera) sube un .txt
+# a la carpeta actas/ del repositorio.
+#
+# Flujo:
+#   1. Detecta nuevo .txt en actas/
+#   2. Ejecuta extractor.py → genera artefactos .md
+#   3. Sube los artefactos como artifact de GitHub Actions
+#   4. (Opcional) Notifica al PMO por email
+#
+# La validación se hace después en Streamlit (manual).
+# ─────────────────────────────────────────────────────────────
+
+name: KDD Extract Artifacts
+
+on:
+  push:
+    paths:
+      - 'actas/**/*.txt'
+  workflow_dispatch:
+    inputs:
+      transcript_file:
+        description: 'Ruta al fichero de transcripción (relativo al repo)'
+        required: true
+        default: 'actas/latest.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    name: Extraer artefactos KDD
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Para detectar qué ficheros cambiaron
+
+      - name: Detectar actas nuevas
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "files=${{ github.event.inputs.transcript_file }}" >> $GITHUB_OUTPUT
+          else
+            # Ficheros .txt nuevos o modificados en actas/
+            FILES=$(git diff --name-only HEAD~1 HEAD -- 'actas/**/*.txt' | tr '\n' ',')
+            echo "files=${FILES%,}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Python
+        if: steps.detect.outputs.files != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        if: steps.detect.outputs.files != ''
+        run: pip install -r Apps/kdd-pmo-copilot/requirements.txt
+
+      - name: Authenticate GCP
+        if: steps.detect.outputs.files != ''
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY_JSON }}
+
+      - name: Run extraction
+        if: steps.detect.outputs.files != ''
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_LOCATION: ${{ secrets.GCP_LOCATION }}
+          VERTEX_MODEL: ${{ secrets.VERTEX_MODEL }}
+        working-directory: Apps/kdd-pmo-copilot
+        run: |
+          IFS=',' read -ra FILE_ARRAY <<< "${{ steps.detect.outputs.files }}"
+          for file in "${FILE_ARRAY[@]}"; do
+            echo "📝 Procesando: $file"
+            python extractor.py "../../${file}" --output-dir ./output
+          done
+
+      - name: Upload artifacts
+        if: steps.detect.outputs.files != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdd-artifacts-${{ github.run_number }}
+          path: Apps/kdd-pmo-copilot/output/*.md
+          retention-days: 30
+

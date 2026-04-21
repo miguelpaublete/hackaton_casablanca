@@ -1,0 +1,30 @@
+Reunión de diseño técnico — Plataforma de Pagos Internacionales
+Fecha: 2026-04-18
+Asistentes: María (Arquitecta), Pedro (Tech Lead), Ana (Product Owner), Carlos (Riesgos)
+
+---
+
+María: Bueno, empezamos. El tema principal hoy es definir cómo vamos a gestionar las transferencias SWIFT en la nueva plataforma. Necesitamos decidir si usamos un broker de mensajería o conexión directa al gateway SWIFT.
+
+Pedro: Yo lo tengo claro. Si vamos con conexión directa tenemos menos latencia, pero el problema es que si el gateway se cae perdemos mensajes. Con Kafka como intermediario tenemos persistencia garantizada y podemos hacer replay.
+
+María: Estoy de acuerdo. Además, el patrón event-driven nos permite desacoplar el módulo de compliance del de ejecución. Ana, ¿desde negocio hay algún requisito de latencia?
+
+Ana: Sí, para pagos urgentes necesitamos que el mensaje SWIFT salga en menos de 30 segundos desde que el operador confirma. Para pagos estándar, tenemos hasta 2 horas.
+
+Carlos: Desde riesgos os comento que toda transferencia internacional superior a 50.000 euros tiene que pasar por un chequeo anti-fraude antes de enviarse. Esto es regulación, no es negociable. Y las transferencias a países sancionados tienen que bloquearse automáticamente.
+
+María: Perfecto, entonces decidimos usar Kafka como broker intermedio. Pedro, ¿puedes encargarte de montar el PoC del producer SWIFT esta semana?
+
+Pedro: Sí, me pongo con ello. Necesito que Carlos me pase la lista actualizada de países sancionados para integrarlo en el filtro.
+
+Ana: También necesitamos una tarea para definir el formato del mensaje SWIFT MT103 que vamos a usar. Pedro, ¿puedes documentar eso?
+
+Pedro: Sí, lo añado a mi lista.
+
+María: Carlos, ¿puedes escribir las reglas de negocio del chequeo anti-fraude para que las tengamos formalizadas?
+
+Carlos: Sí, las tengo casi listas. Os las paso como documento esta semana.
+
+María: Bien, creo que tenemos todo. Resumen: Kafka como broker, chequeo anti-fraude obligatorio para >50K€, bloqueo automático de países sancionados, y Pedro monta el PoC.
+
