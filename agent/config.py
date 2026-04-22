@@ -33,9 +33,19 @@ SMTP_USER: str = os.environ.get("SMTP_USER", "")
 SMTP_PASSWORD: str = os.environ.get("SMTP_PASSWORD", "")
 PMO_EMAIL: str = os.environ.get("PMO_EMAIL", "")
 
+# ── Mailjet (HTTP API — funciona detrás de proxy) ────────
+MAILJET_API_KEY: str = os.environ.get("MAILJET_API_KEY", "")
+MAILJET_API_SECRET: str = os.environ.get("MAILJET_API_SECRET", "")
+SENDER_EMAIL: str = os.environ.get("SENDER_EMAIL", "")
+
+# ── Proxy corporativo ────────────────────────────────────
+HTTP_PROXY: str = os.environ.get("HTTP_PROXY", "")
+
+# ── Streamlit ─────────────────────────────────────────────
+STREAMLIT_PORT: int = int(os.environ.get("STREAMLIT_PORT", "8501"))
+
 # ── Paths ─────────────────────────────────────────────────
 PROJECT_ROOT: Path = Path(__file__).parent
 PROMPTS_DIR: Path = PROJECT_ROOT / "prompts"
 OUTPUT_DIR: Path = PROJECT_ROOT / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
-

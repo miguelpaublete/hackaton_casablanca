@@ -59,7 +59,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.detect.outputs.files != ''
-        run: pip install -r Apps/kdd-pmo-copilot/requirements.txt
+        run: pip install -r agent/requirements.txt
 
       - name: Authenticate GCP
         if: steps.detect.outputs.files != ''
@@ -73,12 +73,12 @@ jobs:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_LOCATION: ${{ secrets.GCP_LOCATION }}
           VERTEX_MODEL: ${{ secrets.VERTEX_MODEL }}
-        working-directory: Apps/kdd-pmo-copilot
+        working-directory: agent
         run: |
           IFS=',' read -ra FILE_ARRAY <<< "${{ steps.detect.outputs.files }}"
           for file in "${FILE_ARRAY[@]}"; do
             echo "📝 Procesando: $file"
-            python extractor.py "../../${file}" --output-dir ./output
+            python extractor.py "../${file}" --output-dir ./output
           done
 
       - name: Upload artifacts
@@ -86,6 +86,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kdd-artifacts-${{ github.run_number }}
-          path: Apps/kdd-pmo-copilot/output/*.md
+          path: agent/output/*.md
           retention-days: 30
 
