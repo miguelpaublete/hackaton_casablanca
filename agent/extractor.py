@@ -89,40 +89,70 @@ def build_prompt(
 
 
 # ─────────────────────────────────────────────────────────────
-# 3. LLAMADA A VERTEX AI
+# 3. LLAMADA A GITHUB MODELS (Copilot)
 # ─────────────────────────────────────────────────────────────
 
-def call_vertex_ai(prompt: str) -> str:
+def call_github_models(prompt: str) -> str:
     """
-    Envía el prompt a Vertex AI (Gemini) y devuelve la respuesta como texto.
+    Envía el prompt a GitHub Models API y devuelve la respuesta.
 
-    Requiere autenticación con Google Cloud:
-    - En local: `gcloud auth application-default login`
-    - En CI: service account key vía GOOGLE_APPLICATION_CREDENTIALS
+    Usa el GITHUB_TOKEN que ya tienes configurado — el mismo que usas
+    para Copilot y para commitear al repo.
+
+    Modelos disponibles: gpt-4o, gpt-4o-mini, o]3-mini, etc.
+    Docs: https://docs.github.com/en/github-models
     """
-    from google.cloud import aiplatform
-    from vertexai.generative_models import GenerativeModel, GenerationConfig
+    import requests
+    import os
 
-    # Inicializar Vertex AI
-    aiplatform.init(
-        project=config.GCP_PROJECT_ID,
-        location=config.GCP_LOCATION,
+    token = config.GITHUB_TOKEN
+    if not token:
+        raise ValueError(
+            "GITHUB_TOKEN no configurado. Ponlo en .env\n"
+            "Es el mismo token que usas para GitHub Copilot."
+        )
+
+    model = os.environ.get("GITHUB_MODEL", "gpt-4o")
+    proxy_url = config.HTTP_PROXY
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are an expert Knowledge Architect. Always respond with valid JSON."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "temperature": 0.2,
+        "max_tokens": 8192,
+    }
+
+    proxies = {"https": proxy_url, "http": proxy_url} if proxy_url else None
+
+    response = requests.post(
+        "https://models.inference.ai.azure.com/chat/completions",
+        headers=headers,
+        json=payload,
+        proxies=proxies,
+        timeout=120,
     )
 
-    model = GenerativeModel(config.VERTEX_MODEL)
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"GitHub Models API error {response.status_code}: {response.text}"
+        )
 
-    generation_config = GenerationConfig(
-        temperature=0.2,          # Baja temperatura = más determinista
-        max_output_tokens=8192,
-        response_mime_type="application/json",
-    )
-
-    response = model.generate_content(
-        prompt,
-        generation_config=generation_config,
-    )
-
-    return response.text
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
 
 
 # ─────────────────────────────────────────────────────────────
@@ -227,8 +257,8 @@ def extract_artifacts(
     print("📝 Construyendo prompt de extracción...")
     prompt = build_prompt(transcript, today, adr_offset, dom_offset, task_offset)
 
-    print(f"🤖 Llamando a Vertex AI ({config.VERTEX_MODEL})...")
-    raw_response = call_vertex_ai(prompt)
+    print(f"🤖 Llamando a GitHub Models...")
+    raw_response = call_github_models(prompt)
 
     print("🔍 Parseando respuesta...")
     result = parse_response(raw_response)
