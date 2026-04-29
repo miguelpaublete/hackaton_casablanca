@@ -1,14 +1,37 @@
-# Actas de reunión
+# Actas de Reuniones
 
-Carpeta donde el Apps Script deposita las transcripciones de Google Meet.
+Carpeta de entrada del agente PMO Copilot. Aquí se depositan las transcripciones de reuniones para su procesamiento.
 
-Cada fichero `.txt` que se suba aquí dispara automáticamente el pipeline de extracción KDD vía GitHub Actions.
+## Estructura
 
-## Convención de nombres
+Cada proyecto tiene su propia subcarpeta:
 
 ```
-YYYY-MM-DD_nombre-reunion.txt
+actas/
+├── carbon-markets/          → Proyecto Carbon Markets
+│   └── *.txt / *.pdf / *.docx
+├── pagos-internacionales/   → Proyecto Pagos Internacionales (SWIFT)
+│   └── *.txt / *.pdf / *.docx
+└── <nuevo-proyecto>/        → Añadir una carpeta por cada nuevo proyecto
+    └── *.txt / *.pdf / *.docx
 ```
 
-Ejemplo: `2026-04-18_diseno-pagos-swift.txt`
+## Convención de nombres de archivos
 
+```
+YYYY-MM-DD_descripcion-breve.txt
+```
+
+Ejemplo: `2026-04-18_kick-off-swift-mt103.txt`
+
+## Cómo añadir un nuevo proyecto
+
+1. Crear una carpeta con el slug del proyecto (minúsculas, separado por guiones)
+2. Depositar las transcripciones dentro de esa carpeta
+3. El agente PMO las detectará automáticamente al procesar
+
+## Formatos soportados
+
+- `.txt` — Transcripciones en texto plano (recomendado)
+- `.pdf` — PDFs exportados desde Google Meet / Docs
+- `.docx` — Documentos Word
