@@ -1,3 +1,27 @@
+    print(f"🤖 Llamando a Vertex AI ({config.VERTEX_MODEL})...")
+    raw_response = call_vertex_ai(prompt)
+    return response.text
+    response = model.generate_content(
+        prompt,
+        generation_config=generation_config,
+    )
+    generation_config = GenerationConfig(
+        temperature=0.2,          # Baja temperatura = más determinista
+        max_output_tokens=8192,
+        response_mime_type="application/json",
+    model = GenerativeModel(config.VERTEX_MODEL)
+    # Inicializar Vertex AI
+    aiplatform.init(
+        project=config.GCP_PROJECT_ID,
+        location=config.GCP_LOCATION,
+    )
+    from google.cloud import aiplatform
+    from vertexai.generative_models import GenerativeModel, GenerationConfig
+    Requiere autenticación con Google Cloud:
+    - En local: `gcloud auth application-default login`
+    - En CI: service account key vía GOOGLE_APPLICATION_CREDENTIALS
+    Envía el prompt a Vertex AI (Gemini) y devuelve la respuesta como texto.
+def call_vertex_ai(prompt: str) -> str:
 """
 extractor.py — Paso 4: Extracción de artefactos KDD desde un acta de reunión.
 
@@ -65,53 +89,29 @@ def build_prompt(
 
     Args:
         transcript: Texto del acta de reunión.
-        today: Fecha en formato YYYY-MM-DD (por defecto hoy).
+# 3. LLAMADA A GITHUB MODELS (Copilot)
         adr_offset: Número inicial para ADRs (para no pisar IDs existentes).
         dom_offset: Número inicial para DOMs.
-        task_offset: Número inicial para WRK-TASKs.
-    """
-    if today is None:
-        today = date.today().isoformat()
-
-    template = load_prompt_template()
-    prompt = template.replace("{TRANSCRIPT}", transcript)
-
-    # Añadir contexto de offsets y fecha al final del system prompt
-    context_block = (
-        f"\n\n## Context Variables\n"
-        f"- Today's date: {today}\n"
-        f"- ADR numbering starts at: {adr_offset:03d}\n"
-        f"- DOM numbering starts at: {dom_offset:03d}\n"
-        f"- WRK-TASK numbering starts at: {task_offset:03d}\n"
-    )
-    prompt += context_block
-    return prompt
-
-
-# ─────────────────────────────────────────────────────────────
-# 3. LLAMADA A GITHUB MODELS (Copilot)
-# ─────────────────────────────────────────────────────────────
-
 def call_github_models(prompt: str) -> str:
     """
     Envía el prompt a GitHub Models API y devuelve la respuesta.
 
     Usa el GITHUB_TOKEN que ya tienes configurado — el mismo que usas
     para Copilot y para commitear al repo.
-
+        today = date.today().isoformat()
     Modelos disponibles: gpt-4o, gpt-4o-mini, o]3-mini, etc.
     Docs: https://docs.github.com/en/github-models
-    """
+
     import requests
     import os
-
+        f"\n\n## Context Variables\n"
     token = config.GITHUB_TOKEN
     if not token:
         raise ValueError(
             "GITHUB_TOKEN no configurado. Ponlo en .env\n"
             "Es el mismo token que usas para GitHub Copilot."
         )
-
+    prompt += context_block
     model = os.environ.get("GITHUB_MODEL", "gpt-4o")
     proxy_url = config.HTTP_PROXY
 
@@ -144,15 +144,39 @@ def call_github_models(prompt: str) -> str:
         json=payload,
         proxies=proxies,
         timeout=120,
-    )
 
+def call_vertex_ai(prompt: str) -> str:
     if response.status_code != 200:
         raise RuntimeError(
             f"GitHub Models API error {response.status_code}: {response.text}"
         )
-
+    - En local: `gcloud auth application-default login`
     data = response.json()
     return data["choices"][0]["message"]["content"]
+    """
+    from google.cloud import aiplatform
+    from vertexai.generative_models import GenerativeModel, GenerationConfig
+
+    # Inicializar Vertex AI
+    aiplatform.init(
+        project=config.GCP_PROJECT_ID,
+        location=config.GCP_LOCATION,
+    )
+
+    model = GenerativeModel(config.VERTEX_MODEL)
+
+    generation_config = GenerationConfig(
+        temperature=0.2,          # Baja temperatura = más determinista
+        max_output_tokens=8192,
+        response_mime_type="application/json",
+    )
+
+    response = model.generate_content(
+        prompt,
+        generation_config=generation_config,
+    )
+
+    return response.text
 
 
 # ─────────────────────────────────────────────────────────────
@@ -233,8 +257,8 @@ def save_artifacts(result: ExtractionResult, output_dir: Path | None = None) -> 
 def extract_artifacts(
     transcript: str,
     today: str | None = None,
-    adr_offset: int = 1,
-    dom_offset: int = 1,
+    print(f"🤖 Llamando a GitHub Models...")
+    raw_response = call_github_models(prompt)
     task_offset: int = 1,
     save: bool = True,
     output_dir: Path | None = None,
@@ -257,8 +281,8 @@ def extract_artifacts(
     print("📝 Construyendo prompt de extracción...")
     prompt = build_prompt(transcript, today, adr_offset, dom_offset, task_offset)
 
-    print(f"🤖 Llamando a GitHub Models...")
-    raw_response = call_github_models(prompt)
+    print(f"🤖 Llamando a Vertex AI ({config.VERTEX_MODEL})...")
+    raw_response = call_vertex_ai(prompt)
 
     print("🔍 Parseando respuesta...")
     result = parse_response(raw_response)
