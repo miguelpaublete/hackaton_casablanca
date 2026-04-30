@@ -87,22 +87,49 @@ def scan_actas() -> dict[str, list[Path]]:
     """
     projects = {}
 
+    VALID_SUFFIXES = (".txt", ".md", ".pdf", ".docx")
+
+    def _filter_actas(files: list[Path]) -> list[Path]:
+        """
+        Filtra archivos de actas:
+        - Excluir .converted.txt (son cache interno)
+        - Si hay un .txt/.md para un acta, ocultar el PDF/DOCX correspondiente
+        """
+        # Recoger stems de los .txt/.md que ya existen
+        txt_stems = set()
+        for f in files:
+            if f.suffix in (".txt", ".md") and not f.name.endswith(".converted.txt"):
+                txt_stems.add(f.stem)
+
+        result = []
+        for f in files:
+            # Saltar caches internos
+            if f.name.endswith(".converted.txt"):
+                continue
+            # Saltar PDF/DOCX si ya hay un .txt con el mismo nombre base
+            if f.suffix in (".pdf", ".docx") and f.stem in txt_stems:
+                continue
+            result.append(f)
+        return result
+
     if not ACTAS_DIR.exists():
         return projects
 
     for item in sorted(ACTAS_DIR.iterdir()):
         if item.is_dir() and not item.name.startswith("."):
             project_name = item.name
+            all_files = [f for f in item.iterdir() if f.suffix in VALID_SUFFIXES and f.name != "README.md"]
             actas = sorted(
-                [f for f in item.iterdir() if f.suffix in (".txt", ".md", ".pdf", ".docx")],
+                _filter_actas(all_files),
                 key=lambda f: f.name, reverse=True,
             )
             if actas:
                 projects[project_name] = actas
 
+    all_root = [f for f in ACTAS_DIR.iterdir()
+                if f.is_file() and f.suffix in VALID_SUFFIXES and f.name != "README.md"]
     root_actas = sorted(
-        [f for f in ACTAS_DIR.iterdir()
-         if f.is_file() and f.suffix in (".txt", ".md", ".pdf", ".docx") and f.name != "README.md"],
+        _filter_actas(all_root),
         key=lambda f: f.name, reverse=True,
     )
     if root_actas:
@@ -339,6 +366,9 @@ if not st.session_state.extraction_result:
 
 result: ExtractionResult = st.session_state.extraction_result
 
+if result is None:
+    st.stop()
+
 # Resumen
 st.markdown(f"**Resumen:** {result.summary}")
 st.markdown("---")
@@ -439,6 +469,8 @@ with col_notify:
 
 if st.session_state.validated:
     st.balloons()
+
+
 
 
 

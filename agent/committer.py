@@ -1,15 +1,16 @@
 """
-committer.py — Paso 7: Commit automático de artefactos validados a GitHub.
+committer.py — Commit automático de artefactos validados a GitHub.
 
-Usa PyGithub para crear/actualizar ficheros .md en la carpeta /specs
-del repositorio configurado.
+Usa la API REST de GitHub directamente (con requests) para soportar
+el proxy corporativo. Crea/actualiza ficheros .md en /specs/.
 
 Uso:
     from committer import commit_artifacts
     paths = commit_artifacts(artifacts_list)
 """
 
-from github import Github, GithubException
+import base64
+import requests
 from datetime import datetime
 
 import config
@@ -33,7 +34,6 @@ def _get_target_path(artifact: Artifact, project: str = "") -> str:
     """Determina la ruta dentro del repo para un artefacto."""
     folder = FOLDER_MAP.get(artifact.type, "specs")
 
-    # Intentar inferir desde el ID
     art_id = artifact.id.upper()
     if art_id.startswith("ADR"):
         folder = "specs/adrs"
@@ -55,14 +55,66 @@ def _get_target_path(artifact: Artifact, project: str = "") -> str:
         folder = "specs/documentation"
 
     if project:
-        # specs/<project>/<folder-tail>/<filename>
-        folder_tail = folder.replace("specs/", "specs/" + project + "/", 1) if folder.startswith("specs/") else f"specs/{project}/{folder}"
-        return f"{folder_tail}/{artifact.filename}"
+        folder = folder.replace("specs/", f"specs/{project}/", 1)
+
     return f"{folder}/{artifact.filename}"
 
 
 # ─────────────────────────────────────────────────────────────
-# COMMIT A GITHUB
+# GITHUB REST API (con proxy)
+# ─────────────────────────────────────────────────────────────
+
+def _github_session() -> requests.Session:
+    """Crea una sesión requests con token y proxy configurados."""
+    session = requests.Session()
+    session.headers.update({
+        "Authorization": f"Bearer {config.GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    })
+    if config.HTTP_PROXY:
+        session.proxies = {"https": config.HTTP_PROXY, "http": config.HTTP_PROXY}
+    return session
+
+
+def _get_file_sha(session: requests.Session, repo: str, path: str, branch: str) -> str | None:
+    """Obtiene el SHA de un fichero existente (None si no existe)."""
+    url = f"https://api.github.com/repos/{repo}/contents/{path}"
+    r = session.get(url, params={"ref": branch}, timeout=30)
+    if r.status_code == 200:
+        return r.json().get("sha")
+    return None
+
+
+def _create_or_update_file(
+    session: requests.Session,
+    repo: str,
+    path: str,
+    content: str,
+    message: str,
+    branch: str,
+    sha: str | None = None,
+) -> dict:
+    """Crea o actualiza un fichero en el repo vía REST API."""
+    url = f"https://api.github.com/repos/{repo}/contents/{path}"
+    payload = {
+        "message": message,
+        "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
+        "branch": branch,
+    }
+    if sha:
+        payload["sha"] = sha
+
+    r = session.put(url, json=payload, timeout=30)
+    if r.status_code not in (200, 201):
+        raise RuntimeError(
+            f"GitHub API error {r.status_code} para {path}: {r.text[:300]}"
+        )
+    return r.json()
+
+
+# ─────────────────────────────────────────────────────────────
+# COMMIT ARTEFACTOS
 # ─────────────────────────────────────────────────────────────
 
 def commit_artifacts(
@@ -75,13 +127,6 @@ def commit_artifacts(
     """
     Crea o actualiza los artefactos en el repositorio GitHub.
 
-    Args:
-        artifacts: Lista de artefactos validados.
-        branch: Rama destino.
-        commit_prefix: Prefijo del mensaje de commit.
-        source_transcript: Nombre del acta origen (trazabilidad).
-        project: Slug del proyecto (se usa como subcarpeta en specs/).
-
     Returns:
         Lista de paths commiteados en el repo.
     """
@@ -90,9 +135,8 @@ def commit_artifacts(
     if not config.GITHUB_REPO:
         raise ValueError("GITHUB_REPO no configurado. Revisa tu .env")
 
-    gh = Github(config.GITHUB_TOKEN)
-    repo = gh.get_repo(config.GITHUB_REPO)
-
+    session = _github_session()
+    repo = config.GITHUB_REPO
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     committed_paths = []
 
@@ -106,30 +150,15 @@ def commit_artifacts(
             f"Validated by PMO at {timestamp}."
         )
 
-        try:
-            # Intentar obtener fichero existente (para update)
-            existing = repo.get_contents(target_path, ref=branch)
-            repo.update_file(
-                path=target_path,
-                message=commit_msg,
-                content=artifact.content,
-                sha=existing.sha,
-                branch=branch,
-            )
-            print(f"  🔄 Actualizado: {target_path}")
-        except GithubException as e:
-            if e.status == 404:
-                # Fichero no existe → crear
-                repo.create_file(
-                    path=target_path,
-                    message=commit_msg,
-                    content=artifact.content,
-                    branch=branch,
-                )
-                print(f"  ✅ Creado: {target_path}")
-            else:
-                raise
+        # Comprobar si el fichero ya existe
+        sha = _get_file_sha(session, repo, target_path, branch)
+        action = "Actualizado" if sha else "Creado"
 
+        _create_or_update_file(
+            session, repo, target_path,
+            artifact.content, commit_msg, branch, sha,
+        )
+        print(f"  {'🔄' if sha else '✅'} {action}: {target_path}")
         committed_paths.append(target_path)
 
     return committed_paths
@@ -141,20 +170,13 @@ def commit_artifacts(
 
 if __name__ == "__main__":
     import argparse
-    from pathlib import Path
     import re
+    from pathlib import Path
 
-    parser = argparse.ArgumentParser(
-        description="Commit artefactos .md a GitHub."
-    )
-    parser.add_argument(
-        "files", nargs="+",
-        help="Ficheros .md a commitear.",
-    )
-    parser.add_argument(
-        "--branch", default="main",
-        help="Rama destino (default: main).",
-    )
+    parser = argparse.ArgumentParser(description="Commit artefactos .md a GitHub.")
+    parser.add_argument("files", nargs="+", help="Ficheros .md a commitear.")
+    parser.add_argument("--branch", default="main")
+    parser.add_argument("--project", default="")
 
     args = parser.parse_args()
 
@@ -162,18 +184,13 @@ if __name__ == "__main__":
     for fpath in args.files:
         p = Path(fpath)
         content = p.read_text(encoding="utf-8")
-        # Extraer ID del frontmatter
         id_match = re.search(r"^id:\s*(.+)$", content, re.MULTILINE)
         art_id = id_match.group(1).strip() if id_match else p.stem
         artifacts.append(Artifact(
-            id=art_id,
-            type="loaded",
-            title=p.stem,
-            filename=p.name,
-            content=content,
+            id=art_id, type="loaded", title=p.stem,
+            filename=p.name, content=content,
         ))
 
-    paths = commit_artifacts(artifacts, branch=args.branch)
+    paths = commit_artifacts(artifacts, branch=args.branch, project=args.project)
     print(f"\n✅ {len(paths)} artefactos commiteados.")
-
 

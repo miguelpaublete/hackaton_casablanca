@@ -5,27 +5,61 @@ Cachea conversiones de PDF/DOCX a .txt en la misma carpeta para acelerar
 re-lecturas y permitir inspección manual.
 """
 
+import re
 from pathlib import Path
 
 
+def _clean_extracted_text(raw: str) -> str:
+    """
+    Limpia texto extraído de PDF que viene con una palabra por línea
+    (a veces separadas por líneas vacías).
+    Une todo en párrafos coherentes.
+    """
+    lines = raw.splitlines()
+    paragraphs = []
+    current = []
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            # Línea vacía: solo es fin de párrafo si lo acumulado
+            # ya tiene suficiente contenido (>80 chars = párrafo real).
+            # Si es poco texto, es solo un salto entre palabras sueltas.
+            if current and len(" ".join(current)) > 80:
+                paragraphs.append(" ".join(current))
+                current = []
+            # Si hay poco, seguimos acumulando
+        else:
+            current.append(stripped)
+
+    if current:
+        paragraphs.append(" ".join(current))
+
+    # Limpiar espacios múltiples
+    result = "\n\n".join(paragraphs)
+    result = re.sub(r"  +", " ", result)
+    return result
+
+
 def _read_pdf(path: Path) -> str:
-    """Extrae texto de un PDF usando pypdf."""
+    """Extrae texto de un PDF usando pypdf y limpia el formato."""
     try:
         from pypdf import PdfReader
     except ImportError:
         try:
-            from PyPDF2 import PdfReader  # fallback
+            from PyPDF2 import PdfReader
         except ImportError:
             return f"[ERROR: instala pypdf -> pip install pypdf]\nArchivo: {path.name}"
 
     try:
         reader = PdfReader(str(path))
         chunks = []
-        for i, page in enumerate(reader.pages):
+        for page in reader.pages:
             text = page.extract_text() or ""
             if text.strip():
                 chunks.append(text.strip())
-        return "\n\n".join(chunks)
+        raw = "\n\n".join(chunks)
+        return _clean_extracted_text(raw)
     except Exception as e:
         return f"[ERROR leyendo PDF: {e}]\nArchivo: {path.name}"
 

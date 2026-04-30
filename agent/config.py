@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Cargar .env solo si existe (en CI usamos GitHub Secrets)
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
-    load_dotenv(_env_path)
+    load_dotenv(_env_path, override=True)
 
 # ── Google Cloud / Vertex AI ──────────────────────────────
 GCP_PROJECT_ID: str = os.environ.get("GCP_PROJECT_ID", "")
