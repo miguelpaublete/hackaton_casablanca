@@ -1,116 +1,86 @@
 """
 committer.py — Commit automático de artefactos validados a GitHub.
 
-Usa la API REST de GitHub directamente (con requests) para soportar
-el proxy corporativo. Crea/actualiza ficheros .md en /specs/.
+Usa git local (subprocess) para commitear y pushear, evitando problemas
+de proxy y permisos de Fine-grained PATs con la REST API.
 
 Uso:
     from committer import commit_artifacts
     paths = commit_artifacts(artifacts_list)
 """
 
-import base64
-import requests
+import subprocess
 from datetime import datetime
+from pathlib import Path
 
 import config
 from extractor import Artifact
 
 
 # ─────────────────────────────────────────────────────────────
-# MAPEO DE TIPO → CARPETA EN EL REPO
+# RUTAS
+# ─────────────────────────────────────────────────────────────
+
+REPO_ROOT = config.PROJECT_ROOT.parent  # raíz del repo git
+SPECS_DIR = REPO_ROOT / "specs"
+
+
+# ─────────────────────────────────────────────────────────────
+# MAPEO DE TIPO → CARPETA
 # ─────────────────────────────────────────────────────────────
 
 FOLDER_MAP = {
-    "adr": "specs/adrs",
-    "dom": "specs/domain",
-    "wrk-task": "specs/work",
-    "spec": "specs/domain",
-    "loaded": "specs",
+    "adr": "adrs",
+    "dom": "domain",
+    "wrk-task": "work",
+    "spec": "domain",
+    "loaded": "",
 }
 
 
-def _get_target_path(artifact: Artifact, project: str = "") -> str:
-    """Determina la ruta dentro del repo para un artefacto."""
-    folder = FOLDER_MAP.get(artifact.type, "specs")
-
+def _get_subfolder(artifact: Artifact) -> str:
+    """Determina la subcarpeta dentro de specs/ para un artefacto."""
     art_id = artifact.id.upper()
     if art_id.startswith("ADR"):
-        folder = "specs/adrs"
+        return "adrs"
     elif art_id.startswith("DOM"):
-        folder = "specs/domain"
-    elif art_id.startswith("WRK-TASK"):
-        folder = "specs/work"
-    elif art_id.startswith("WRK-PLAN"):
-        folder = "specs/work"
-    elif art_id.startswith("WRK-SPEC"):
-        folder = "specs/work"
+        return "domain"
+    elif art_id.startswith("WRK-TASK") or art_id.startswith("WRK-PLAN") or art_id.startswith("WRK-SPEC"):
+        return "work"
     elif art_id.startswith("ARCH"):
-        folder = "specs/architecture"
+        return "architecture"
     elif art_id.startswith("FEAT"):
-        folder = "specs/feature"
+        return "feature"
     elif art_id.startswith("PROD"):
-        folder = "specs/product"
+        return "product"
     elif art_id.startswith("DOC"):
-        folder = "specs/documentation"
-
-    if project:
-        folder = folder.replace("specs/", f"specs/{project}/", 1)
-
-    return f"{folder}/{artifact.filename}"
+        return "documentation"
+    return FOLDER_MAP.get(artifact.type, "")
 
 
-# ─────────────────────────────────────────────────────────────
-# GITHUB REST API (con proxy)
-# ─────────────────────────────────────────────────────────────
+def _run_git(*args, cwd=None, use_proxy=False):
+    """Ejecuta un comando git y devuelve stdout.
 
-def _github_session() -> requests.Session:
-    """Crea una sesión requests con token y proxy configurados."""
-    session = requests.Session()
-    session.headers.update({
-        "Authorization": f"Bearer {config.GITHUB_TOKEN}",
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    })
-    if config.HTTP_PROXY:
-        session.proxies = {"https": config.HTTP_PROXY, "http": config.HTTP_PROXY}
-    return session
-
-
-def _get_file_sha(session: requests.Session, repo: str, path: str, branch: str) -> str | None:
-    """Obtiene el SHA de un fichero existente (None si no existe)."""
-    url = f"https://api.github.com/repos/{repo}/contents/{path}"
-    r = session.get(url, params={"ref": branch}, timeout=30)
-    if r.status_code == 200:
-        return r.json().get("sha")
-    return None
-
-
-def _create_or_update_file(
-    session: requests.Session,
-    repo: str,
-    path: str,
-    content: str,
-    message: str,
-    branch: str,
-    sha: str | None = None,
-) -> dict:
-    """Crea o actualiza un fichero en el repo vía REST API."""
-    url = f"https://api.github.com/repos/{repo}/contents/{path}"
-    payload = {
-        "message": message,
-        "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
-        "branch": branch,
-    }
-    if sha:
-        payload["sha"] = sha
-
-    r = session.put(url, json=payload, timeout=30)
-    if r.status_code not in (200, 201):
-        raise RuntimeError(
-            f"GitHub API error {r.status_code} para {path}: {r.text[:300]}"
-        )
-    return r.json()
+    Si use_proxy=True y config.HTTP_PROXY está definido, inyecta
+    -c http.proxy=... -c https.proxy=... para atravesar el proxy corporativo.
+    """
+    cmd = ["git"]
+    if use_proxy and config.HTTP_PROXY:
+        cmd += [
+            "-c", f"http.proxy={config.HTTP_PROXY}",
+            "-c", f"https.proxy={config.HTTP_PROXY}",
+        ]
+    cmd += list(args)
+    result = subprocess.run(
+        cmd,
+        cwd=cwd or str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"git {' '.join(args)} falló:\n{result.stderr.strip()}")
+    return result.stdout.strip()
 
 
 # ─────────────────────────────────────────────────────────────
@@ -125,41 +95,54 @@ def commit_artifacts(
     project: str = "",
 ) -> list[str]:
     """
-    Crea o actualiza los artefactos en el repositorio GitHub.
+    Escribe los artefactos en specs/, hace git add + commit + push.
 
     Returns:
-        Lista de paths commiteados en el repo.
+        Lista de paths relativos commiteados.
     """
-    if not config.GITHUB_TOKEN:
-        raise ValueError("GITHUB_TOKEN no configurado. Revisa tu .env")
-    if not config.GITHUB_REPO:
-        raise ValueError("GITHUB_REPO no configurado. Revisa tu .env")
+    if not artifacts:
+        return []
 
-    session = _github_session()
-    repo = config.GITHUB_REPO
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     committed_paths = []
 
     for artifact in artifacts:
-        target_path = _get_target_path(artifact, project=project)
+        subfolder = _get_subfolder(artifact)
+        if project:
+            target_dir = SPECS_DIR / project / subfolder
+        else:
+            target_dir = SPECS_DIR / subfolder
 
-        source_line = f"\nSource transcript: {source_transcript}" if source_transcript else ""
-        commit_msg = (
-            f"[{commit_prefix}] {artifact.id}: {artifact.title}\n\n"
-            f"Auto-generated from meeting transcript.{source_line}\n"
-            f"Validated by PMO at {timestamp}."
-        )
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target_path = target_dir / artifact.filename
+        target_path.write_text(artifact.content, encoding="utf-8")
 
-        # Comprobar si el fichero ya existe
-        sha = _get_file_sha(session, repo, target_path, branch)
-        action = "Actualizado" if sha else "Creado"
+        rel_path = str(target_path.relative_to(REPO_ROOT)).replace("\\", "/")
+        committed_paths.append(rel_path)
+        print(f"  ✅ Escrito: {rel_path}")
 
-        _create_or_update_file(
-            session, repo, target_path,
-            artifact.content, commit_msg, branch, sha,
-        )
-        print(f"  {'🔄' if sha else '✅'} {action}: {target_path}")
-        committed_paths.append(target_path)
+    # Git add + commit
+    for p in committed_paths:
+        _run_git("add", p)
+
+    source_line = f"\nSource: {source_transcript}" if source_transcript else ""
+    ids = ", ".join(a.id for a in artifacts)
+    commit_msg = (
+        f"[{commit_prefix}] {ids}\n\n"
+        f"Auto-generated from meeting transcript.{source_line}\n"
+        f"Validated by PMO at {timestamp}."
+    )
+
+    _run_git("commit", "-m", commit_msg)
+    print("  📦 Commit creado")
+
+    # Push — inyectar token en la URL para autenticar y proxy corporativo
+    try:
+        repo_url = f"https://x-access-token:{config.GITHUB_COMMIT_TOKEN}@github.com/{config.GITHUB_REPO}.git"
+        _run_git("push", repo_url, branch, use_proxy=True)
+        print("  🚀 Push completado")
+    except RuntimeError as e:
+        print(f"  ⚠️ Push falló (commit guardado localmente): {e}")
 
     return committed_paths
 
@@ -171,7 +154,6 @@ def commit_artifacts(
 if __name__ == "__main__":
     import argparse
     import re
-    from pathlib import Path
 
     parser = argparse.ArgumentParser(description="Commit artefactos .md a GitHub.")
     parser.add_argument("files", nargs="+", help="Ficheros .md a commitear.")
@@ -193,4 +175,5 @@ if __name__ == "__main__":
 
     paths = commit_artifacts(artifacts, branch=args.branch, project=args.project)
     print(f"\n✅ {len(paths)} artefactos commiteados.")
+
 

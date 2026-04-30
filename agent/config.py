@@ -25,6 +25,9 @@ DRIVE_FOLDER_ID: str = os.environ.get("DRIVE_FOLDER_ID", "")
 # ── GitHub ────────────────────────────────────────────────
 GITHUB_TOKEN: str = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO: str = os.environ.get("GITHUB_REPO", "")
+# Token específico para commits (puede ser el de Miguel si el tuyo no tiene write en su repo)
+# Si no está configurado, se usa GITHUB_TOKEN
+GITHUB_COMMIT_TOKEN: str = os.environ.get("GITHUB_COMMIT_TOKEN", "") or GITHUB_TOKEN
 
 # ── SMTP ──────────────────────────────────────────────────
 SMTP_HOST: str = os.environ.get("SMTP_HOST", "smtp.gmail.com")
