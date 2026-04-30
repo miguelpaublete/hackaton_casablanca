@@ -273,6 +273,39 @@ with st.sidebar:
 
     st.markdown("---")
 
+    # ── Monitor / Notificación manual ──────────────────────────
+    st.subheader("📡 Monitor de actas")
+
+    pmo_email = config.PMO_EMAIL or "⚠️ PMO_EMAIL no configurado"
+    has_email = bool(
+        (getattr(config, "MAILJET_API_KEY", "") and getattr(config, "MAILJET_API_SECRET", ""))
+        or (config.SMTP_USER and config.SMTP_PASSWORD)
+    )
+
+    st.caption(f"Notificando a: **{pmo_email}**")
+    if not has_email:
+        st.warning("⚠️ Sin credenciales de email. Configura Mailjet o SMTP en `.env`.")
+
+    if st.button("📧 Enviar aviso actas nuevas", use_container_width=True, disabled=not has_email):
+        try:
+            from watcher import scan_new_actas, send_watcher_email
+            app_url = f"http://localhost:{config.STREAMLIT_PORT}"
+            new = scan_new_actas()
+            if new:
+                ok = send_watcher_email(new, app_url)
+                if ok:
+                    st.success(f"✅ Email enviado con {sum(len(v) for v in new.values())} acta(s) nueva(s)")
+                else:
+                    st.error("❌ Error al enviar email (revisa consola)")
+            else:
+                st.info("✅ No hay actas nuevas pendientes de notificar.")
+        except Exception as e:
+            st.error(f"❌ {e}")
+
+    st.caption("💡 Para monitorización continua, ejecuta en otra terminal:\n`python watcher.py --interval 30`")
+
+    st.markdown("---")
+
     # Botón de generar specs
     st.subheader("3️⃣ Generar specs")
 
