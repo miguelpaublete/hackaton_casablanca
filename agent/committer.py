@@ -29,7 +29,7 @@ FOLDER_MAP = {
 }
 
 
-def _get_target_path(artifact: Artifact) -> str:
+def _get_target_path(artifact: Artifact, project: str = "") -> str:
     """Determina la ruta dentro del repo para un artefacto."""
     folder = FOLDER_MAP.get(artifact.type, "specs")
 
@@ -54,6 +54,10 @@ def _get_target_path(artifact: Artifact) -> str:
     elif art_id.startswith("DOC"):
         folder = "specs/documentation"
 
+    if project:
+        # specs/<project>/<folder-tail>/<filename>
+        folder_tail = folder.replace("specs/", "specs/" + project + "/", 1) if folder.startswith("specs/") else f"specs/{project}/{folder}"
+        return f"{folder_tail}/{artifact.filename}"
     return f"{folder}/{artifact.filename}"
 
 
@@ -66,6 +70,7 @@ def commit_artifacts(
     branch: str = "main",
     commit_prefix: str = "KDD-Copilot",
     source_transcript: str = "",
+    project: str = "",
 ) -> list[str]:
     """
     Crea o actualiza los artefactos en el repositorio GitHub.
@@ -75,6 +80,7 @@ def commit_artifacts(
         branch: Rama destino.
         commit_prefix: Prefijo del mensaje de commit.
         source_transcript: Nombre del acta origen (trazabilidad).
+        project: Slug del proyecto (se usa como subcarpeta en specs/).
 
     Returns:
         Lista de paths commiteados en el repo.
@@ -91,7 +97,7 @@ def commit_artifacts(
     committed_paths = []
 
     for artifact in artifacts:
-        target_path = _get_target_path(artifact)
+        target_path = _get_target_path(artifact, project=project)
 
         source_line = f"\nSource transcript: {source_transcript}" if source_transcript else ""
         commit_msg = (

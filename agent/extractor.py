@@ -47,20 +47,21 @@ def build_prompt(
     adr_offset: int = 1,
     dom_offset: int = 1,
     task_offset: int = 1,
+    project: str = "tbd",
 ) -> str:
     """Construye el prompt final sustituyendo el transcript y metadatos."""
     if today is None:
         today = date.today().isoformat()
     template = load_prompt_template()
-    prompt = template.replace("{TRANSCRIPT}", transcript)
-    context_block = (
-        f"\n\n## Context Variables\n"
-        f"- TODAY: {today}\n"
-        f"- ADR offset: {adr_offset}\n"
-        f"- DOM offset: {dom_offset}\n"
-        f"- TASK offset: {task_offset}\n"
+    prompt = (
+        template
+        .replace("{TRANSCRIPT}", transcript)
+        .replace("{TODAY}", today)
+        .replace("{PROJECT}", project)
+        .replace("{ADR_OFFSET}", str(adr_offset))
+        .replace("{DOM_OFFSET}", str(dom_offset))
+        .replace("{TASK_OFFSET}", str(task_offset))
     )
-    prompt += context_block
     return prompt
 # -----------------------------------------------------------------
 # 3. LLAMADA A GITHUB MODELS
@@ -76,11 +77,12 @@ def call_github_models(prompt: str) -> str:
             "GITHUB_TOKEN no configurado. Ponlo en .env\n"
             "Es el mismo token que usas para GitHub Copilot."
         )
-    model = os.environ.get("GITHUB_MODEL", "gpt-4o")
+    model = os.environ.get("GITHUB_MODEL", "openai/gpt-4.1")
     proxy_url = config.HTTP_PROXY
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
+        "Accept": "application/json",
     }
     payload = {
         "model": model,
@@ -98,14 +100,28 @@ def call_github_models(prompt: str) -> str:
         "max_tokens": 8192,
     }
     proxies = {"https": proxy_url, "http": proxy_url} if proxy_url else None
+    endpoint = os.environ.get(
+        "GITHUB_MODELS_ENDPOINT",
+        "https://models.github.ai/inference/chat/completions",
+    )
     response = requests.post(
-        "https://models.inference.ai.azure.com/chat/completions",
+        endpoint,
         headers=headers,
         json=payload,
         proxies=proxies,
         timeout=120,
     )
     if response.status_code != 200:
+        if response.status_code == 403 and "no_access" in response.text:
+            raise RuntimeError(
+                "❌ Tu GITHUB_TOKEN no tiene permiso 'Models: Read'.\n\n"
+                "SOLUCIÓN: Crea un nuevo Fine-grained PAT en:\n"
+                "https://github.com/settings/personal-access-tokens/new\n"
+                "→ Account permissions → Models → Read\n"
+                "→ Repository permissions → Contents → Read and write\n\n"
+                f"Modelo solicitado: {model}\n"
+                f"Respuesta API: {response.text[:200]}"
+            )
         raise RuntimeError(
             f"GitHub Models API error {response.status_code}: {response.text}"
         )
@@ -174,10 +190,11 @@ def extract_artifacts(
     save: bool = True,
     output_dir: Path | None = None,
     source_transcript: str = "",
+    project: str = "tbd",
 ) -> ExtractionResult:
     """Pipeline completo: prompt -> GitHub Models -> parse -> (opcionalmente) guardar."""
-    print("Construyendo prompt de extraccion...")
-    prompt = build_prompt(transcript, today, adr_offset, dom_offset, task_offset)
+    print(f"Construyendo prompt de extraccion (project={project})...")
+    prompt = build_prompt(transcript, today, adr_offset, dom_offset, task_offset, project)
     print("Llamando a GitHub Models...")
     raw_response = call_github_models(prompt)
     print("Parseando respuesta...")

@@ -94,7 +94,7 @@ def scan_actas() -> dict[str, list[Path]]:
         if item.is_dir() and not item.name.startswith("."):
             project_name = item.name
             actas = sorted(
-                [f for f in item.iterdir() if f.suffix in (".txt", ".md")],
+                [f for f in item.iterdir() if f.suffix in (".txt", ".md", ".pdf", ".docx")],
                 key=lambda f: f.name, reverse=True,
             )
             if actas:
@@ -102,7 +102,7 @@ def scan_actas() -> dict[str, list[Path]]:
 
     root_actas = sorted(
         [f for f in ACTAS_DIR.iterdir()
-         if f.is_file() and f.suffix in (".txt", ".md") and f.name != "README.md"],
+         if f.is_file() and f.suffix in (".txt", ".md", ".pdf", ".docx") and f.name != "README.md"],
         key=lambda f: f.name, reverse=True,
     )
     if root_actas:
@@ -137,6 +137,47 @@ if "edited_specs" not in st.session_state:
     st.session_state.edited_specs = {}
 if "validated" not in st.session_state:
     st.session_state.validated = False
+
+
+# ─────────────────────────────────────────────────────────────
+# LECTURA DE ACTAS (TXT, MD, PDF, DOCX)
+# ─────────────────────────────────────────────────────────────
+
+from acta_loader import read_acta as _read_acta
+
+
+# ─────────────────────────────────────────────────────────────
+# OFFSETS POR PROYECTO
+# ─────────────────────────────────────────────────────────────
+
+def compute_offsets(project_output_dir: Path) -> dict:
+    """
+    Calcula los próximos offsets de ADR/DOM/TASK escaneando los .md ya
+    generados en la carpeta output del proyecto, para evitar colisiones
+    de IDs entre actas del mismo proyecto.
+    """
+    offsets = {"adr": 1, "dom": 1, "task": 1}
+    if not project_output_dir.exists():
+        return offsets
+
+    pat_adr = re.compile(r"ADR-(\d+)", re.IGNORECASE)
+    pat_dom = re.compile(r"DOM-[A-Z]+-(\d+)", re.IGNORECASE)
+    pat_task = re.compile(r"WRK-TASK-(\d+)", re.IGNORECASE)
+
+    max_adr = max_dom = max_task = 0
+    for f in project_output_dir.glob("*.md"):
+        name = f.stem
+        if (m := pat_adr.search(name)):
+            max_adr = max(max_adr, int(m.group(1)))
+        if (m := pat_dom.search(name)):
+            max_dom = max(max_dom, int(m.group(1)))
+        if (m := pat_task.search(name)):
+            max_task = max(max_task, int(m.group(1)))
+
+    offsets["adr"] = max_adr + 1
+    offsets["dom"] = max_dom + 1
+    offsets["task"] = max_task + 1
+    return offsets
 
 
 # ─────────────────────────────────────────────────────────────
@@ -196,7 +237,7 @@ with st.sidebar:
             key=f"acta_{acta.name}",
             use_container_width=True,
         ):
-            st.session_state.current_acta_text = acta.read_text(encoding="utf-8")
+            st.session_state.current_acta_text = _read_acta(acta)
             st.session_state.current_acta_name = acta.name
             st.session_state.current_project = selected_project
             st.session_state.extraction_result = None
@@ -217,19 +258,28 @@ with st.sidebar:
         if generate_btn:
             with st.spinner("Generando specs..."):
                 try:
+                    project_slug = st.session_state.current_project
+                    project_output = config.OUTPUT_DIR / project_slug
+                    project_output.mkdir(parents=True, exist_ok=True)
+                    offsets = compute_offsets(project_output)
+
                     if config.GITHUB_TOKEN:
                         result = extract_artifacts(
                             transcript=st.session_state.current_acta_text,
                             today=date.today().isoformat(),
                             save=True,
+                            output_dir=project_output,
                             source_transcript=st.session_state.current_acta_name,
+                            project=project_slug,
+                            adr_offset=offsets["adr"],
+                            dom_offset=offsets["dom"],
+                            task_offset=offsets["task"],
                         )
                     else:
-                        # Modo demo: sin token configurado
                         from test_local import MOCK_RESULT
                         result = deepcopy(MOCK_RESULT)
                         result.source_transcript = st.session_state.current_acta_name
-                        save_artifacts(result)
+                        save_artifacts(result, output_dir=project_output)
 
                     st.session_state.extraction_result = result
                     st.session_state.edited_specs = {
@@ -237,9 +287,11 @@ with st.sidebar:
                     }
                     st.session_state.validated = False
                     mode = "GitHub Models" if config.GITHUB_TOKEN else "Demo"
-                    st.success(f"✅ {len(result.artifacts)} specs generadas ({mode})")
+                    st.success(f"✅ {len(result.artifacts)} specs generadas ({mode}) en `output/{project_slug}/`")
                 except Exception as e:
                     st.error(f"❌ Error: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
     elif not st.session_state.current_acta_name:
         st.info("👆 Selecciona un acta primero")
     else:
@@ -354,6 +406,7 @@ with col_validate:
                 committed = commit_artifacts(
                     result.artifacts,
                     source_transcript=result.source_transcript,
+                    project=st.session_state.current_project,
                 )
                 mark_as_processed(
                     st.session_state.current_acta_name,
@@ -386,4 +439,11 @@ with col_notify:
 
 if st.session_state.validated:
     st.balloons()
+
+
+
+
+
+
+
 
