@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KDD PMO Copilot — Hackaton Casablanca 2026</title>
+<style>
+  :root {
+    --bbva-blue: #004481;
+    --bbva-aqua: #2DCCCD;
+    --bbva-light: #5BBEFF;
+    --bbva-dark: #00273B;
+    --bbva-green: #48AC98;
+    --bbva-yellow: #F5C518;
+    --bbva-orange: #FF6B35;
+    --bbva-purple: #7C4DFF;
+    --bg: #0A0F1E;
+    --card: #0D1B2A;
+    --card2: #112233;
+    --text: #E8F4FD;
+    --muted: #7B9DB4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 1000;
+    background: rgba(10,15,30,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(45,204,205,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+  }
+  .nav-logo {
+    font-size: 1rem; font-weight: 700; color: var(--bbva-aqua);
+    letter-spacing: 0.05em;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--bbva-aqua); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    padding-top: 60px;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 40%, rgba(0,68,129,0.45) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 60%, rgba(45,204,205,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 10%, rgba(124,77,255,0.15) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(45,204,205,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,204,205,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  .hero-content {
+    position: relative; z-index: 1; text-align: center;
+    max-width: 900px; padding: 2rem;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(45,204,205,0.12);
+    border: 1px solid rgba(45,204,205,0.35);
+    color: var(--bbva-aqua); font-size: 0.8rem; font-weight: 600;
+    padding: 0.4rem 1.2rem; border-radius: 50px; margin-bottom: 1.5rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--bbva-aqua) 50%, var(--bbva-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 1rem;
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: var(--muted); max-width: 650px; margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600;
+    font-size: 0.95rem; text-decoration: none; cursor: pointer; border: none;
+    transition: all 0.25s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--bbva-blue), var(--bbva-aqua));
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(45,204,205,0.3); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(45,204,205,0.4);
+    color: var(--bbva-aqua);
+  }
+  .btn-outline:hover { background: rgba(45,204,205,0.1); transform: translateY(-2px); }
+
+  .hero-stats {
+    display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 4rem; padding-top: 3rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 2.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--bbva-aqua), var(--bbva-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── SECTIONS ── */
+  section { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
+  .section-tag {
+    display: inline-block; color: var(--bbva-aqua); font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800; margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  .section-desc { color: var(--muted); font-size: 1.1rem; line-height: 1.7; max-width: 700px; margin-bottom: 3rem; }
+
+  /* ── PROBLEM ── */
+  .problem-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;
+  }
+  .problem-card {
+    background: var(--card);
+    border: 1px solid rgba(255,107,53,0.15);
+    border-radius: 12px; padding: 1.75rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.25s, border-color 0.25s;
+  }
+  .problem-card:hover { transform: translateY(-4px); border-color: rgba(255,107,53,0.35); }
+  .problem-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--bbva-orange), transparent);
+  }
+  .problem-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .problem-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; }
+  .problem-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── SOLUTION FLOW ── */
+  .flow-container { position: relative; }
+  .flow-steps {
+    display: flex; align-items: center; gap: 0;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .flow-step {
+    background: var(--card2);
+    border: 1px solid rgba(45,204,205,0.2);
+    border-radius: 12px; padding: 1.5rem 1.25rem;
+    text-align: center; width: 180px; position: relative;
+    transition: all 0.3s;
+  }
+  .flow-step:hover {
+    border-color: var(--bbva-aqua);
+    background: rgba(45,204,205,0.05);
+    transform: translateY(-4px);
+  }
+  .flow-arrow {
+    color: var(--bbva-aqua); font-size: 1.5rem; padding: 0 0.5rem;
+    opacity: 0.5;
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--bbva-blue), var(--bbva-aqua));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; margin: 0 auto 0.75rem;
+  }
+  .step-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+  .step-title { font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+  .step-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;
+  }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid rgba(45,204,205,0.12);
+    border-radius: 16px; padding: 2rem;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .feature-card::after {
+    content: ''; position: absolute;
+    bottom: 0; right: 0; width: 120px; height: 120px;
+    border-radius: 50%; opacity: 0.05;
+    transition: all 0.3s;
+  }
+  .feature-card.blue::after { background: var(--bbva-aqua); }
+  .feature-card.purple::after { background: var(--bbva-purple); }
+  .feature-card.green::after { background: var(--bbva-green); }
+  .feature-card.yellow::after { background: var(--bbva-yellow); }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(45,204,205,0.3); }
+  .feature-card:hover::after { opacity: 0.1; transform: scale(1.5); }
+  .feature-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 1.25rem;
+  }
+  .feature-icon.blue { background: rgba(45,204,205,0.12); }
+  .feature-icon.purple { background: rgba(124,77,255,0.12); }
+  .feature-icon.green { background: rgba(72,172,152,0.12); }
+  .feature-icon.yellow { background: rgba(245,197,24,0.12); }
+  .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feature-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+  .feature-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .tag {
+    font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px;
+    background: rgba(45,204,205,0.08); border: 1px solid rgba(45,204,205,0.2);
+    color: var(--bbva-aqua); font-weight: 600;
+  }
+
+  /* ── ARQUITECTURA ── */
+  .arch-diagram {
+    background: var(--card); border: 1px solid rgba(45,204,205,0.15);
+    border-radius: 16px; padding: 2.5rem; margin: 2rem 0;
+  }
+  .arch-layers {
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .arch-layer {
+    display: flex; align-items: center; gap: 1rem;
+    background: rgba(255,255,255,0.02); border-radius: 10px; padding: 1rem 1.25rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.25s;
+  }
+  .arch-layer:hover { background: rgba(45,204,205,0.04); border-color: rgba(45,204,205,0.2); }
+  .layer-icon { font-size: 1.5rem; min-width: 40px; text-align: center; }
+  .layer-info { flex: 1; }
+  .layer-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .layer-desc { font-size: 0.8rem; color: var(--muted); }
+  .layer-arrow { color: var(--bbva-aqua); opacity: 0.4; font-size: 1.2rem; }
+
+  /* ── ARTIFACTS ── */
+  .artifacts-section { background: rgba(0,68,129,0.06); border-radius: 20px; padding: 3rem; margin: 2rem 0; }
+  .artifacts-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .artifact-card {
+    background: var(--card2); border-radius: 10px; padding: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.25s; cursor: default;
+  }
+  .artifact-card:hover { border-color: rgba(45,204,205,0.3); transform: translateY(-2px); }
+  .artifact-id {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+    padding: 0.2rem 0.6rem; border-radius: 4px; display: inline-block; margin-bottom: 0.5rem;
+  }
+  .adr .artifact-id { background: rgba(255,107,53,0.15); color: var(--bbva-orange); }
+  .dom .artifact-id { background: rgba(45,204,205,0.12); color: var(--bbva-aqua); }
+  .wrk .artifact-id { background: rgba(72,172,152,0.12); color: var(--bbva-green); }
+  .artifact-name { font-size: 0.82rem; color: #ccc; line-height: 1.4; }
+
+  /* ── INSTALACION ── */
+  .install-steps { display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem; }
+  .install-step {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+  }
+  .install-num {
+    min-width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--bbva-blue), var(--bbva-aqua));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.1rem;
+    box-shadow: 0 0 20px rgba(45,204,205,0.3);
+  }
+  .install-content { flex: 1; }
+  .install-content h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .install-content p { font-size: 0.875rem; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.6; }
+  pre {
+    background: #060c14; border: 1px solid rgba(45,204,205,0.15);
+    border-radius: 8px; padding: 1rem 1.25rem;
+    font-size: 0.82rem; overflow-x: auto; line-height: 1.7;
+    color: #a8d8f0;
+  }
+  .code-comment { color: #4a6741; }
+  .code-key { color: var(--bbva-aqua); }
+  .code-val { color: #a8d8f0; }
+  .code-cmd { color: #e2c08d; }
+  .code-string { color: #98c379; }
+
+  .env-table {
+    width: 100%; border-collapse: collapse; margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+  .env-table th {
+    text-align: left; padding: 0.6rem 1rem;
+    background: rgba(45,204,205,0.08); color: var(--bbva-aqua);
+    font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+    border-bottom: 1px solid rgba(45,204,205,0.15);
+  }
+  .env-table td {
+    padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--muted); vertical-align: top;
+  }
+  .env-table td:first-child { color: var(--bbva-light); font-family: monospace; font-size: 0.8rem; }
+  .env-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .req { color: var(--bbva-orange); font-size: 0.7rem; font-weight: 700; }
+  .opt { color: var(--bbva-green); font-size: 0.7rem; font-weight: 700; }
+
+  /* ── TEAM ── */
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+  .team-card {
+    background: var(--card); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; padding: 2rem; text-align: center;
+    transition: all 0.3s;
+  }
+  .team-card:hover { transform: translateY(-4px); border-color: rgba(45,204,205,0.3); }
+  .avatar {
+    width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--bbva-blue), var(--bbva-aqua));
+    color: white;
+  }
+  .team-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .team-role { font-size: 0.8rem; color: var(--bbva-aqua); font-weight: 600; margin-bottom: 0.75rem; }
+  .team-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .team-skills { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--bbva-aqua), transparent);
+  }
+  .timeline-item { position: relative; margin-bottom: 2rem; padding-left: 2rem; }
+  .timeline-dot {
+    position: absolute; left: -2.5rem; top: 0.3rem;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--bbva-aqua);
+    box-shadow: 0 0 12px rgba(45,204,205,0.6);
+  }
+  .timeline-date { font-size: 0.75rem; color: var(--bbva-aqua); font-weight: 700; margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+  .timeline-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .timeline-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── HIGHLIGHT ── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,68,129,0.3), rgba(45,204,205,0.1));
+    border: 1px solid rgba(45,204,205,0.25);
+    border-radius: 16px; padding: 2rem 2.5rem; margin: 2rem 0;
+    display: flex; gap: 1.5rem; align-items: flex-start;
+  }
+  .highlight-icon { font-size: 2.5rem; min-width: 48px; }
+  .highlight-text h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .highlight-text p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--card); border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .footer-logo { font-size: 1.5rem; font-weight: 800; color: var(--bbva-aqua); margin-bottom: 0.5rem; }
+  .footer-sub { font-size: 0.85rem; color: var(--muted); }
+  .footer-links { display: flex; gap: 2rem; justify-content: center; margin: 1.5rem 0; flex-wrap: wrap; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--bbva-aqua); }
+
+  /* ── CHIPS / BADGES ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+  }
+  .badge-blue { background: rgba(0,68,129,0.3); border: 1px solid rgba(0,68,129,0.5); color: var(--bbva-light); }
+  .badge-green { background: rgba(72,172,152,0.2); border: 1px solid rgba(72,172,152,0.4); color: var(--bbva-green); }
+  .badge-orange { background: rgba(255,107,53,0.2); border: 1px solid rgba(255,107,53,0.4); color: var(--bbva-orange); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none; border-top: 1px solid rgba(255,255,255,0.05);
+    margin: 0;
+  }
+  .full-bleed { max-width: 100%; padding: 0; }
+  .full-bleed-inner { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(45,204,205,0.3); }
+    50% { box-shadow: 0 0 40px rgba(45,204,205,0.6); }
+  }
+  .float { animation: float 4s ease-in-out infinite; }
+  .pulse { animation: pulse-glow 2s ease-in-out infinite; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .flow-steps { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .install-step { flex-direction: column; }
+    nav .nav-links { display: none; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(45,204,205,0.3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">⚡ KDD PMO Copilot</div>
+  <ul class="nav-links">
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#solucion">Solución</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#instalacion">Instalación</a></li>
+    <li><a href="#equipo">Equipo</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🏆 Hackaton Casablanca 2026</div>
+    <h1>KDD PMO<br>Copilot</h1>
+    <p class="hero-sub">
+      Transforma reuniones en <strong style="color:var(--bbva-aqua)">knowledge estructurado</strong> automáticamente.<br>
+      De transcripción a spec validada y commiteada en minutos.
+    </p>
+    <div class="hero-cta">
+      <a href="http://localhost:8501" class="btn btn-primary">🚀 Abrir Interfaz</a>
+      <a href="https://github.com/miguelpaublete/hackaton_casablanca" class="btn btn-outline" target="_blank">📦 Ver Repositorio</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">~5min</div>
+        <div class="stat-label">De acta a spec validada</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Proyectos en producción</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">28+</div>
+        <div class="stat-label">Artefactos generados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Specs perdidas por falta de tiempo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── PROBLEMA ── -->
+<section id="problema">
+  <div class="section-tag">⚠️ El problema</div>
+  <h2>El knowledge se pierde<br>en cada reunión</h2>
+  <p class="section-desc">
+    En proyectos tecnológicos complejos, el 80% del conocimiento clave se genera en reuniones y nunca se estructura.
+    El PMO tiene que convertir horas de reunión en documentación accionable — a mano, sin herramientas, sin tiempo.
+  </p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">🕐</div>
+      <h3>Tiempo perdido en documentación manual</h3>
+      <p>El PMO dedica horas a transcribir, estructurar y formatear decisiones y tareas que ya se discutieron en reunión.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">📉</div>
+      <h3>Knowledge que se evapora</h3>
+      <p>Las decisiones clave (ADRs), el contexto de negocio y los riesgos identificados nunca llegan a un repositorio consultable.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔀</div>
+      <h3>Falta de trazabilidad</h3>
+      <p>¿Por qué se tomó esa decisión hace 3 semanas? ¿Quién era el owner de esa tarea? Imposible saberlo sin specs estructuradas.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🤖</div>
+      <h3>IA sin contexto de negocio</h3>
+      <p>GitHub Copilot y otros LLMs no conocen el dominio del proyecto. Sin specs estructuradas, la IA trabaja a ciegas.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── SOLUCIÓN ── -->
+<section id="solucion">
+  <div class="section-tag">✨ La solución</div>
+  <h2>Knowledge-Driven<br>Development Automatizado</h2>
+  <p class="section-desc">
+    KDD PMO Copilot automatiza todo el ciclo: desde la transcripción de la reunión hasta la spec validada en GitHub.
+    El PMO solo necesita revisar y aprobar — la IA hace el trabajo pesado.
+  </p>
+
+  <div style="margin: 2.5rem 0;">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-icon">📄</div>
+        <div class="step-title">Acta en PDF/TXT</div>
+        <div class="step-desc">Transcripción de la reunión en /actas/</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-icon">🧠</div>
+        <div class="step-title">IA extrae artefactos</div>
+        <div class="step-desc">GitHub Models (GPT-4.1) genera ADRs, tareas y specs</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-icon">✅</div>
+        <div class="step-title">PMO valida</div>
+        <div class="step-desc">Interfaz Streamlit: editar, aprobar o descartar</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-icon">📧</div>
+        <div class="step-title">Notificación auto</div>
+        <div class="step-desc">Email al PMO cuando hay actas nuevas pendientes</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <div class="step-icon">🚀</div>
+        <div class="step-title">Commit a GitHub</div>
+        <div class="step-desc">Specs versionadas en /specs/ del repo compartido</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <div class="highlight-icon float">💡</div>
+    <div class="highlight-text">
+      <h3>¿Qué es Knowledge-Driven Development (KDD)?</h3>
+      <p>
+        KDD es una metodología que convierte el conocimiento de negocio en specs estructuradas y versionadas, creando
+        una <strong style="color:var(--bbva-aqua)">fuente única de verdad</strong> que alimenta tanto a los desarrolladores
+        como a los agentes de IA. Cada reunión produce artifacts persistentes (ADRs, Domain specs, Work Tasks) que
+        se acumulan como contexto RAG nativo para GitHub Copilot y otros LLMs.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── FUNCIONALIDADES ── -->
+<section id="demo">
+  <div class="section-tag">🎯 Funcionalidades</div>
+  <h2>Todo lo que hace<br>el sistema</h2>
+  <p class="section-desc">Una plataforma end-to-end que cubre todo el ciclo de vida del knowledge del PMO.</p>
+
+  <div class="features-grid">
+    <div class="feature-card blue">
+      <div class="feature-icon blue">🔍</div>
+      <h3>Extracción inteligente de artefactos</h3>
+      <p>Lee PDFs y TXTs de actas, los convierte a texto limpio y usa GPT-4.1 (GitHub Models) para identificar y estructurar ADRs, Domain Specs y Work Tasks automáticamente.</p>
+      <div class="feature-tags">
+        <span class="tag">GPT-4.1</span>
+        <span class="tag">PDF→TXT</span>
+        <span class="tag">Markdown</span>
+      </div>
+    </div>
+    <div class="feature-card purple">
+      <div class="feature-icon purple">🖥️</div>
+      <h3>Interfaz de validación PMO</h3>
+      <p>Dashboard Streamlit con vista dividida: acta a la izquierda, artefactos generados a la derecha. El PMO puede editar, aprobar o descartar cada spec antes de commitear.</p>
+      <div class="feature-tags">
+        <span class="tag">Streamlit</span>
+        <span class="tag">Multi-proyecto</span>
+        <span class="tag">Editor inline</span>
+      </div>
+    </div>
+    <div class="feature-card green">
+      <div class="feature-icon green">📧</div>
+      <h3>Notificación automática</h3>
+      <p>Un watcher vigila la carpeta /actas/ y envía un email HTML al PMO cuando detecta actas nuevas, con el enlace directo a la interfaz para procesar en un clic.</p>
+      <div class="feature-tags">
+        <span class="tag">Mailjet</span>
+        <span class="tag">Watcher</span>
+        <span class="tag">Email HTML</span>
+      </div>
+    </div>
+    <div class="feature-card yellow">
+      <div class="feature-icon yellow">📦</div>
+      <h3>Commit automático a GitHub</h3>
+      <p>Las specs validadas se commitean directamente al repositorio compartido del equipo, organizadas por proyecto y tipo de artefacto. Compatible con proxy corporativo BBVA.</p>
+      <div class="feature-tags">
+        <span class="tag">Git local</span>
+        <span class="tag">Proxy BBVA</span>
+        <span class="tag">Multi-proyecto</span>
+      </div>
+    </div>
+    <div class="feature-card blue">
+      <div class="feature-icon blue">🗂️</div>
+      <h3>Organización por proyectos</h3>
+      <p>Estructura de carpetas automática en /specs/ separada por proyecto: Deco Algo, Carbon Markets, Pagos Internacionales. Cada proyecto tiene sus ADRs, domain specs y work tasks.</p>
+      <div class="feature-tags">
+        <span class="tag">Multi-proyecto</span>
+        <span class="tag">ADR / DOM / WRK</span>
+      </div>
+    </div>
+    <div class="feature-card purple">
+      <div class="feature-icon purple">🤖</div>
+      <h3>Contexto RAG para GitHub Copilot</h3>
+      <p>Las specs en /specs/ son leídas automáticamente por GitHub Copilot @workspace, dando a la IA contexto de negocio real del proyecto para generar código alineado con el dominio.</p>
+      <div class="feature-tags">
+        <span class="tag">GitHub Copilot</span>
+        <span class="tag">RAG nativo</span>
+        <span class="tag">@workspace</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── ARQUITECTURA ── -->
+<section id="arquitectura">
+  <div class="section-tag">🏗️ Arquitectura</div>
+  <h2>Cómo está construido</h2>
+  <p class="section-desc">Arquitectura modular en Python con una interfaz web, un motor de IA y un sistema de versionado en Git.</p>
+
+  <div class="arch-diagram">
+    <div class="arch-layers">
+      <div class="arch-layer">
+        <div class="layer-icon">📁</div>
+        <div class="layer-info">
+          <div class="layer-name">Capa de Input — <span style="color:var(--muted);font-weight:400">/actas/</span></div>
+          <div class="layer-desc">PDFs y TXTs de reuniones organizados por proyecto (Deco algo, Carbon Markets, Pagos Internacionales). El watcher detecta nuevos archivos automáticamente.</div>
+        </div>
+        <div class="layer-arrow">↓</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-icon">🔄</div>
+        <div class="layer-info">
+          <div class="layer-name">Capa de Conversión — <span style="color:var(--muted);font-weight:400">acta_loader.py</span></div>
+          <div class="layer-desc">Convierte PDFs a TXT limpio (pdfminer/pdfplumber), normaliza el texto y lo prepara para el prompt de la IA. Evita procesar actas ya convertidas.</div>
+        </div>
+        <div class="layer-arrow">↓</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-icon">🧠</div>
+        <div class="layer-info">
+          <div class="layer-name">Capa de IA — <span style="color:var(--muted);font-weight:400">extractor.py + GitHub Models (GPT-4.1)</span></div>
+          <div class="layer-desc">Envía el texto al LLM con un prompt KDD estructurado. El modelo genera ADRs, Domain Specs y Work Tasks en formato Markdown con frontmatter YAML válido.</div>
+        </div>
+        <div class="layer-arrow">↓</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-icon">🖥️</div>
+        <div class="layer-info">
+          <div class="layer-name">Capa de Validación — <span style="color:var(--muted);font-weight:400">app.py (Streamlit)</span></div>
+          <div class="layer-desc">Interfaz web donde el PMO selecciona proyecto, elige acta, lanza la extracción y valida/edita cada artefacto antes de commitear. Puerto 8501.</div>
+        </div>
+        <div class="layer-arrow">↓</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-icon">📦</div>
+        <div class="layer-info">
+          <div class="layer-name">Capa de Persistencia — <span style="color:var(--muted);font-weight:400">committer.py + /specs/</span></div>
+          <div class="layer-desc">Escribe los Markdown en /specs/[proyecto]/[tipo]/, hace git add + commit + push al repo compartido con proxy corporativo BBVA y token OAuth.</div>
+        </div>
+        <div class="layer-arrow">↓</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-icon">📧</div>
+        <div class="layer-info">
+          <div class="layer-name">Capa de Notificación — <span style="color:var(--muted);font-weight:400">watcher.py + notifier.py (Mailjet)</span></div>
+          <div class="layer-desc">Proceso background que detecta actas nuevas y envía email HTML al PMO con resumen de archivos detectados y enlace directo a la interfaz.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Artifacts -->
+  <div class="artifacts-section">
+    <div class="section-tag">📋 Tipos de artefactos KDD generados</div>
+    <h3 style="font-size:1.3rem;margin-bottom:0.5rem;">Taxonomía de tres ejes</h3>
+    <p style="color:var(--muted);font-size:0.875rem;margin-bottom:0;">Knowledge (persistente) · Governance (decisiones) · Work (efímero por sprint)</p>
+    <div class="artifacts-grid">
+      <div class="artifact-card adr">
+        <div class="artifact-id">ADR</div>
+        <div class="artifact-name">Architecture Decision Record<br><span style="color:var(--muted)">Decisiones de arquitectura con contexto, razonamiento y consecuencias</span></div>
+      </div>
+      <div class="artifact-card dom">
+        <div class="artifact-id">DOM</div>
+        <div class="artifact-name">Domain Spec<br><span style="color:var(--muted)">Conocimiento de dominio de negocio estructurado y persistente</span></div>
+      </div>
+      <div class="artifact-card wrk">
+        <div class="artifact-id">WRK-TASK</div>
+        <div class="artifact-name">Work Task<br><span style="color:var(--muted)">Tarea accionable con owner, criterios de aceptación y plan de test</span></div>
+      </div>
+      <div class="artifact-card dom">
+        <div class="artifact-id">WRK-SPEC</div>
+        <div class="artifact-name">Work Spec<br><span style="color:var(--muted)">Especificación técnica para una funcionalidad o cambio concreto</span></div>
+      </div>
+      <div class="artifact-card adr">
+        <div class="artifact-id">ARCH</div>
+        <div class="artifact-name">Architecture Spec<br><span style="color:var(--muted)">Decisiones de diseño técnico de alto nivel</span></div>
+      </div>
+      <div class="artifact-card wrk">
+        <div class="artifact-id">WRK-PLAN</div>
+        <div class="artifact-name">Work Plan<br><span style="color:var(--muted)">Plan de trabajo con hitos, dependencias y estimaciones</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── TIMELINE ── -->
+<section>
+  <div class="section-tag">📅 Cómo lo construimos</div>
+  <h2>De la idea al producto<br>en una hackaton</h2>
+  <p class="section-desc">El proceso de desarrollo que seguimos durante la Hackaton Casablanca.</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">FASE 1 — Definición del problema</div>
+      <div class="timeline-title">Identificamos el pain point del PMO</div>
+      <div class="timeline-desc">Reunión de análisis donde identificamos que el proceso de documentación de reuniones consumía horas de trabajo manual y el knowledge acababa en emails sin estructura ni trazabilidad.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">FASE 2 — Diseño del framework KDD</div>
+      <div class="timeline-title">Creamos la taxonomía de artefactos</div>
+      <div class="timeline-desc">Definimos el framework Knowledge-Driven Development: tres ejes ortogonales (Knowledge, Work, Governance), frontmatter YAML estándar, y las reglas de validación de specs.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">FASE 3 — Prototipo del agente</div>
+      <div class="timeline-title">Extractor + Streamlit básico</div>
+      <div class="timeline-desc">Construimos el primer extractor con Vertex AI (Gemini) y la interfaz Streamlit. Primeras pruebas con actas reales del proyecto Deco Algo. Problemas con la lectura de PDFs → añadimos conversión a TXT.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">FASE 4 — Integración con GitHub</div>
+      <div class="timeline-title">Commit automático al repo compartido</div>
+      <div class="timeline-desc">Implementamos committer.py con soporte para proxy corporativo BBVA (407 Proxy Auth). Migramos de Vertex AI a GitHub Models (GPT-4.1) para simplicidad de autenticación. Resolvimos problemas de git config (user.email).</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">FASE 5 — Notificaciones automáticas</div>
+      <div class="timeline-title">Watcher + Email al PMO via Mailjet</div>
+      <div class="timeline-desc">Añadimos el watcher que vigila /actas/ y el notifier que envía emails HTML al PMO con Mailjet (API HTTP, funciona detrás del proxy corporativo). Configuramos sender verificado en alejandro.montalban@nfq.es.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">FASE 6 — Producción y validación real</div>
+      <div class="timeline-title">28 specs generadas y commiteadas</div>
+      <div class="timeline-desc">Procesamos 4 actas reales del proyecto Deco Algo generando ADR-001 a ADR-006, DOM-RISK-001 y WRK-TASK-001 a 028. Todos los artefactos validados por PMO y presentes en el repositorio compartido.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── INSTALACIÓN ── -->
+<section id="instalacion">
+  <div class="section-tag">🛠️ Manual de instalación</div>
+  <h2>Ponlo en marcha en<br>tu proyecto</h2>
+  <p class="section-desc">Guía paso a paso para que cualquier PMO pueda instalar y usar KDD PMO Copilot en menos de 30 minutos.</p>
+
+  <div class="highlight-box">
+    <div class="highlight-icon">📋</div>
+    <div class="highlight-text">
+      <h3>Prerequisitos</h3>
+      <p>
+        <strong>Python 3.11+</strong> instalado · <strong>Git</strong> configurado ·
+        <strong>Cuenta GitHub</strong> con acceso al repositorio ·
+        <strong>Token GitHub</strong> con permisos <em>Contents: Read & Write</em> + <em>Models: Read</em> ·
+        <strong>Cuenta Mailjet</strong> (gratuita) con email verificado
+      </p>
+    </div>
+  </div>
+
+  <div class="install-steps">
+
+    <div class="install-step">
+      <div class="install-num pulse">1</div>
+      <div class="install-content">
+        <h3>Clonar el repositorio</h3>
+        <p>Clona el repositorio del proyecto en tu máquina local.</p>
+        <pre><span class="code-comment"># Clonar con proxy corporativo (red BBVA)</span>
+<span class="code-cmd">git</span> -c <span class="code-string">"http.proxy=http://USUARIO:PASSWORD@proxyvip.igrupobbva:8080"</span> \
+    clone https://github.com/miguelpaublete/hackaton_casablanca.git
+
+<span class="code-cmd">cd</span> hackaton_casablanca/agent</pre>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">2</div>
+      <div class="install-content">
+        <h3>Instalar dependencias Python</h3>
+        <p>Instala todas las librerías necesarias desde el requirements.txt.</p>
+        <pre><span class="code-comment"># Recomendado: crear entorno virtual</span>
+<span class="code-cmd">python</span> -m venv venv
+<span class="code-cmd">.\venv\Scripts\activate</span>        <span class="code-comment"># Windows</span>
+<span class="code-cmd">source</span> venv/bin/activate         <span class="code-comment"># Mac/Linux</span>
+
+<span class="code-comment"># Instalar dependencias</span>
+<span class="code-cmd">pip</span> install -r requirements.txt</pre>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">3</div>
+      <div class="install-content">
+        <h3>Configurar el archivo .env</h3>
+        <p>Copia el ejemplo y rellena tus credenciales. <strong style="color:var(--bbva-orange)">Nunca subas el .env a GitHub.</strong></p>
+        <pre><span class="code-comment"># Copiar plantilla</span>
+<span class="code-cmd">cp</span> .env.example .env</pre>
+        <br>
+        <p>Edita el <code style="color:var(--bbva-aqua)">.env</code> con estos valores:</p>
+        <table class="env-table">
+          <tr>
+            <th>Variable</th>
+            <th>Descripción</th>
+            <th>Req.</th>
+          </tr>
+          <tr>
+            <td>GITHUB_TOKEN</td>
+            <td>Fine-grained PAT con permisos Models: Read</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>GITHUB_COMMIT_TOKEN</td>
+            <td>Token con Contents: Read &amp; Write en el repo destino</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>GITHUB_REPO</td>
+            <td>usuario/nombre-repo (ej: miguelpaublete/hackaton_casablanca)</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>MAILJET_API_KEY</td>
+            <td>API Key de tu cuenta Mailjet</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>MAILJET_API_SECRET</td>
+            <td>Secret Key de tu cuenta Mailjet</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>SENDER_EMAIL</td>
+            <td>Email verificado en Mailjet como remitente</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>PMO_EMAIL</td>
+            <td>Email del PMO que recibirá las notificaciones</td>
+            <td><span class="req">✦ REQ</span></td>
+          </tr>
+          <tr>
+            <td>HTTP_PROXY</td>
+            <td>http://USUARIO:PASS@proxyvip.igrupobbva:8080</td>
+            <td><span class="opt">◎ OPT</span></td>
+          </tr>
+          <tr>
+            <td>STREAMLIT_PORT</td>
+            <td>Puerto de la interfaz web (por defecto: 8501)</td>
+            <td><span class="opt">◎ OPT</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">4</div>
+      <div class="install-content">
+        <h3>Configurar git con tu identidad</h3>
+        <p>Git necesita saber quién eres para poder hacer commits. Configúralo en el repositorio local.</p>
+        <pre><span class="code-cmd">git</span> config user.email <span class="code-string">"tu.email@bbva.com"</span>
+<span class="code-cmd">git</span> config user.name <span class="code-string">"Tu Nombre"</span></pre>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">5</div>
+      <div class="install-content">
+        <h3>Preparar la carpeta de actas</h3>
+        <p>Organiza tus actas de reuniones en la carpeta /actas/ con una subcarpeta por proyecto. El nombre de la carpeta será el nombre del proyecto en la interfaz.</p>
+        <pre>actas/
+├── <span class="code-key">Deco algo</span>/
+│   ├── reunion-2026-03-09.pdf
+│   └── reunion-2026-03-23.txt
+├── <span class="code-key">Carbon Markets</span>/
+│   └── kickoff-2026-03-31.pdf
+└── <span class="code-key">Mi Proyecto</span>/
+    └── weekly-2026-05-01.txt</pre>
+        <p style="margin-top:0.75rem; font-size:0.82rem; color:var(--muted)">
+          💡 Los PDFs se convierten automáticamente a TXT antes de procesarse. Los TXTs se usan directamente.
+        </p>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">6</div>
+      <div class="install-content">
+        <h3>Lanzar la interfaz</h3>
+        <p>Arranca la interfaz web Streamlit. Se abrirá automáticamente en tu navegador.</p>
+        <pre><span class="code-comment"># Desde la carpeta agent/</span>
+<span class="code-cmd">streamlit</span> run app.py
+
+<span class="code-comment"># O con puerto específico</span>
+<span class="code-cmd">streamlit</span> run app.py --server.port 8502</pre>
+        <p style="margin-top:0.75rem">Accede en: <a href="http://localhost:8501" style="color:var(--bbva-aqua)">http://localhost:8501</a></p>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">7</div>
+      <div class="install-content">
+        <h3>Activar el watcher de notificaciones (opcional)</h3>
+        <p>Lanza el proceso en background que monitoriza /actas/ y envía emails automáticos al PMO.</p>
+        <pre><span class="code-comment"># En una terminal separada</span>
+<span class="code-cmd">python</span> watcher.py
+
+<span class="code-comment"># Verificar que el email funciona</span>
+<span class="code-cmd">python</span> send_test_email.py</pre>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="install-num">8</div>
+      <div class="install-content">
+        <h3>¡Listo! Genera tu primera spec</h3>
+        <p>En la interfaz: <strong>1)</strong> Selecciona proyecto → <strong>2)</strong> Elige acta → <strong>3)</strong> "Extraer artefactos" → <strong>4)</strong> Revisa → <strong>5)</strong> "Validar y Commitear" ✅</p>
+        <pre><span class="code-comment"># Flujo completo en la UI:</span>
+<span class="code-key">Proyecto</span>    → seleccionar carpeta de actas
+<span class="code-key">Acta</span>        → elegir PDF o TXT de la lista
+<span class="code-key">Extraer</span>     → la IA genera los artefactos (~30s)
+<span class="code-key">Validar</span>     → revisar y editar si hace falta
+<span class="code-key">Commitear</span>  → push automático a GitHub ✅</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box" style="margin-top:3rem; border-color: rgba(255,107,53,0.3); background: linear-gradient(135deg, rgba(255,107,53,0.05), transparent);">
+    <div class="highlight-icon">⚠️</div>
+    <div class="highlight-text">
+      <h3>Configuración de proxy en red BBVA</h3>
+      <p>
+        Si estás en la red corporativa de BBVA, necesitas configurar el proxy para que los commits lleguen a GitHub.
+        El sistema lo hace automáticamente si tienes <code style="color:var(--bbva-aqua)">HTTP_PROXY</code> configurado en el .env
+        con el formato <code style="color:var(--bbva-aqua)">http://T0XXXXX:PASSWORD@proxyvip.igrupobbva:8080</code>.
+        La variable de tu usuario Windows es tu matrícula BBVA (ej: T057294).
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── EQUIPO ── -->
+<section id="equipo">
+  <div class="section-tag">👥 El equipo</div>
+  <h2>Quiénes lo han<br>construido</h2>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="avatar">A</div>
+      <h3>Alejandro Montalbán</h3>
+      <div class="team-role">Arquitectura & Backend</div>
+      <div class="team-desc">Diseño del framework KDD, agente PMO Copilot, extractor de artefactos, interfaz Streamlit, sistema de commits y notificaciones.</div>
+      <div class="team-skills">
+        <span class="tag">Python</span>
+        <span class="tag">KDD Framework</span>
+        <span class="tag">Streamlit</span>
+        <span class="tag">GitHub Models</span>
+      </div>
+    </div>
+    <div class="team-card">
+      <div class="avatar">M</div>
+      <h3>Miguel Paublete</h3>
+      <div class="team-role">Integración & Repositorio</div>
+      <div class="team-desc">Gestión del repositorio GitHub compartido, integración Apps Script para subida de actas desde Google Drive, coordinación del equipo.</div>
+      <div class="team-skills">
+        <span class="tag">Apps Script</span>
+        <span class="tag">GitHub</span>
+        <span class="tag">Google Drive</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">⚡ KDD PMO Copilot</div>
+  <div class="footer-sub">Hackaton Casablanca 2026 · BBVA CIB Technology</div>
+  <div class="footer-links">
+    <a href="http://localhost:8501">🖥️ Interfaz Local</a>
+    <a href="https://github.com/miguelpaublete/hackaton_casablanca" target="_blank">📦 GitHub Repo</a>
+    <a href="https://github.com/miguelpaublete/hackaton_casablanca/tree/main/specs" target="_blank">📋 Ver Specs</a>
+    <a href="https://github.com/miguelpaublete/hackaton_casablanca/tree/main/framework" target="_blank">📖 Framework KDD</a>
+  </div>
+  <div style="color:var(--muted);font-size:0.75rem;margin-top:1rem;">
+    Built with ❤️ using Python · Streamlit · GitHub Models (GPT-4.1) · Mailjet · Git
+  </div>
+</footer>
+
+</body>
+</html>
+
