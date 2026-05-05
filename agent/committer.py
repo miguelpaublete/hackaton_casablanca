@@ -79,7 +79,14 @@ def _run_git(*args, cwd=None, use_proxy=False):
         timeout=120,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"git {' '.join(args)} falló:\n{result.stderr.strip()}")
+        stderr = result.stderr.strip()
+        stdout = result.stdout.strip()
+        if "user.email" in stderr or "Please tell me who you are" in stderr:
+            raise RuntimeError(
+                f"git {' '.join(args)} falló: Git no tiene usuario configurado.\n"
+                f"Ejecuta:\n  git config user.email 'tu@email.com'\n  git config user.name 'Tu Nombre'\n\n{stderr}"
+            )
+        raise RuntimeError(f"git {' '.join(args)} falló:\n{stderr or stdout or '(sin salida — comprueba que hay cambios para commitear)'}")
     return result.stdout.strip()
 
 

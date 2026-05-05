@@ -221,9 +221,24 @@ def send_watcher_email(new_actas: dict[str, list[Path]], app_url: str) -> bool:
             proxies=proxies,
             timeout=30,
         )
+        print(f"  📡 Mailjet HTTP {resp.status_code}")
+        try:
+            data = resp.json()
+            print(f"  📡 Mailjet response: {json.dumps(data, indent=2, ensure_ascii=False)[:1500]}")
+        except Exception:
+            print(f"  📡 Mailjet raw: {resp.text[:1500]}")
+            data = {}
+
         if resp.status_code == 200:
-            print(f"  📧 Email enviado a {recipient} (Mailjet)")
-            return True
+            # Verificar que cada mensaje fue aceptado
+            messages = data.get("Messages", [])
+            all_ok = all(m.get("Status") == "success" for m in messages)
+            if all_ok:
+                print(f"  📧 Email enviado a {recipient} (Mailjet)")
+                return True
+            else:
+                print(f"  ❌ Mailjet aceptó la petición pero rechazó el envío. Detalle arriba.")
+                return False
         else:
             print(f"  ❌ Mailjet error {resp.status_code}: {resp.text}")
             return False
@@ -336,4 +351,5 @@ if __name__ == "__main__":
         run_once=args.once,
         app_url=args.app_url,
     )
+
 
