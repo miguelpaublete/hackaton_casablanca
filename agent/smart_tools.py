@@ -276,10 +276,19 @@ Use patterns from the historical plans when applicable.
 
 
 def _export_setup_to_excel(result: ProjectSetupResult, duration_weeks: int) -> Path:
-    """Genera un Excel con la planificación: hojas WBS, Entregables, Hitos, Estructura."""
+    """
+    Genera un Excel profesional con:
+    - Resumen del proyecto
+    - WBS con seguimiento (estado, % avance, dependencias)
+    - Gantt Chart interactivo (barras automáticas por semana)
+    - Entregables, Hitos, Estructura
+    """
     try:
         from openpyxl import Workbook
-        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, numbers
+        from openpyxl.worksheet.datavalidation import DataValidation
+        from openpyxl.formatting.rule import CellIsRule, FormulaRule
+        from openpyxl.utils import get_column_letter
     except ImportError:
         # Fallback: guardar como markdown si no hay openpyxl
         SETUP_DIR.mkdir(parents=True, exist_ok=True)
@@ -299,71 +308,398 @@ def _export_setup_to_excel(result: ProjectSetupResult, duration_weeks: int) -> P
     out_path = SETUP_DIR / f"setup_{slug}_{date.today().isoformat()}.xlsx"
 
     wb = Workbook()
-    header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill("solid", fgColor="1F4E78")
 
-    # Hoja 1: Resumen
+    # ── Estilos comunes ──
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill("solid", fgColor="1F4E78")
+    subheader_fill = PatternFill("solid", fgColor="2E75B6")
+    thin_border = Border(
+        left=Side("thin", color="D9D9D9"),
+        right=Side("thin", color="D9D9D9"),
+        top=Side("thin", color="D9D9D9"),
+        bottom=Side("thin", color="D9D9D9"),
+    )
+
+    # Colores para estados
+    STATUS_COLORS = {
+        "Pendiente": "BDD7EE",
+        "En Plan": "D6E4F0",
+        "En Progreso": "C6EFCE",
+        "Completado": "A9D18E",
+        "Bloqueado": "FFC7CE",
+        "Retrasado": "F4B183",
+        "En Revisión": "FFE699",
+        "Cancelado": "D9D9D9",
+    }
+    GANTT_FILL = PatternFill("solid", fgColor="2E75B6")
+    GANTT_MILESTONE = PatternFill("solid", fgColor="FF6B35")
+    GANTT_EMPTY = PatternFill("solid", fgColor="F2F2F2")
+
+    # ════════════════════════════════════════════════════════════
+    # HOJA 1: RESUMEN
+    # ════════════════════════════════════════════════════════════
     ws = wb.active
     ws.title = "Resumen"
-    ws["A1"] = "Proyecto"
-    ws["B1"] = result.project_name
-    ws["A2"] = "Duración (semanas)"
-    ws["B2"] = duration_weeks
-    ws["A3"] = "Fecha generación"
-    ws["B3"] = date.today().isoformat()
-    for cell in ("A1", "A2", "A3"):
-        ws[cell].font = Font(bold=True)
+    ws["A1"] = "PLANIFICACIÓN DE PROYECTO"
+    ws["A1"].font = Font(bold=True, size=16, color="1F4E78")
+    ws.merge_cells("A1:D1")
+
+    info = [
+        ("Proyecto:", result.project_name),
+        ("Duración:", f"{duration_weeks} semanas"),
+        ("Fecha generación:", date.today().isoformat()),
+        ("Tareas:", str(len(result.wbs_tasks))),
+        ("Entregables:", str(len(result.deliverables))),
+        ("Hitos críticos:", str(len(result.milestones))),
+    ]
+    for i, (label, value) in enumerate(info, 3):
+        ws.cell(row=i, column=1, value=label).font = Font(bold=True)
+        ws.cell(row=i, column=2, value=value)
     ws.column_dimensions["A"].width = 22
     ws.column_dimensions["B"].width = 60
 
-    # Hoja 2: WBS
-    ws_wbs = wb.create_sheet("WBS")
-    headers = ["Fase", "Tarea", "Responsable", "Semana inicio", "Semana fin", "Duración (sem)"]
-    for col, h in enumerate(headers, 1):
-        c = ws_wbs.cell(row=1, column=col, value=h)
+    # Leyenda de estados
+    ws.cell(row=11, column=1, value="LEYENDA DE ESTADOS").font = Font(bold=True, size=12)
+    for i, (status, color) in enumerate(STATUS_COLORS.items(), 12):
+        ws.cell(row=i, column=1, value=status)
+        ws.cell(row=i, column=1).fill = PatternFill("solid", fgColor=color)
+
+    # ════════════════════════════════════════════════════════════
+    # HOJA 2: SEGUIMIENTO (WBS + estado + % + dependencias)
+    # ════════════════════════════════════════════════════════════
+    ws_track = wb.create_sheet("Seguimiento")
+    track_headers = [
+        "ID", "Fase", "Tarea", "Responsable",
+        "Estado", "% Avance", "Dependencias",
+        "Semana inicio", "Semana fin", "Duración (sem)",
+        "Notas / Comentarios"
+    ]
+    for col, h in enumerate(track_headers, 1):
+        c = ws_track.cell(row=1, column=col, value=h)
         c.font = header_font
         c.fill = header_fill
-        c.alignment = Alignment(horizontal="center")
+        c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        c.border = thin_border
+
+    # Data validation: desplegable de estado
+    status_options = ",".join(STATUS_COLORS.keys())
+    dv_status = DataValidation(
+        type="list",
+        formula1=f'"{status_options}"',
+        allow_blank=True,
+    )
+    dv_status.error = "Selecciona un estado válido"
+    dv_status.errorTitle = "Estado no válido"
+    dv_status.prompt = "Selecciona el estado de la tarea"
+    dv_status.promptTitle = "Estado"
+    ws_track.add_data_validation(dv_status)
+
+    # Data validation: % avance (0-100)
+    dv_pct = DataValidation(
+        type="whole",
+        operator="between",
+        formula1="0",
+        formula2="100",
+        allow_blank=True,
+    )
+    dv_pct.error = "Introduce un valor entre 0 y 100"
+    dv_pct.errorTitle = "Porcentaje no válido"
+    ws_track.add_data_validation(dv_pct)
+
+    num_tasks = len(result.wbs_tasks)
     for i, t in enumerate(result.wbs_tasks, 2):
-        ws_wbs.cell(row=i, column=1, value=t.get("phase", ""))
-        ws_wbs.cell(row=i, column=2, value=t.get("task", ""))
-        ws_wbs.cell(row=i, column=3, value=t.get("owner", ""))
-        ws_wbs.cell(row=i, column=4, value=t.get("week_start", ""))
-        ws_wbs.cell(row=i, column=5, value=t.get("week_end", ""))
-        ws_wbs.cell(row=i, column=6, value=t.get("duration_weeks", ""))
-    for col_letter, w in zip("ABCDEF", (28, 50, 18, 14, 14, 16)):
-        ws_wbs.column_dimensions[col_letter].width = w
+        task_id = f"T-{i-1:03d}"
+        ws_track.cell(row=i, column=1, value=task_id)
+        ws_track.cell(row=i, column=2, value=t.get("phase", ""))
+        ws_track.cell(row=i, column=3, value=t.get("task", ""))
+        ws_track.cell(row=i, column=4, value=t.get("owner", ""))
+        ws_track.cell(row=i, column=5, value="Pendiente")  # Estado inicial
+        ws_track.cell(row=i, column=6, value=0)  # % Avance inicial
+        ws_track.cell(row=i, column=7, value="")  # Dependencias (el PMO las rellena: T-001, T-002)
+        ws_track.cell(row=i, column=8, value=t.get("week_start", ""))
+        ws_track.cell(row=i, column=9, value=t.get("week_end", ""))
+        ws_track.cell(row=i, column=10, value=t.get("duration_weeks", ""))
+        ws_track.cell(row=i, column=11, value="")  # Notas
 
-    # Hoja 3: Entregables
+        # Aplicar bordes
+        for col in range(1, 12):
+            ws_track.cell(row=i, column=col).border = thin_border
+            ws_track.cell(row=i, column=col).alignment = Alignment(vertical="center", wrap_text=True)
+
+    # Aplicar validaciones a rangos
+    last_row = num_tasks + 1
+    dv_status.add(f"E2:E{last_row}")
+    dv_pct.add(f"F2:F{last_row}")
+
+    # Formato condicional por estado
+    for status, color in STATUS_COLORS.items():
+        ws_track.conditional_formatting.add(
+            f"E2:E{last_row}",
+            CellIsRule(
+                operator="equal",
+                formula=[f'"{status}"'],
+                fill=PatternFill("solid", fgColor=color),
+            ),
+        )
+
+    # Formato condicional: % avance con barra de color (verde gradual)
+    ws_track.conditional_formatting.add(
+        f"F2:F{last_row}",
+        CellIsRule(
+            operator="greaterThanOrEqual",
+            formula=["100"],
+            fill=PatternFill("solid", fgColor="A9D18E"),
+            font=Font(bold=True, color="375623"),
+        ),
+    )
+    ws_track.conditional_formatting.add(
+        f"F2:F{last_row}",
+        CellIsRule(
+            operator="between",
+            formula=["50", "99"],
+            fill=PatternFill("solid", fgColor="C6EFCE"),
+        ),
+    )
+    ws_track.conditional_formatting.add(
+        f"F2:F{last_row}",
+        CellIsRule(
+            operator="between",
+            formula=["1", "49"],
+            fill=PatternFill("solid", fgColor="FFE699"),
+        ),
+    )
+
+    # Anchos de columna
+    col_widths = [8, 26, 42, 16, 14, 12, 18, 14, 12, 14, 30]
+    for i, w in enumerate(col_widths, 1):
+        ws_track.column_dimensions[get_column_letter(i)].width = w
+
+    # Congelar panel
+    ws_track.freeze_panes = "D2"
+
+    # ════════════════════════════════════════════════════════════
+    # HOJA 3: GANTT CHART
+    # ════════════════════════════════════════════════════════════
+    ws_gantt = wb.create_sheet("Gantt Chart")
+
+    # Cabecera izquierda
+    gantt_left_headers = ["ID", "Tarea", "Responsable", "Estado", "Inicio", "Fin"]
+    gantt_left_cols = len(gantt_left_headers)
+    gantt_week_start_col = gantt_left_cols + 1  # Columna donde empiezan las semanas
+
+    for col, h in enumerate(gantt_left_headers, 1):
+        c = ws_gantt.cell(row=1, column=col, value=h)
+        c.font = header_font
+        c.fill = header_fill
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = thin_border
+
+    # Cabecera de semanas
+    for week in range(1, duration_weeks + 1):
+        col = gantt_week_start_col + week - 1
+        c = ws_gantt.cell(row=1, column=col, value=f"S{week}")
+        c.font = Font(bold=True, color="FFFFFF", size=9)
+        c.fill = subheader_fill
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = thin_border
+        ws_gantt.column_dimensions[get_column_letter(col)].width = 4
+
+    # Anchos columnas izquierda
+    for i, w in enumerate([8, 40, 14, 13, 7, 7], 1):
+        ws_gantt.column_dimensions[get_column_letter(i)].width = w
+
+    # Filas de tareas con barras de Gantt
+    for i, t in enumerate(result.wbs_tasks, 2):
+        task_id = f"T-{i-1:03d}"
+        ws_gantt.cell(row=i, column=1, value=task_id).alignment = Alignment(horizontal="center")
+        ws_gantt.cell(row=i, column=2, value=t.get("task", ""))
+        ws_gantt.cell(row=i, column=3, value=t.get("owner", ""))
+
+        # Estado - referencia a la hoja Seguimiento para que se sincronice
+        status_formula = f"=Seguimiento!E{i}"
+        ws_gantt.cell(row=i, column=4, value=status_formula)
+        ws_gantt.cell(row=i, column=4).alignment = Alignment(horizontal="center")
+
+        week_start = t.get("week_start", 1)
+        week_end = t.get("week_end", week_start)
+        ws_gantt.cell(row=i, column=5, value=week_start).alignment = Alignment(horizontal="center")
+        ws_gantt.cell(row=i, column=6, value=week_end).alignment = Alignment(horizontal="center")
+
+        # Bordes izquierda
+        for col in range(1, gantt_left_cols + 1):
+            ws_gantt.cell(row=i, column=col).border = thin_border
+
+        # Dibujar barras de Gantt
+        for week in range(1, duration_weeks + 1):
+            col = gantt_week_start_col + week - 1
+            cell = ws_gantt.cell(row=i, column=col)
+            cell.border = thin_border
+
+            if week_start <= week <= week_end:
+                cell.fill = GANTT_FILL
+                # Marcar inicio y fin con texto
+                if week == week_start and week == week_end:
+                    cell.value = "◆"
+                    cell.fill = GANTT_MILESTONE
+                    cell.font = Font(color="FFFFFF", size=8)
+                    cell.alignment = Alignment(horizontal="center")
+            else:
+                cell.fill = GANTT_EMPTY
+
+    # Agregar hitos como filas especiales
+    milestone_start_row = len(result.wbs_tasks) + 3
+    ws_gantt.cell(row=milestone_start_row, column=1, value="HITOS").font = Font(bold=True, size=11, color="FF6B35")
+    ws_gantt.merge_cells(
+        start_row=milestone_start_row, start_column=1,
+        end_row=milestone_start_row, end_column=gantt_left_cols,
+    )
+
+    for mi, m in enumerate(result.milestones, milestone_start_row + 1):
+        ws_gantt.cell(row=mi, column=1, value="⚑")
+        ws_gantt.cell(row=mi, column=2, value=m.get("name", ""))
+        ws_gantt.cell(row=mi, column=3, value="")
+        ws_gantt.cell(row=mi, column=4, value="Hito")
+        m_week = m.get("week", 1)
+        ws_gantt.cell(row=mi, column=5, value=m_week)
+        ws_gantt.cell(row=mi, column=6, value=m_week)
+
+        for col in range(1, gantt_left_cols + 1):
+            ws_gantt.cell(row=mi, column=col).border = thin_border
+            ws_gantt.cell(row=mi, column=col).font = Font(italic=True, color="FF6B35")
+
+        # Dibujar diamante del hito
+        for week in range(1, duration_weeks + 1):
+            col = gantt_week_start_col + week - 1
+            cell = ws_gantt.cell(row=mi, column=col)
+            cell.border = thin_border
+            if week == m_week:
+                cell.value = "◆"
+                cell.fill = GANTT_MILESTONE
+                cell.font = Font(color="FFFFFF", bold=True, size=10)
+                cell.alignment = Alignment(horizontal="center")
+            else:
+                cell.fill = GANTT_EMPTY
+
+    # Formato condicional para el estado en Gantt
+    gantt_last_row = milestone_start_row + len(result.milestones)
+    for status, color in STATUS_COLORS.items():
+        ws_gantt.conditional_formatting.add(
+            f"D2:D{gantt_last_row}",
+            CellIsRule(
+                operator="equal",
+                formula=[f'"{status}"'],
+                fill=PatternFill("solid", fgColor=color),
+            ),
+        )
+
+    # Congelar panel
+    ws_gantt.freeze_panes = f"{get_column_letter(gantt_week_start_col)}2"
+
+    # Altura de filas
+    for row in range(1, gantt_last_row + 1):
+        ws_gantt.row_dimensions[row].height = 22
+
+    # ════════════════════════════════════════════════════════════
+    # HOJA 4: ENTREGABLES
+    # ════════════════════════════════════════════════════════════
     ws_d = wb.create_sheet("Entregables")
-    ws_d.cell(row=1, column=1, value="Entregable").font = header_font
-    ws_d.cell(row=1, column=1).fill = header_fill
-    for i, d in enumerate(result.deliverables, 2):
-        ws_d.cell(row=i, column=1, value=d)
-    ws_d.column_dimensions["A"].width = 80
+    del_headers = ["#", "Entregable", "Responsable", "Semana entrega", "Estado"]
+    for col, h in enumerate(del_headers, 1):
+        c = ws_d.cell(row=1, column=col, value=h)
+        c.font = header_font
+        c.fill = header_fill
+        c.border = thin_border
 
-    # Hoja 4: Hitos
+    dv_status_d = DataValidation(type="list", formula1=f'"{status_options}"', allow_blank=True)
+    ws_d.add_data_validation(dv_status_d)
+
+    for i, d in enumerate(result.deliverables, 2):
+        ws_d.cell(row=i, column=1, value=i - 1)
+        ws_d.cell(row=i, column=2, value=d)
+        ws_d.cell(row=i, column=3, value="")  # Responsable editable
+        ws_d.cell(row=i, column=4, value="")  # Semana editable
+        ws_d.cell(row=i, column=5, value="Pendiente")
+        for col in range(1, 6):
+            ws_d.cell(row=i, column=col).border = thin_border
+
+    dv_status_d.add(f"E2:E{len(result.deliverables) + 1}")
+    for col_letter, w in zip("ABCDE", (5, 60, 18, 16, 14)):
+        ws_d.column_dimensions[col_letter].width = w
+
+    # ══════════════════════════════════════════════════════��═════
+    # HOJA 5: HITOS
+    # ════════════════════════════════════════════════════════════
     ws_m = wb.create_sheet("Hitos")
-    for col, h in enumerate(["Semana", "Hito", "Descripción"], 1):
+    for col, h in enumerate(["Semana", "Hito", "Descripción", "Estado"], 1):
         c = ws_m.cell(row=1, column=col, value=h)
         c.font = header_font
         c.fill = header_fill
+        c.border = thin_border
+
+    dv_status_m = DataValidation(type="list", formula1=f'"{status_options}"', allow_blank=True)
+    ws_m.add_data_validation(dv_status_m)
+
     for i, m in enumerate(result.milestones, 2):
         ws_m.cell(row=i, column=1, value=m.get("week", ""))
         ws_m.cell(row=i, column=2, value=m.get("name", ""))
         ws_m.cell(row=i, column=3, value=m.get("description", ""))
-    for col_letter, w in zip("ABC", (12, 30, 70)):
+        ws_m.cell(row=i, column=4, value="Pendiente")
+        for col in range(1, 5):
+            ws_m.cell(row=i, column=col).border = thin_border
+
+    dv_status_m.add(f"D2:D{len(result.milestones) + 1}")
+    for col_letter, w in zip("ABCD", (10, 30, 60, 14)):
         ws_m.column_dimensions[col_letter].width = w
 
-    # Hoja 5: Estructura sugerida
+    # ════════════════════════════════════════════════════════════
+    # HOJA 6: ESTRUCTURA
+    # ═════════════════════════════════════════════════════��══════
     ws_s = wb.create_sheet("Estructura")
     ws_s["A1"] = "Estructura documental sugerida"
-    ws_s["A1"].font = header_font
-    ws_s["A1"].fill = header_fill
-    ws_s["A2"] = result.suggested_structure
-    ws_s["A2"].alignment = Alignment(wrap_text=True, vertical="top")
+    ws_s["A1"].font = Font(bold=True, size=14, color="1F4E78")
+    ws_s["A3"] = result.suggested_structure
+    ws_s["A3"].alignment = Alignment(wrap_text=True, vertical="top")
     ws_s.column_dimensions["A"].width = 100
-    ws_s.row_dimensions[2].height = 400
+    ws_s.row_dimensions[3].height = 400
+
+    # ════════════════════════════════════════════════════════════
+    # HOJA 7: INSTRUCCIONES
+    # ════════════════════════════════════════════════════════════
+    ws_help = wb.create_sheet("📖 Instrucciones")
+    instructions = [
+        ("CÓMO USAR ESTE EXCEL", ""),
+        ("", ""),
+        ("HOJA 'Seguimiento'", "Es tu herramienta principal de gestión. Actualiza el ESTADO y % AVANCE de cada tarea."),
+        ("  → Estado", "Usa el desplegable: Pendiente, En Plan, En Progreso, Completado, Bloqueado, Retrasado, En Revisión, Cancelado"),
+        ("  → % Avance", "Introduce un número entre 0 y 100. Los colores cambian automáticamente."),
+        ("  → Dependencias", "Escribe los IDs de tareas predecesoras separados por coma (ej: T-001, T-003)"),
+        ("  → Notas", "Añade cualquier comentario o bloqueante"),
+        ("", ""),
+        ("HOJA 'Gantt Chart'", "Visualización temporal de las tareas. Las barras azules muestran la duración planificada."),
+        ("  → Para modificar duraciones", "Cambia 'Semana inicio' y 'Semana fin' en la hoja Seguimiento. El Gantt NO se actualiza solo (es estático)."),
+        ("  → Si necesitas regenerar el Gantt", "Modifica los valores en Seguimiento y vuelve a generar desde la herramienta."),
+        ("  → Hitos", "Aparecen como diamantes naranjas (◆) en su semana correspondiente."),
+        ("  → Estado sincronizado", "La columna Estado del Gantt se lee automáticamente de la hoja Seguimiento (fórmula)."),
+        ("", ""),
+        ("HOJA 'Entregables'", "Lista de entregables con estado y responsable editables."),
+        ("", ""),
+        ("COLORES DE ESTADO", ""),
+        ("  Pendiente", "Azul claro — aún no arrancada"),
+        ("  En Plan", "Gris azulado — planificada pero no iniciada"),
+        ("  En Progreso", "Verde claro — en ejecución"),
+        ("  Completado", "Verde fuerte — finalizada"),
+        ("  Bloqueado", "Rojo claro — necesita desbloquearse"),
+        ("  Retrasado", "Naranja — fuera de plazo"),
+        ("  En Revisión", "Amarillo — pendiente de aprobación"),
+        ("  Cancelado", "Gris — descartada"),
+    ]
+    for i, (col1, col2) in enumerate(instructions, 1):
+        ws_help.cell(row=i, column=1, value=col1)
+        ws_help.cell(row=i, column=2, value=col2)
+        if col1 and not col1.startswith(" "):
+            ws_help.cell(row=i, column=1).font = Font(bold=True, size=12 if i == 1 else 11)
+    ws_help.column_dimensions["A"].width = 32
+    ws_help.column_dimensions["B"].width = 90
 
     wb.save(out_path)
     return out_path

@@ -1,0 +1,579 @@
+📝 Las notas 5 mar 2026 Deco Algo. ASE para generación del dump Invitados DAVID FERNANDEZ SANCHOCARLOS HUERTA GONZALEZ GABRIEL CORTIJO RECIOJUAN LUIS GARCIA GARCIA DEBORAH LLORENTE GRADUSIVAN SAN JOSE HERRERO CARLOS DE ANTONIO HERNANDEZNURIA SANCHEZ JUSTO MIGUEL PERIS FERNANDEZALEX CASAL ECHEVARRIA MARIANO ASUERO ROLDÁN SERGIO MORENO FLORES MARIA VALVANERA GIL DE BIEDMA PASCUAL DEL POBIL AURORA GARCIA MARTIN ALEJANDRO MONTALBÁN LUQUERO sergio.moreno@nfq.esArchivos adjuntos Deco Algo. ASE para generación del dumpRegistros de la reunión Transcripción Resumen La conversación entre los participantes se centró en las dudas sobre el licenciamiento
+
+y el mantenimiento de los sistemas satélite alrededor de Algoritmics tras el desmantelamiento
+
+de la instancia obsoleta de Mercado, especíﬁcamente la versión 453 de AS y la versión
+
+47 de Mercado. Se concluyó que la desactivación de la instancia de Mercado es viable
+
+si el sistema ASE se mantiene y puede generar el dump de datos históricos, siendo
+
+el punto crítico la conﬁrmación de si ASE tiene una licencia independiente o está
+
+ligada a la licencia global de Mercado. Además, Carlos De Antonio Hernandez se comprometió
+
+a intentar contactar a Algoritmics o Compras del BBVA para conﬁrmar la licencia de
+
+ASE, y se acordó priorizar la desactivación de Mercado como el camino crítico del
+
+proyecto, separando la limpieza de sistemas obsoletos como Trida o Safari para fases
+
+posteriores. Detalles ● Contexto de la conversación sobre Algoritmics : La conversación se inició para
+
+abordar las dudas relacionadas con el licenciamiento y el mantenimiento de los sistemas
+
+satélite alrededor de Algoritmics tras el desmantelamiento de la instancia de Mercado (00:00:00). La versión de AS Mercado que está actualmente en uso es la 453, que se considera obsoleta, al igual que la versión 47 (00:01:27) (00:03:02). ● Aclaración sobre Licencias y Versiones : Se discutió si la versión 453 de AS y la
+
+versión 47 de Mercado estaban bajo la misma licencia o licencias separadas (00:02:15). Existe la tendencia a creer que ambas están dentro del mismo paquete de licencias de Algoritmics Mercado, aunque no se tiene certeza (00:03:02). ● Impacto del Desmantelamiento de Mercado en ASE : Se concluyó que, si ASE puede
+
+mantenerse, la desactivación de la instancia de Mercado podría llevarse a cabo sin
+
+afectar los procesos que dependen del "dump" de datos históricos. La parte crítica
+
+de ASE, o "AS Mercado", es la generación del *dump* inicial de datos históricos, que
+
+es utilizado como *input* para el generador de escenarios de contrapartida (Yase) y otros procesos (00:05:47) (00:07:29). ● Dependencia de la Licencia para la Desactivación de Mercado : Para garantizar
+
+la desactivación independiente de la instancia de Mercado, se necesita conﬁrmar si
+
+ASE posee una licencia independiente o si está ligada a la licencia global de Mercado (00:08:38). Carlos De Antonio Hernandez se comprometió a intentar contactar a alguien del grupo de Algoritmics o de Compras
+
+del BBVA para determinar si ASE tiene una licencia especíﬁca (00:03:58). ● Dependencias Técnicas más Allá del Licenciamiento : Se identiﬁcó que, además
+
+del tema de licencias, existen dependencias técnicas que complican la extracción "quirúrgica" de la instancia de Mercado (00:10:29). Un punto clave es que ASE utiliza "export data" (datos de mercado diarios) de la base de datos de Algoritmics Mercado (IDB) (00:09:44). ● Identiﬁcación de Ficheros Críticos de Safari y Algoritmics : Se levantó la necesidad
+
+de analizar los ﬁcheros "Export data" y "Equity data" que actualmente provienen de
+
+Safari y habría que determinar su nueva fuente de información (00:11:55). Se acordó que se debe abrir una línea de análisis para el segundo trimestre (Q2) para abordar estos dos ﬁcheros y otras posibles dependencias de la base de datos IDB de Algoritmics Mercado (00:12:39).
+
+● Separación de Tareas de Limpieza y el Camino Crítico del Proyecto : Se estableció
+
+que la desactivación de la instancia de Mercado, impulsada por el ahorro en licencias, es el camino crítico del proyecto (00:16:15). Las tareas de limpieza técnica de sistemas obsoletos como Trida o Safari no deben estar en
+
+el camino crítico de la migración, sino ser consideradas en fases posteriores del proyecto (00:14:58).
+
+Pasos siguientes recomendados CARLOS DE ANTONIO HERNANDEZ intentará buscar a alguien del grupo de algoritmes o de compras que negocie licencias para conﬁrmar si ASE tiene una
+
+licencia independiente. Revisa las notas de Gemini para asegurarte de que sean correctas. Obtén consejos y descubre cómo toma notas Gemini Danos tu opinión sobre el uso de Gemini para tomar notas en una breve encuesta.
+
+📖 Transcripción 5 mar 2026 Deco Algo. ASE para generación del dump - Transcripción
+
+00:00:00 NURIA SANCHEZ JUSTO: Bueno, o sea, un poco para dar contexto dentro del del
+
+decomisado de Algoritmics, eh pues eh entiendo que se han planteado ciertas dudas
+
+con respecto a pues temas de licenciamiento y de pues h no sé si llamos los satélites
+
+que están alrededor de algoritmis, cómo se van a a mantener después, ¿no? Entonces,
+
+por iniciar un poco la conversación, si os parece, vamos sobre las preguntas e estálos
+
+por aquí, ¿no? CARLOS DE ANTONIO HERNANDEZ: Sí, sí, NURIA SANCHEZ JUSTO: Sí. CARLOS
+
+DE ANTONIO HERNANDEZ: estoy, estoy, estoy, ¿Qué tal? NURIA SANCHEZ JUSTO: Buenas.
+
+Eh, CARLOS DE ANTONIO HERNANDEZ: Sí. NURIA SANCHEZ JUSTO: comentábamos si ese es independiente
+
+de algoritmis mercado e el que tiene vigencia eh real es el ase alis mercado 453 eh
+
+47 en contrapartida se instaló, pero se usa el Dado, o sea, que el que se está usando
+
+ahora mismo es el 453, CARLOS DE ANTONIO HERNANDEZ: Eso es todo esto un poco con la
+
+premisada de lo que comentaba en el correo al principio, NURIA SANCHEZ JUSTO: No.
+
+CARLOS DE ANTONIO HERNANDEZ: que ha sido un poco charla un poco entre nosotros intern
+
+sin llegar a entrar en detalle a la hora de decir que no no lo tomemos como como do
+
+que está escrito. 00:01:27 CARLOS DE ANTONIO HERNANDEZ: lo que nosotros sabemos un
+
+poco de palabras sin revisiones en detalle, pero vamos, en principio es así, vamos,
+
+tengo conﬁanza lo que lo que os compartimos. Eso es, ahora mismo lo que tendría vigencia
+
+es lo que se estaría utilizando es el la parte del DAM de NURIA SANCHEZ JUSTO: M.
+
+CARLOS DE ANTONIO HERNANDEZ: AS Mercado que estaría en la versión 453, versiones eh obsoletas en cualquier caso, tanto la 453 como la 47, pero vamos, en particular
+
+en este caso la 453 que se estaría ejecutando el mercado, que es lo que sí que le
+
+afectaría a este proyecto, NURIA SANCHEZ JUSTO: Vale, o sea, que sería esta licencia
+
+la que DAVID FERNANDEZ SANCHO: Yeah. CARLOS DE ANTONIO HERNANDEZ: ¿no? No, licencia.
+
+Licencia van, NURIA SANCHEZ JUSTO: S. CARLOS DE ANTONIO HERNANDEZ: no hay una licencia
+
+especíﬁca que yo sepa o que yo recuerde por por AS, por ISI, por el módulo de ISI
+
+como tal. Eh, yo creo son licencias globales para algoritmo y mercado, pero esto dejarlo
+
+ponerlo en cuarentena porque no lo seguro. 00:02:15 CARLOS DE ANTONIO HERNANDEZ: En
+
+cualquier caso, sí que dentro de las licencias actuales que haya con algoritmo y mercado,
+
+sea porque se corresponda con una global o porque haya alguna especíﬁca para el módulo
+
+de ASE, pues pues sí, digamos, estaría asociado la parte de de mercado. DAVID FERNANDEZ
+
+SANCHO: Pero una pregunta, Carlos, no sé si entendido. 453, o sea, 453 se reﬁere a
+
+la versión, CARLOS DE ANTONIO HERNANDEZ: Sí, DAVID FERNANDEZ SANCHO: no a la licencia.
+
+CARLOS DE ANTONIO HERNANDEZ: eso es DAVID FERNANDEZ SANCHO: La versión está en la
+
+misma versión en la que está mercado, CARLOS DE ANTONIO HERNANDEZ: versión. DAVID
+
+FERNANDEZ SANCHO: pero no quiere decir que esté bajo la misma licencia. CARLOS DE
+
+ANTONIO HERNANDEZ: Eh, no necesariamente, yo no recuerdo. Es que el tema de las licencias
+
+sí 47. AURORA GARCIA MARTIN: La versión, perdona un momentito, la versión es distinta,
+
+¿vale? AS es 453 y Mercados 47. CARLOS DE ANTONIO HERNANDEZ: Sí, pero bueno. Sí, correcto.
+
+Pero bueno, AURORA GARCIA MARTIN: Son versiones distintas. 00:03:02 CARLOS DE ANTONIO
+
+HERNANDEZ: pero que me da lo mismo, AURORA GARCIA MARTIN: Hm. CARLOS DE ANTONIO HERNANDEZ: vamos que tema para todos los efectos en cuanto
+
+al decomisado de abrir mi mercado, me da lo mismo que esté una en una versión y otra
+
+en otra porque las dos son antiguas me da lo mismo. Y no hay una licencia por estar
+
+diferente si está en 453. Es decir, si son si hay una licencia especíﬁca por por ASE,
+
+da igual que esté en 4537. DAVID FERNANDEZ SANCHO: Vale, eso, ese es el punto. O sea,
+
+conﬁrmar es si está bajo la misma licencia, porque si no lo está podemos tranquilamente
+
+desactivar mercado que hace puede CARLOS DE ANTONIO HERNANDEZ: Sí, DAVID FERNANDEZ
+
+SANCHO: continuar. CARLOS DE ANTONIO HERNANDEZ: pues yo tiendo a que estén en el mismo
+
+pack de licencias, ¿hay una especíﬁca o no para ese que está en el mismo pack de licencias
+
+de algoritmo mercado, DAVID FERNANDEZ SANCHO: Vale. Y en cuyo caso lo que habría que
+
+hacer sería renegociar esa licencia de forma separada. CARLOS DE ANTONIO HERNANDEZ:
+
+eso es o migrar a un actual, vamos, sí, migrar a una versión actual que ya estuviera
+
+incluida. DAVID FERNANDEZ SANCHO: Ah, bueno, también 00:03:58 CARLOS DE ANTONIO HERNANDEZ:
+
+Claro, si quieras a la cu a la 53 de ASE, DAVID FERNANDEZ SANCHO: claro. CARLOS DE
+
+ANTONIO HERNANDEZ: que no sé en qué en qué versión estarán, pero es un poco la misma
+
+que el resto de Alorímic, pues eso ya estaría DAVID FERNANDEZ SANCHO: Claro, pero
+
+eso eso son por eso digo son dos cosas diferentes. Una cosa es la versión en la que
+
+está y otra cosa es la licencia. Si están bajo la misma licencia, o sea, si están
+
+bajo licencias separadas, CARLOS DE ANTONIO HERNANDEZ: Hm. DAVID FERNANDEZ SANCHO:
+
+yo puedo desactivar mercado y y más adelante si quiero eh migrar hace a una versión
+
+posterior, digamos que lo puedo hacer todo de forma independiente. O sea, CARLOS DE
+
+ANTONIO HERNANDEZ: Sí, DAVID FERNANDEZ SANCHO: yo no tengo eh no sé si me explico
+
+CARLOS DE ANTONIO HERNANDEZ: sí, sí, sí. Eh, lo pregunto a al grupo de algoritmes
+
+o no sé si alguien de aquí de DAVID FERNANDEZ SANCHO: Ok. CARLOS DE ANTONIO HERNANDEZ:
+
+BVA, alguien de compras, alguien que tenga el detalle de cómo va el tema de las licencias.
+
+Intento buscar a alguien para para intentar saber si eh ASE tiene una licencia independiente,
+
+bien por preguntando algoritmics o bien preguntando alguien de de que negociase el tema de licencias de con
+
+ellos para saber a establece la ciencia cierta si hay una licencia especíﬁca para
+
+o 00:04:57 CARLOS DE ANTONIO HERNANDEZ: no. DAVID FERNANDEZ SANCHO: Vale. CARLOS DE
+
+ANTONIO HERNANDEZ: Vale. DAVID FERNANDEZ SANCHO: Y bueno, creo que está más adelante,
+
+pero ASE, que es el generador de escenarios de mercado, eh, CARLOS DE ANTONIO HERNANDEZ:
+
+Sí, DAVID FERNANDEZ SANCHO: pero que también se usa, o el generador de escenarios
+
+de contrapartida depende de él a su vez también, CARLOS DE ANTONIO HERNANDEZ: indirectamente,
+
+sí, DAVID FERNANDEZ SANCHO: No. CARLOS DE ANTONIO HERNANDEZ: por temas de pues el
+
+propio Dam y no sé si más de de datos iniciales o algo así, o sea, a lo mejor Aurora
+
+tú tienes recordar algo más, pero pues seguro por el DAM ﬁjo que sí, DAVID FERNANDEZ
+
+SANCHO: Pero el dump no es, el dump es algo en sí mismo, ¿no? No es ni ase ni y ni
+
+nada, CARLOS DE ANTONIO HERNANDEZ: no es un es un histórico de datos que se obtiene
+
+de la base de datos de DAVID FERNANDEZ SANCHO: es un CARLOS DE ANTONIO HERNANDEZ:
+
+Aseno. DAVID FERNANDEZ SANCHO: Ah, vale. Está en la base de datos de ASE, el dump.
+
+CARLOS DE ANTONIO HERNANDEZ: Eh, IVAN SAN JOSE HERRERO: O sea, CARLOS DE ANTONIO HERNANDEZ:
+
+Iván, Iván Aa o quien corresponda, 00:05:47 IVAN SAN JOSE HERRERO: el D, CARLOS DE
+
+ANTONIO HERNANDEZ: completad, eh, que esto es un poco lo que ya conocemos de hace
+
+tiempo todos IVAN SAN JOSE HERRERO: sí, o sea, CARLOS DE ANTONIO HERNANDEZ: nosotros.
+
+IVAN SAN JOSE HERRERO: la base de de datos de ASE lo que hace es coger la información de los históricos y generar, digo, dos sets de ﬁchos, ¿vale? O dos conjuntos.
+
+Uno es el damp, ¿vale? Que ese damp es input para el generador de escenarios de contrapartida
+
+para Yase que se usa en contrapartida, en CVA, CARLOS DE ANTONIO HERNANDEZ: Eso IVAN
+
+SAN JOSE HERRERO: en modelo interno de contrapartida, etcétera, ¿vale? CARLOS DE ANTONIO
+
+HERNANDEZ: es. IVAN SAN JOSE HERRERO: Y luego genera otro conjunto de ﬁcheros que
+
+son, DAVID FERNANDEZ SANCHO: Sí. IVAN SAN JOSE HERRERO: bueno, condiciones iniciales
+
+y precios, ¿vale? Que son extracciones parciales, pues no sé, precios de equity, precios
+
+de FEX, ¿vale? O sea, son creo que de hecho en el pantallazo que está proyectando
+
+Nuria, ¿vale? Eh, si se amplía un poco Nuria, que a lo mejor no pues yo no lo veo
+
+bien, 00:06:33 DAVID FERNANDEZ SANCHO: No. IVAN SAN JOSE HERRERO: están justo en amarillo
+
+los ﬁcheros que genera, ¿vale? esa parte de ase que como digo son pues eso, este de
+
+condiciones iniciales, eh bueno, CARLOS DE ANTONIO HERNANDEZ: Hm. IVAN SAN JOSE HERRERO:
+
+el damp que es el primero y los de condiciones, el swap cures, el fx rompo, pero bueno,
+
+esto de DAVID FERNANDEZ SANCHO: Vale, AURORA GARCIA MARTIN: de Brasil. Entonces, DAVID
+
+FERNANDEZ SANCHO: Gracias. AURORA GARCIA MARTIN: sí, pero pero los F lo que son los
+
+datos iniciales, esos se disponen. El tema es principalmente el tema del DAM. Los
+
+datos iniciales son defares directos. CARLOS DE ANTONIO HERNANDEZ: Eso es. AURORA
+
+GARCIA MARTIN: Yeah. CARLOS DE ANTONIO HERNANDEZ: Los datos iniciales no se generan
+
+de de ase como tal, sino que se extraen de la información de AURORA GARCIA MARTIN:
+
+O sea, eso sí, CARLOS DE ANTONIO HERNANDEZ: Safari. AURORA GARCIA MARTIN: o sea, ese
+
+hace, por así decirlo, eh, tiene una carga de históricos que y diariamente se va alimentando
+
+con el precio del día. Eh, y eso se hace desde Safari. El precio del día, el precio
+
+del día se reporta algoritmis y se almacena en el histórico, en en el ase que estábamos
+
+hablando. 00:07:29 AURORA GARCIA MARTIN: Entonces, el crico, lo crítico es la parte
+
+de simplemente. CARLOS DE ANTONIO HERNANDEZ: Aparte del dam, DAVID FERNANDEZ SANCHO:
+
+Vale, CARLOS DE ANTONIO HERNANDEZ: eso es básicamente. DAVID FERNANDEZ SANCHO: vale.
+
+CARLOS DE ANTONIO HERNANDEZ: El resto son todos los ritming, todos los lo que aparece
+
+ahí como TPR, algo RMIN, DAVID FERNANDEZ SANCHO: F CARLOS DE ANTONIO HERNANDEZ: pues
+
+son realmente, yo creo que son salidas de de Safari diarias, que son parte de la información
+
+que también por otro lado se almacena indirectamente en el DAM, en la base de datos
+
+de históricos de de ASE, pero lo que se extrae pura puro de de ASE es el DAM inicial,
+
+DAVID FERNANDEZ SANCHO: Vale, CARLOS DE ANTONIO HERNANDEZ: el primero de todos. DAVID
+
+FERNANDEZ SANCHO: vale. O sea, al ﬁnal, supongo que todos lo tenemos claro, pero que
+
+el objetivo es que extraer muy quirúrgica de todo el ecosistema de arquitectura y
+
+de algo, especíﬁcamente la parte de la instancia de mercado y para eso tenemos que
+
+ver qué dependencias técnicas hay, qué dependencias de licencia hay, ¿no? Entonces,
+
+por ejemplo, en cuanto a tema de dependencia técnica, lo que estoy viendo es que como
+
+toda la parte del DAM de históricos, etcétera, se gestiona desde ASE, si podemos mantener
+
+ASE, podemos tranquilamente desactivar la distancia de mercado que no vamos a afectar
+
+a todos los procesos que dependen del LANP, ¿vale? 00:08:38 DAVID FERNANDEZ SANCHO:
+
+Y para poder garantizar eso, CARLOS DE ANTONIO HERNANDEZ: Correcto. DAVID FERNANDEZ
+
+SANCHO: o sea, para poder hacer eso, lo que necesitamos saber es la cuestión de la
+
+licencia. CARLOS DE ANTONIO HERNANDEZ: Si unic independiente pararse o no o va ligado
+
+a la global de de DAVID FERNANDEZ SANCHO: Eso es, eso es. Vale, CARLOS DE ANTONIO
+
+HERNANDEZ: mercado. DAVID FERNANDEZ SANCHO: vale, vale, entendido. CARLOS DE ANTONIO
+
+HERNANDEZ: suponer, no no los seguro 100%, pero vamos, al ﬁnal todas las licencias
+
+de Albimir van muy por módulos, entonces intuyo intuyo más que otra cosa que cuando
+
+se negociara en su momento quizás ASE también tenía su propia licencia particular, pero es intuición más que saber la ciencia cierta. Lo intento
+
+preguntar. DAVID FERNANDEZ SANCHO: Vale. Sergio Moreno Flores: Aquí hay un un tema,
+
+o sea, aparte de la licencia, habría que ver hasta qué punto se puede, digamos, independizar
+
+AS completamente como un módulo separado, porque AS en principio también bebe de la
+
+base de datos de algoritmis de de la IDB, eh se alimenta con la con la sesión base
+
+que luego usa para para generar estos ﬁltos. AURORA GARCIA MARTIN: contrato con la
+
+contrapartida. 00:09:44 AURORA GARCIA MARTIN: No, no, no. A no tiene no tiene, Sergio
+
+Moreno Flores: Entonces, AURORA GARCIA MARTIN: o sea, lo único que tiene eh lo que
+
+genera son escenarios para el módulo de algoritmes. A no no tiene sesiones ni nada.
+
+Sergio Moreno Flores: claro, pero sí que usa esa sesión, o sea, pero y también la
+
+porque la IDB la podrías dejar porque son no es parte de ASE como AURORA GARCIA MARTIN:
+
+se suman los son independientes, Sergio Moreno Flores: tal. AURORA GARCIA MARTIN:
+
+o sea, AS tiene su propia base de datos, Sergio Moreno Flores: Claro. AURORA GARCIA
+
+MARTIN: que es la deb, o sea, son módulos independientes Sergio Moreno Flores: Sí.
+
+O sea, es independiente, AURORA GARCIA MARTIN: realmente, Sergio Moreno Flores: pero
+
+los algo RM de la AURORA GARCIA MARTIN: ¿no? Los Algo remain los envía se generan
+
+en los Algo Remain se Sergio Moreno Flores: IDB. AURORA GARCIA MARTIN: genera los
+
+genera Safari. MIGUEL PERIS FERNANDEZ: Aurora, ahí Aurora. Yo creo que lo que quiere
+
+decir Sergio es el sport data, AURORA GARCIA MARTIN: El qué, perdona, MIGUEL PERIS
+
+FERNANDEZ: el sport data, CARLOS DE ANTONIO HERNANDEZ: de la city de la cuidata MIGUEL
+
+PERIS FERNANDEZ: data. 00:10:29 AURORA GARCIA MARTIN: el sport data. Vale, MIGUEL
+
+PERIS FERNANDEZ: Claro que sale de sesión y alimenta. AURORA GARCIA MARTIN: eso, Sergio
+
+Moreno Flores: Vale, o sea, nosotros llevamos trabajando semanas. AURORA GARCIA MARTIN:
+
+eso sí, eso sí, Sergio Moreno Flores: Es eso, es eso AURORA GARCIA MARTIN: eso es.
+
+Vale, Sergio Moreno Flores: es AURORA GARCIA MARTIN: pero es por data, DAVID FERNANDEZ
+
+SANCHO: Vale, AURORA GARCIA MARTIN: ¿vale? Sergio Moreno Flores: problemas este proyecto.
+
+DAVID FERNANDEZ SANCHO: pero lo que quiere decir esto es que hay toda, AURORA GARCIA
+
+MARTIN: M. DAVID FERNANDEZ SANCHO: a pesar de que por licencia se pueda, hay aú aspectos
+
+técnicos que hacen que no vaya a ser tan quirúrgico, ¿no? O sea, que hay que hacer
+
+ciertas actuaciones para quitar eh mercado y las dependencias que Sergio Moreno Flores:
+
+yemos DAVID FERNANDEZ SANCHO: actualmente tiene un ase, por ejemplo, de mercado que
+
+las pase a tener de, yo que sé, del de contrapartida, no sé dónde dónde digáis, ¿no?
+
+O sea, quiere decir que hay que lanzar iniciativa que para ir para ver cómo solucionar
+
+esas dependencias Sergio Moreno Flores: Sí, sí, DAVID FERNANDEZ SANCHO: técnicas.
+
+Sergio Moreno Flores: sí. 00:11:14 Sergio Moreno Flores: Hay hay una Yo no creo que
+
+esté tan completamente separado. AURORA GARCIA MARTIN: Bueno, básicamente es por eso,
+
+¿no? Porque, o sea, el módulo es independiente. Lo único que sí que es cierto que
+
+el sport data hay que sacarlo, es posible que haya que sacarlo de de de de A y de
+
+B. Sergio Moreno Flores: Sí, sí. AURORA GARCIA MARTIN: Habrá que verlo. Sergio Moreno
+
+Flores: O sea, es lo único que he visto yo. AURORA GARCIA MARTIN: Lo que pasa que
+
+el sport data, lo que pasa que esa parte en cualquiera de los casos es probable que
+
+se pueda sacar de cualquier otro de cualquier otro eh algoritmis, porque ten en cuenta que en exportata lo único que hace
+
+es la exportación del dato de mercado que lo tienes en todos sitios, o sea, Sergio
+
+Moreno Flores: Gracias Buenas tardes, AURORA GARCIA MARTIN: no tienes en riesgo de
+
+contrapartida y tal, Sergio Moreno Flores: colega. CARLOS DE ANTONIO HERNANDEZ: No,
+
+AURORA GARCIA MARTIN: pero sí que es cierto e que CARLOS DE ANTONIO HERNANDEZ: hay
+
+que tener cuidado. Hay que tener cuidado, que no todos los mercado se meten en el
+
+contrapartida, ¿eh? Sergio Moreno Flores: que y habría que mirar pequeños cambios
+
+de versión que se AURORA GARCIA MARTIN: bueno, que hay que mirarlo, ¿vale? 00:11:55 CARLOS
+
+DE ANTONIO HERNANDEZ: que te pido ahí. AURORA GARCIA MARTIN: Y aparte sí, Sergio Moreno
+
+Flores: pueda, AURORA GARCIA MARTIN: sí, Sergio Moreno Flores: ¿sabes? AURORA GARCIA
+
+MARTIN: que aparte que sí que sí que no es tan quirúrgico como como decimos efectivamente.
+
+Sergio Moreno Flores: Ajá. Eso es, eso es, eso es. Yeah. DAVID FERNANDEZ SANCHO: Vale,
+
+el export data, por lo que he entendido, es eh envío de datos de mercado a, o sea,
+
+lo que llega de datos de mercado de diario, AURORA GARCIA MARTIN: Yo no sé. CARLOS
+
+DE ANTONIO HERNANDEZ: del día. DAVID FERNANDEZ SANCHO: del ﬂow diario hacia Vale.
+
+CARLOS DE ANTONIO HERNANDEZ: Eso es, eso es, eso es para la sesión diaria, digamos,
+
+de cada patch diario de de algoritmics, pues se utilizan los datos del día. Efectivamente,
+
+NURIA SANCHEZ JUSTO: que aquí hablabas justo del Carlos del Sportata y el equity data,
+
+¿no? Justo levantabas esos dos que habría que ver de dónde sacar la información, ¿no?
+
+CARLOS DE ANTONIO HERNANDEZ: sí, no no me acuerdo si lo indiqué en su día cuando escribe
+
+el correo, pero sí, NURIA SANCHEZ JUSTO: Estoyando que lo habías levantado justo en
+
+el mail un poco 00:12:39 CARLOS DE ANTONIO HERNANDEZ: efectivamente. NURIA SANCHEZ
+
+JUSTO: más arriba aquí. CARLOS DE ANTONIO HERNANDEZ: Ah, pues sí, mira, NURIA SANCHEZ
+
+JUSTO: Sí, CARLOS DE ANTONIO HERNANDEZ: no no recordaba que estaban puestos ahí. NURIA
+
+SANCHEZ JUSTO: sí, sí. Que de estos dos no sé si se ha iniciado el análisis por algún
+
+lado. Gabriel, tú lo tienes en el radar. Entiendo que no. No. Sí. o están en el listado,
+
+GABRIEL CORTIJO RECIO: No mean. NURIA SANCHEZ JUSTO: ¿no? Vale, pues sí, habría que
+
+incurrirlos en en el análisis, ¿no? Bueno, e vale. Yo creo que lo que hablamos por
+
+aquí ya lo hemos comentado, ¿no? M. Vale, entonces aquí hay que abrir eh línea de
+
+análisis para Q2, no entiendo para ver eh pues estos dos ﬁcheros en concreto, pero
+
+luego otras dependencias que pueda haber, CARLOS DE ANTONIO HERNANDEZ: Claro, eso
+
+para no tener dependencia de la lo que es la propia base de datos de algoritmo y mercado,
+
+de la IDB de mercado, digamos, para ver si eso se puede obtener de contrapartida o
+
+o hay algún inconveniente que 00:13:52 NURIA SANCHEZ JUSTO: H CARLOS DE ANTONIO HERNANDEZ:
+
+hiciera que en su día también esa información tuviera algún punto de partida mercado
+
+únicamente, no puede ser que hubiera alguna algo que recordemos ahora mismo. Sí, eso
+
+habría que entrar un poquito entrar en detalle. DAVID FERNANDEZ SANCHO: O sea, y que
+
+eso es lo que sabéis, NURIA SANCHEZ JUSTO: Hm. DAVID FERNANDEZ SANCHO: o sea, quiero
+
+decir que así analizando pronto, ¿no? Pero a lo mejor hay otras dependencias técnicas
+
+más escondidas CARLOS DE ANTONIO HERNANDEZ: Hay que echar un vistazo por si acaso,
+
+¿no? No hay mucho que no hay mucho mucho que revisar, DAVID FERNANDEZ SANCHO: que
+
+CARLOS DE ANTONIO HERNANDEZ: pero bueno, al menos sí que entrar un poquito en detalle.
+
+Sergio Moreno Flores: Una cosilla que que no tiene mucha cosa, pero que hay que tener
+
+en cuenta es que estos ﬁcheros, los algor que salen de Safari, también son versión
+
+antigua 47, o sea, que habría que mantenerlos porque son los que están alimentando el Yase ahora mismo también porque si no entendido mal en parte del decomisado
+
+de algoritmis se quería meter también el quitar todo lo que es NURIA SANCHEZ JUSTO:
+
+Yeah. Sergio Moreno Flores: la parte de Trida o Safari que fuese puramente de mercado
+
+y estos ﬁcheros serían ahora mismo versión 47 puro merado. 00:14:58 Sergio Moreno
+
+Flores: Pero sí que están alimentando el yase también. DAVID FERNANDEZ SANCHO: Yo
+
+la verdad que no, esa premisa no sé si la veo, eh, o sea, de de Safari, la verdad
+
+que creo que se quedaría sin tocar, eh, porque lo que hemos visto es que datos de
+
+mercado, MIGUEL PERIS FERNANDEZ: M. DAVID FERNANDEZ SANCHO: el subset de datos que
+
+no usa contrapartida y que sí usamos en mercado era muy pequeño. Y el e y en el caso
+
+de Trida es que te digo más, en Trida todavía estamos pensando que igual sea la solución
+
+temporal de gestión de portfolios. en mundo Murex mientras eh no tengamos algo mejor.
+
+O sea, que por eso digo que igual si eh si podemos, o sea, si al ﬁnal esto es una
+
+cuestión de de nuevo de licencias y de dependencias técnicas, ¿no? Entonces, j****,
+
+si el ahorro de costes viene por la licencia de mercado, que está separada de todas
+
+esas y a nivel técnico hay pocas dependencias que podemos cortar de forma fácil, yo
+
+haría una extracción quirúrgica de esa pieza y mantendría el resto. O sea, obviamente
+
+esto es hablando muy alto nivel, pero que hay, o sea, que hay muchos procesos que
+
+ya nos han levantado que oye, es que yo dependo de aquí, yo dependo de aquí, yo dependo
+
+de aquí, que si no queremos hacer de esto un má todo en T, al menos en el camino crítico
+
+del proyecto de comisado, ¿sabes? 00:16:15 DAVID FERNANDEZ SANCHO: Que luego lo queremos
+
+hacer una vez digamos mi rodamx, perfecto, pero no lo pondría en el camino crítico
+
+el desactivar un trida o el desactivar un safari o vamos una tabla concreta de esas
+
+herramientas. Sergio Moreno Flores: Lo único es que habría que estar alineados, o
+
+sea, que que lo sepa el equipo de algoritmis y demás, que todo lo obsoleto de mercado
+
+no se va a tocar de momento, IVAN SAN JOSE HERRERO: Bueno, Sergio Moreno Flores: que
+
+si se va a cometer algún algún proyecto de pues de limpieza o lo que sea que que no
+
+se ha hecho ese análisis y que no se puede CARLOS DE ANTONIO HERNANDEZ: Perfecto. DAVID
+
+FERNANDEZ SANCHO: No, Sergio Moreno Flores: acometer. DAVID FERNANDEZ SANCHO: a lo
+
+mejor, o sea, yo creo que el análisis hay que hacerlo. De hecho, creo que ya se inició,
+
+¿no? Sergio Moreno Flores: Sí, DAVID FERNANDEZ SANCHO: Y creo que tenemos que tenerlo
+
+claro en el roadmap, Sergio Moreno Flores: sí. DAVID FERNANDEZ SANCHO: pero creo que
+
+hay que separar en cuanto a fases del proyecto. Y una cosa es lo que es camino crítico
+
+para desactivar la instancia de mercado y capturar los beneﬁcios del ahorro de la
+
+licencia. mientras pasamos a Murex. Y otra cosa es limpieza de housekeeping, de procesos
+
+que hagamos que ya no veo en el camino crítico. Veo presión para ahorrar costes, pero
+
+no veo en el camino crítico de la migración. Entonces yo separaría de esas Sergio
+
+Moreno Flores: Sí, sí, DAVID FERNANDEZ SANCHO: dos. Sergio Moreno Flores: yo lo veo
+
+también correcto. que es limpieza técnica de Trida y Safari que que no esté en el
+
+camino crítico del decomisado puro algoritmico llevado a Mur DAVID FERNANDEZ SANCHO:
+
+Eso es. IVAN SAN JOSE HERRERO: Bueno, pues visto. Entonces, hay que lanzar línea para
+
+ver esto con calma. NURIA SANCHEZ JUSTO: H vale. De los puntos que habéis levantado,
+
+no sé si queréis aprovechar para alguna duda más. Yo creo que os tocado lo del mail,
+
+por lo menos. IVAN SAN JOSE HERRERO: No, o sea, yo de mi lado eh ya anticipé un poco
+
+la preocupación por este tema, sobre todo para evitar impactarse a otras métricas
+
+y si se va a trabajar, pues pues estupendo. Esto además nos afecta a todos. La transcripción ﬁnalizó después de 00:18:51 Esta transcripción editable se ha generado por ordenador y puede contener errores. Los
+
+usuarios también pueden cambiar el texto después de que se haya generado.

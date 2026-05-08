@@ -1,0 +1,195 @@
+📝 Las notas may 7, 2026 👣 🏭 📈 Carbon Markets Sincro - Cash Settled Products
+
+- CBAM (ID 2167480) Invitado GIOVANNI VENTRIGLIA ANTONIO PEREZ MAESTRE RUBEN DELGADO ABRILIÑIGO MENDIETA CABIA SARA GARCÍA RUBIO JUAN JIMENEZ PEREZVICTOR DURAN GUDEPAULA SOLIVELLAS GARCIA JESUS URDANGARAY FERRERJAVIER ARCONADA GARAICOECHEA MARUEN BACCAR SANTALUCIA JUAN MANUEL GARCIA VALENZUELA CECILIA CIANCIA SERRANOELIA OLMEDA RODRIGUEZHYUN HONG MYUNG ANA GARCIA MESEGUERDAVID TRIGUEROS DE CASTROMATTHIEU LOPEZ ALVARO RUIZ DEL MORAL MEDINA NORMA BENGOECHEA ZUZAETA ALEJANDRO SANCHEZ MONTEROAINHOA PASTOR VIVAR ALVARO CRIADO BENITO ALVARO ORTIZ VALVERDEAMPARO SANZ COLOMER ANA MARIA REAL PEREZBEATRIZ SALDIA GONZALEZ CARLOS AYALA SANCHEZDANIEL VAZQUEZ DELGADO DAN JORDON POPA GREUBDAVID MARTIN OLIVERA IRENE MARTIN RUIZ-JARABOIGNACIO MANTEROLA ZÁRATE IVAN SUAREZ FERNANDEZJAVIER CARRETERO RECARTE JESUS GARCIA DOMINGOMARCELA DE JOSEPH FORERO MARIA CARRILLO CAMACHO MARINA RODRIGUEZ DIEZ MOISÉS GALVIN GALAN OMAR RODRIGUEZ VARGAS PABLO SANCHEZ CALLEJA PAULA PIÑUELA MONJAS RAUL PEREZ COTRINA JOSE GARCIA SANCHEZLORENA PEÑARANDA PALACIOS CARMEN LOPEZ GUTIERREZCARMEN DEL SOL GARCIA IÑAKI INDA GANDIA DAVID RODRÍGUEZ ROJAS FLAVIU BOGDAN CONDOR MUNTEAN DAVID ABAD CAMARA JUSTO OJEDA AGUIRREJORGE PIRIS SEGURA JAVIER VELASCO ORIHUELA ANDRES ADOLFO VAZQUEZ SANCHEZ JOSE ANTONIO ARIAS GUERREROana.marin.cuevas.contractor@bbva.com MARTA DIVASSON CARRIBEROLOURDES QUIMEY BARQUERO GONZALEZ ARTURO JOSE GIL DE SANTIVAÑES DE BENITO JOAQUIN MONTAÑES FERNANDEZSERGIO MAURE MORENO
+
+LORENZO LOBATO SUMAY FRANCISCO CAMINERO IGLESIAS LUIS MIGUEL ESCAMILLA ADRIAN RAMIREZ MARTIN SARA GARCIA GARCIA ABADANTONIO PADILLA APARICIO MARTA EMILIA GARCÍA ROLDÁN VICTOR FERNANDEZ MARTOS JUAN MANUEL AGUADO BOLUDA ARITZ CEREZO ROBREDO FÁTIMA JARMOUNI HISSAÁNGEL ALEJANDRO MOYA GIL ANA ESPINOSA LIMONSara Garcia RubioLAURA RAMOS VELAZQUEZ ALFREDO MARTINEZ CALVO ALFREDO SOLTERO LORENZO ALICIA SANCHEZ ESCRIBANOANA CUEVAS HIGUERO LUISFER GONZÁLEZ GARCÍA MARIA PEÑA GUTIERREZ ROMÁN VALVERDE BELAUSTEGUIEVA MARIA GARCIA VICENTE MIGUEL PAUBLETE AHUIRLUIS FELIPE PEREZ HERREROArchivos adjuntos 👣 🏭 📈 Carbon Markets Sincro - Cash Settled Products - CBAM (ID 2167480) Carbon Market - UK ETS/CBAM - Matriz de Ficheros de Prueba.xlsx Check generación de ﬁcheros en MUREXCarbon Q2 Plan Resumen Revisión técnica de procesos con conﬁrmaciones legales pendientes y coordinación
+
+de pruebas para el proyecto actual. Validaciones y pruebas funcionales Se completaron
+
+pruebas de Rich Online y se adaptan los procesos de Reporting. Se excluyó XVA del
+
+modelo debido a límites de tolerancia establecidos. Bloqueos legales y coordinación
+
+El desarrollo de Calipso permanece bloqueado ante la ausencia de conﬁrmación legal.
+
+Se gestiona la inclusión de nuevas áreas en el alcance funcional. Planiﬁcación y entregas
+
+pendientes El análisis de TR se entregará próximamente para coordinar el trabajo contable. Se requiere veriﬁcar la generación de spot para validar pruebas.
+
+Próximos pasos [MOISÉS GALVIN GALAN, JORGE PIRIS SEGURA] Comentar Impacto Mentor: Analizar impacto en Mentor en relación con el cambio de ir por modelo en lugar
+
+de manuales. [JORGE PIRIS SEGURA] Añadir Moisés: Incluir a Moisés en copia del correo que contiene toda la información compartida. [SERGIO MAURE MORENO] Abrir Consulta Legal: Abrir consulta a servicios jurídicos sobre la conﬁrmación operativa requerida. Poner a Sara García Rubio en
+
+copia para visibilidad. [SERGIO MAURE MORENO, LORENA PEÑARANDA PALACIOS] Revisar Calipso: Revisar funcionalidad de Calipso en corto con Ana. Deﬁnir el alcance funcional
+
+necesario. [CECILIA CIANCIA SERRA] Proporcionar Evidencia Contable: Analizar las evidencias contables y casos mínimos de prueba que se necesitarán. Proporcionar
+
+esta información por escrito. [LUIS MIGUEL ESCAMILLA] Entregar Análisis TR: Completar análisis requerido por TR y pasarlo a principios de la próxima semana. [LUIS MIGUEL ESCAMILLA] Notiﬁcar Análisis TR: Escribir a Sara García Rubio en corto cuando el análisis de TR esté listo. [ALVARO CRIADO BENITO] Incorporar Protección: Incorporar el aplicativo GM Investor Protection en el modelo de sistema de pruebas. [DAVID ABAD CAMARA] Conﬁrmar Operación Kaplin: Obtener conﬁrmación del equipo de Kaplin sobre cómo caerán las operaciones. Esto es necesario para
+
+la adaptación de Smart Data. [SARA GARCÍA RUBIO] Conﬁrmar Ejercicio Trade: Hablar con Antonio para conﬁrmar si puede ejercer el futuro en el mismo día. Conﬁrmar también la boleta
+
+de buqueo que se utilizará. Detalles ● Pruebas de Rich Online y Ajuste de la Solución (Alcom/Jorge Piris Segura) : Se
+
+ha completado la prueba de casos para validar la funcionalidad de Rich online con
+
+un *strike* muy pequeño. Las evidencias fueron compartidas para su análisis, y el
+
+equipo de Alcom está disponible para una reunión en caso de que se necesiten demostraciones.
+
+El equipo tendrá que revisar la solución en función de los resultados, ya que la vía
+
+de desarrollo podría ser diferente a la planteada inicialmente si la simulación y
+
+la exposición no coinciden con lo esperado. También es necesario evaluar si el procesamiento
+
+por lotes (*batch*) es correcto, solicitando un ﬁchero de Murex Reporting con esta
+
+operativa para la evaluación. ● Revisión del Impacto en Mentor (Jorge Piris Segura y Moisés Galvin Galan) : El
+
+posible cambio en la solución implicaría que el proceso no se realizaría mediante
+
+consolas manuales, sino a través de un modelo, lo que tiene un impacto en Mentor.
+
+JORGE PIRIS SEGURA y MOISÉS GALVIN GALAN acordaron discutir el impacto en Mentor en
+
+una conversación corta. JORGE PIRIS SEGURA fue instruido para añadir a MOISÉS GALVIN
+
+GALAN a la comunicación por correo electrónico que contiene la información del caso.
+
+● Seguimiento de Pruebas de Smart Data (Ami Web/Víctor Fernández Martos) : El
+
+equipo de Ami Web está en espera de recibir el ﬁchero NRO de Smart Data para realizar
+
+las pruebas, similar a lo que ocurre con la otra parte del proyecto (MMF, UK y ETS2).
+
+El equipo se encuentra actualmente realizando pruebas con el ﬁchero ya enviado. SARA
+
+GARCÍA RUBIO indicó que se les mantendrá informados cuando llegue el ﬁchero NRO. ● Proceso de Conﬁrmaciones y Requisito Legal (Calipso/Lorena Peñaranda Palacios) :
+
+El equipo de Calipso ha enviado la estimación, pero existen dudas sobre cómo realizar
+
+las conﬁrmaciones, ya que la operativa de *Equity Forward* actualmente no pasa por
+
+Calipso. Se necesitan nuevas conﬁrmaciones y modelos, lo que requiere la aprobación
+
+de la parte legal, para lo cual no existe un hilo de discusión abierto en el proyecto.
+
+SERGIO MAURE MORENO se comprometió a abrir la consulta a servicios jurídicos y añadir
+
+a SARA GARCÍA RUBIO en copia para visibilidad. ● Bloqueo de Desarrollo por Falta de Conﬁrmación Legal (Calipso/Lorena Peñaranda
+
+Palacios) : El desarrollo de Calipso está bloqueado en este momento hasta que se reciba
+
+la conﬁrmación legal para el *template* deﬁnitivo. SERGIO MAURE MORENO indicó que
+
+no tiene sentido avanzar en el desarrollo sin la aprobación legal. Se buscará mover
+
+esta consulta legal lo antes posible para permitir que el desarrollo avance. ● Coordinación de Ponta y Product Coverage (Calipso/Lorena Peñaranda Palacios) :
+
+Se está trabajando con el equipo de MSC para enviar un *product* en los CRES para
+
+que cubra de forma genérica tanto este proyecto (*Carbon Market*) como el otro de
+
+*new payoffs*. SARA GARCÍA RUBIO conﬁrmó una reunión posterior con el equipo de *projector*
+
+para coordinar y optimizar este proceso. ● Dependencia de Ficheros de Calipso (Dupo/Iñaki Inda Gandia) : El equipo de Dupo
+
+está en espera de la disponibilidad de los ﬁcheros de Calipso de Murex. IÑAKI INDA
+
+GANDIA no tenía nada más que comentar hasta que se resuelva esta dependencia. ● Progreso de Contabilidad y Planiﬁcación de Pruebas (Contabilidad/Cecilia Ciancia
+
+Serra) : La parte de sectorización de Contabilidad ya está grabada, y solo queda pendiente
+
+terminar de grabar un tema de cuentas contables, esperando tener todo listo para la
+
+semana del 18 de mayo. CECILIA CIANCIA SERRA revisará y compartirá por escrito qué
+
+tipo de evidencias contables se necesitarán de las pruebas y los casos mínimos, lo
+
+cual es fundamental para deﬁnir el plan de trabajo y las fechas de coordinación. ● Seguimiento de Deﬁnición Funcional y Alcance (Operaciones/Sergio Maure Moreno) :
+
+El equipo de Operaciones no tiene comentarios adicionales aparte de lo discutido con
+
+Calipso. Sergio MAURE MORENO mencionó que si Calipso funciona según lo esperado, no
+
+tendrían mucho que decir, y revisarían en corto con LORENA PEÑARANDA PALACIOS y Ana
+
+la deﬁnición del alcance funcional. ● Adaptación de Pruebas Funcionales (Reporting/Dan Jordon Popa Greub) : El equipo
+
+de Reporting recibió el *trade* de prueba deﬁnitivo ayer y actualmente están adaptando
+
+sus pruebas funcionales a este nuevo elemento. Esperan tenerlo listo pronto y pidieron
+
+que se les notiﬁque si se necesita algo más para esta parte. ● Avance en el Análisis de TR (TR/Luis Miguel Escamilla) : LUIS MIGUEL ESCAMILLA
+
+informó que ya comenzaron con el análisis de TR basándose en un documento inicial
+
+y esperan tenerlo listo hoy o mañana. La primera semana de la próxima semana presentarán
+
+el análisis completo de los requerimientos. Se solicitó que se envíe el análisis por
+
+escrito y se avise de inmediato cuando esté listo, ya que es la última pieza de análisis
+
+que falta y es prioritaria para determinar las implicaciones y coordinar el proyecto.
+
+● Integración y Niveles de Tolerancia para XVA (Arquitectura/Álvaro Criado Benito) :
+
+Se discutió la conﬁrmación de si los niveles de tolerancia incluidos en la comunicación
+
+de la mesa de CVA se cumplirían por parte de la mesa de carbón. MATTHIEU LOPEZ conﬁrmó
+
+que, según los límites establecidos, el producto no aplicaría XVA y solo lo haría por encima de ellos. Por lo tanto, ÁLVARO
+
+CRIADO BENITO indicó que sacarán esta parte del modelo. ● Inclusión de GM Investor Protection en Pruebas (Arquitectura/Álvaro Criado Benito) :
+
+ÁLVARO CRIADO BENITO preguntó si el aplicativo GM Investor Protection será incluido
+
+en los ciclos de prueba, ya que no estaba dibujado en el modelo. DAVID ABAD CAMARA
+
+y AMPARO SANZ COLOMER indicaron que si las operaciones llegan en NRO como las anteriores,
+
+deberían llegar. ÁLVARO CRIADO BENITO conﬁrmó que lo incorporarán al modelo y que
+
+en la fase de pruebas deberán solicitar las cesiones correspondientes al equipo de
+
+NRO para la validación. ● Requerimientos de Reporting y BSSX (David Abad Camara) : DAVID ABAD CAMARA
+
+solicitó que se incorpore a BSSX en la parte de *reporting* para evitar que se les
+
+pase en las siguientes reuniones. Están pendientes de que el equipo de Kaplin conﬁrme
+
+cómo caerán las operaciones una vez *bookeadas* para revisar si Smart Data necesita
+
+ajustar sus ﬁltros, revisar cómo caerán, o realizar alguna traducción. Se reconoció
+
+que el equipo de Kaplin no está incluido en la reunión, y SARA GARCÍA RUBIO se ocupará
+
+de obtener la conﬁrmación en corto sobre cómo caerá el ejemplo. ● Próximos Pasos de Coordinación y Proyectos (Sara García Rubio) : SARA GARCÍA
+
+RUBIO conﬁrmó que la parte de Capitec se está gestionando y comenzarán los desarrollos
+
+en STQ. También se informó de una reunión posterior para coordinarse con el proyecto
+
+*payoff* de volatilities, con el objetivo de optimizar el proceso y realizar un único
+
+ciclo de pruebas si esto resulta ventajoso. ● Planiﬁcación de Vencimientos y Pruebas Futuras (Jorge Piris Segura) : JORGE
+
+PIRIS SEGURA comentó que queda pendiente que Antonio ejerza los dos futuros ya *bookeados*
+
+para las primeras fechas (febrero), es decir, que los venda para que se genere el
+
+*spot*. El *spot* generado será un *equity* en Murex, que es lo que *Reporting* enviará.
+
+SARA GARCÍA RUBIO se encargará de veriﬁcar con Antonio si la generación del *spot*
+
+puede ocurrir el mismo día o si debe pasar al día 24, y si se pueden reutilizar las
+
+boletas existentes para esta prueba. ● Tiempos de Validación (Jorge Piris Segura) : JORGE PIRIS SEGURA estimó que
+
+la validación de los ﬁcheros y el formato llevaría un día, pero la prueba completa
+
+requeriría una semana . SARA GARCÍA RUBIO buscará coordinar con Antonio para conseguir
+
+las boletas y comenzar la prueba lo antes posible, ya que la fecha objetivo era el
+
+día 11 . Revisa las notas de Gemini para asegurarte de que sean precisas. Obtén sugerencias y descubre cómo Gemini toma notas Cómo es la calidad de estas notas especíﬁcas? Responde una breve encuesta para darnos tu opinión; por ejemplo, cuán útiles te resultaron las notas.
