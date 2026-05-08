@@ -1,11 +1,12 @@
 # Resumen de la reunion
 
-En la reunión semanal del 9 de marzo de 2026 del proyecto Deco Algo, se discutieron avances y bloqueos en la migración de reportes de OASms de Mentor a Smart Data, la necesidad de confirmación de uso de ciertos reportes, la dependencia de información de Murex, y la ejecución ad hoc para verificar datos. Se acordaron tareas de seguimiento sobre OASms pendientes, la obtención de tablas de geografías no-BVCA en ADA, la programación de sesiones sobre coherencia de límites para usuarios de México, y la inclusión de puntos de XVAS y ASE en el backlog. También se coordinó la convocatoria de una reunión para revisar la conciliación del VAR entre equipos de España y México.
+En la reunión semanal del proyecto Deco Algo se discutió el seguimiento de riesgos de mercado, la migración de reportes OASms de Mentor a Smart Data, bloqueos por falta de información de Murex, tareas de seguimiento de OASms pendientes, la migración de tablas de geografías no-BVCA en ADA, la programación de sesiones sobre coherencia de límites para usuarios de México, el seguimiento de reuniones de XVAS y licencia de ASE, y la coordinación de una reunión de conciliación del VAR entre los equipos de España y México. Se asignaron tareas específicas a varios miembros del equipo para avanzar en estos puntos.
 
 ## Artefactos generados
 
-- `ADR-006` - Ejecución ad hoc para verificación de datos de Murex en Smart Data
-- `WRK-TASK-025` - Seguimiento de OASms pendientes de respuesta por parte de Santiago
-- `WRK-TASK-026` - Obtención de tablas de geografías Latam en ADA para VAR y sensibilidades
-- `WRK-TASK-027` - Inclusión de puntos de XVAS y ASE en el backlog y revisión de convocatoria de reunión de cuadratura del VaR
-- `WRK-TASK-028` - Convocatoria de sesión para revisión de cuadratura del VaR entre equipos de España y México
+- `WRK-TASK-035` - Ejecución ad hoc de Murex para migración de OASms
+- `WRK-TASK-036` - Seguimiento de OASms pendientes de respuesta
+- `WRK-TASK-037` - Identificación y comunicación de tablas de geografías Latam en ADA
+- `WRK-TASK-038` - Inclusión de puntos de XVAS y ASE en el backlog
+- `WRK-TASK-039` - Convocatoria de sesión para revisión de cuadratura del VaR
+- `WRK-TASK-040` - Compartir buzón con grupo de riesgos de México para reunión de VaR

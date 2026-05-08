@@ -1,0 +1,12 @@
+# Modernización de la app de banca digital móvil — Personalización con ML
+**Fecha:** 2026-02-26
+**Asistentes:** Lucía (Product Owner), Raúl (Tech Lead), Carmen (UX), Tomás (iOS), Nora (Android)
+
+## Notas de la reunión
+
+- Lucía: Queremos un home personalizado con widgets relevantes para cada usuario.
+- Carmen: He diseñado 8 widgets: saldo, próximos cobros, ofertas, gasto categorizado, etc.
+- Raúl: La personalización vendrá de un servicio backend que ya está en roadmap del equipo de data.
+- Decisión: Se priorizan 4 widgets para MVP: saldo, próximos cobros, gasto del mes y promociones.
+- Riesgo: El consentimiento GDPR para personalización requiere texto legal aprobado.
+- Tarea: Lucía coordinará con legal el texto de consentimiento.

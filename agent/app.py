@@ -364,150 +364,343 @@ with st.sidebar:
 
 st.markdown("# 📋 KDD PMO Copilot")
 
-if not st.session_state.current_acta_name:
-    st.info(
-        "👈 Selecciona un **proyecto** y un **acta** en el panel lateral.\n\n"
-        "Las actas con 🆕 son nuevas y necesitan generar specs.\n"
-        "Las actas con ✅ ya fueron procesadas."
-    )
-    st.stop()
-
-st.markdown(
-    f"**Proyecto:** `{st.session_state.current_project}` · "
-    f"**Acta:** `{st.session_state.current_acta_name}` · "
-    f"**Estado:** {'✅ Procesada' if is_processed(st.session_state.current_acta_name) else '🆕 Pendiente'}"
-)
-
-# Si no hay resultado de extracción, mostrar solo el acta
-if not st.session_state.extraction_result:
-    st.markdown("---")
-    st.subheader("📄 Transcripción del acta")
-    st.text_area(
-        "Contenido",
-        value=st.session_state.current_acta_text,
-        height=500,
-        disabled=True,
-        label_visibility="collapsed",
-    )
-    st.info("👈 Pulsa **'🚀 Generar specs'** en el panel lateral para extraer las specs de esta acta.")
-    st.stop()
-
-
 # ─────────────────────────────────────────────────────────────
-# VISTA DE VALIDACIÓN: ACTA | SPECS
+# NAVEGACIÓN POR PESTAÑAS
 # ─────────────────────────────────────────────────────────────
 
-result: ExtractionResult = st.session_state.extraction_result
+tab_specs, tab_agenda, tab_setup, tab_onboarding = st.tabs([
+    "🧩 Generador de Specs",
+    "📅 Smart Agenda",
+    "🏗️ Auto-Setup Proyecto",
+    "👋 Onboarding Kit",
+])
 
-if result is None:
-    st.stop()
+# ══════════════════════════════════════════════════════════════
+# TAB: SMART AGENDA
+# ══════════════════════════════════════════════════════════════
+with tab_agenda:
+    st.subheader("📅 Smart Agenda — Preparación de reuniones")
+    st.caption("Genera automáticamente una orden del día sugerida basada en el histórico del proyecto.")
 
-# Resumen
-st.markdown(f"**Resumen:** {result.summary}")
-st.markdown("---")
+    agenda_projects = list(scan_actas().keys())
+    if not agenda_projects:
+        st.warning("No hay proyectos con actas disponibles.")
+    else:
+        ag_col1, ag_col2 = st.columns(2)
+        with ag_col1:
+            agenda_project = st.selectbox("Proyecto:", agenda_projects, key="agenda_project")
+        with ag_col2:
+            meeting_type = st.text_input("Tipo de reunión:", value="Seguimiento semanal", key="agenda_meeting_type")
 
-# Dos columnas: Acta | Specs
-left_col, right_col = st.columns([1, 1], gap="large")
+        additional_notes = st.text_area(
+            "Notas adicionales (opcional):",
+            placeholder="Ej: Incluir tema de migración cloud, recordar deadline del viernes...",
+            key="agenda_notes",
+        )
 
-# ── COLUMNA IZQUIERDA: Acta original ──
-with left_col:
-    st.subheader("📄 Acta Original")
-    st.text_area(
-        "Transcripción",
-        value=st.session_state.current_acta_text,
-        height=600,
-        disabled=True,
-        label_visibility="collapsed",
+        if st.button("🚀 Generar Agenda", type="primary", key="btn_agenda"):
+            if not config.GITHUB_TOKEN:
+                st.error("❌ Configura GITHUB_TOKEN en .env para usar esta funcionalidad.")
+            else:
+                with st.spinner("Analizando contexto del proyecto y generando agenda..."):
+                    try:
+                        from smart_tools import generate_smart_agenda
+                        agenda_result = generate_smart_agenda(
+                            project=agenda_project,
+                            meeting_type=meeting_type,
+                            additional_context=additional_notes,
+                        )
+                        st.session_state["agenda_result"] = agenda_result
+                    except Exception as e:
+                        st.error(f"❌ Error: {e}")
+
+        if "agenda_result" in st.session_state and st.session_state["agenda_result"]:
+            ar = st.session_state["agenda_result"]
+            st.markdown("---")
+            if ar.saved_path:
+                st.success(f"✅ Smart Agenda guardada en: `{ar.saved_path}`")
+            st.markdown(ar.agenda_md)
+
+            col_kp, col_pd = st.columns(2)
+            with col_kp:
+                st.markdown("### 🔑 Puntos Clave")
+                for p in ar.key_points:
+                    st.markdown(f"- {p}")
+            with col_pd:
+                st.markdown("### ⚠️ Decisiones Pendientes")
+                for d in ar.pending_decisions:
+                    st.markdown(f"- {d}")
+
+            if ar.risks:
+                st.markdown("### 🚨 Riesgos Identificados")
+                for r in ar.risks:
+                    st.markdown(f"- {r}")
+
+# ══════════════════════════════════════════════════════════════
+# TAB: AUTO-SETUP PROYECTO
+# ══════════════════════════════════════════════════════════════
+with tab_setup:
+    st.subheader("🏗️ Auto-Setup de Proyecto")
+    st.caption("Genera planificación inicial (WBS, entregables, hitos) desde una descripción sencilla. Consulta specs históricas del equipo.")
+
+    setup_name = st.text_input("Nombre del proyecto:", placeholder="Ej: Migración Core Bancario", key="setup_name")
+    setup_desc = st.text_area(
+        "Descripción del proyecto:",
+        placeholder="Describe en 2-3 frases qué se quiere conseguir, tecnologías involucradas, equipo estimado...",
+        height=120,
+        key="setup_desc",
     )
+    setup_weeks = st.slider("Duración estimada (semanas):", 4, 52, 12, key="setup_weeks")
 
-# ── COLUMNA DERECHA: Specs editables ──
-with right_col:
-    st.subheader(f"🧩 Specs Generadas ({len(result.artifacts)})")
+    if st.button("🚀 Generar Setup", type="primary", key="btn_setup"):
+        if not setup_desc:
+            st.warning("Escribe una descripción del proyecto.")
+        elif not config.GITHUB_TOKEN:
+            st.error("❌ Configura GITHUB_TOKEN en .env para usar esta funcionalidad.")
+        else:
+            with st.spinner("Consultando specs históricas y generando planificación..."):
+                try:
+                    from smart_tools import generate_project_setup
+                    setup_result = generate_project_setup(
+                        project_description=setup_desc,
+                        project_name=setup_name,
+                        duration_weeks=setup_weeks,
+                    )
+                    st.session_state["setup_result"] = setup_result
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
 
-    type_icons = {"adr": "🏗️", "dom": "📖", "wrk-task": "✅", "loaded": "📂"}
+    if "setup_result" in st.session_state and st.session_state["setup_result"]:
+        sr = st.session_state["setup_result"]
+        st.markdown("---")
+        st.markdown(f"### 📋 Proyecto: {sr.project_name}")
 
-    for i, spec in enumerate(result.artifacts):
-        icon = type_icons.get(spec.type, "📄")
-        with st.expander(f"{icon} {spec.id} — {spec.title}", expanded=(i == 0)):
-            edited = st.text_area(
-                f"Contenido de {spec.id}",
-                value=st.session_state.edited_specs.get(spec.id, spec.content),
-                height=350,
-                key=f"editor_{spec.id}",
+        if sr.saved_path:
+            st.success(f"✅ Planificación exportada a: `{sr.saved_path}`")
+            try:
+                with open(sr.saved_path, "rb") as fh:
+                    st.download_button(
+                        label="⬇️ Descargar Excel de planificación",
+                        data=fh.read(),
+                        file_name=sr.saved_path.name,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        key="dl_setup_excel",
+                    )
+            except Exception:
+                pass
+
+        tab_wbs, tab_deliv, tab_miles, tab_struct = st.tabs(["WBS", "Entregables", "Hitos", "Estructura"])
+
+        with tab_wbs:
+            st.markdown(sr.wbs_md)
+        with tab_deliv:
+            for d in sr.deliverables:
+                st.markdown(f"- ✅ {d}")
+        with tab_miles:
+            for m in sr.milestones:
+                st.markdown(f"**Semana {m.get('week', '?')}** — {m.get('name', '')}")
+                st.caption(m.get("description", ""))
+        with tab_struct:
+            st.markdown(sr.suggested_structure)
+
+# ══════════════════════════════════════════════════════════════
+# TAB: ONBOARDING KIT
+# ══════════════════════════════════════════════════════════════
+with tab_onboarding:
+    st.subheader("👋 Generador de Onboarding Kit")
+    st.caption("Crea un plan de acogida 100% personalizado para un recurso nuevo al instante.")
+
+    onb_projects = list(scan_actas().keys())
+    if not onb_projects:
+        st.warning("No hay proyectos disponibles.")
+    else:
+        onb_col1, onb_col2 = st.columns(2)
+        with onb_col1:
+            onb_project = st.selectbox("Proyecto:", onb_projects, key="onb_project")
+            onb_name = st.text_input("Nombre del nuevo integrante (opcional):", key="onb_name")
+        with onb_col2:
+            onb_role = st.text_input("Rol:", placeholder="Ej: Analista de Riesgos Junior", key="onb_role")
+            onb_start = st.date_input("Fecha de incorporación:", key="onb_start")
+
+        if st.button("🚀 Generar Onboarding Kit", type="primary", key="btn_onboarding"):
+            if not onb_role:
+                st.warning("Indica el rol del nuevo integrante.")
+            elif not config.GITHUB_TOKEN:
+                st.error("❌ Configura GITHUB_TOKEN en .env para usar esta funcionalidad.")
+            else:
+                with st.spinner("Consultando cerebro RAG del proyecto y generando kit..."):
+                    try:
+                        from smart_tools import generate_onboarding_kit
+                        onb_result = generate_onboarding_kit(
+                            project=onb_project,
+                            person_role=onb_role,
+                            person_name=onb_name,
+                            start_date=str(onb_start),
+                        )
+                        st.session_state["onb_result"] = onb_result
+                    except Exception as e:
+                        st.error(f"❌ Error: {e}")
+
+    if "onb_result" in st.session_state and st.session_state["onb_result"]:
+        ob = st.session_state["onb_result"]
+        st.markdown("---")
+
+        # Botón de descarga del kit completo en TXT
+        try:
+            from smart_tools import onboarding_to_txt
+            kit_txt = onboarding_to_txt(ob, person_name=st.session_state.get("onb_name", ""))
+            safe_role = ob.person_role.lower().replace(" ", "-")[:30]
+            st.download_button(
+                label="⬇️ Descargar Onboarding Kit (.txt)",
+                data=kit_txt.encode("utf-8"),
+                file_name=f"onboarding_{ob.project}_{safe_role}.txt",
+                mime="text/plain",
+                key="dl_onboarding_txt",
+            )
+        except Exception as e:
+            st.warning(f"No se pudo preparar la descarga: {e}")
+
+        tab_welcome, tab_glossary, tab_decisions, tab_tasks = st.tabs([
+            "📄 Documento de Bienvenida", "📚 Glosario", "🏗️ Decisiones Recientes", "✅ Tareas 15 días"
+        ])
+
+        with tab_welcome:
+            st.markdown(ob.welcome_doc_md)
+        with tab_glossary:
+            for item in ob.glossary:
+                st.markdown(f"**{item.get('term', '')}**: {item.get('definition', '')}")
+        with tab_decisions:
+            for i, dec in enumerate(ob.recent_decisions, 1):
+                st.markdown(f"{i}. {dec}")
+        with tab_tasks:
+            for t in ob.first_tasks:
+                st.markdown(f"**Semana {t.get('week', '?')}** — {t.get('task', '')}")
+                st.caption(t.get("description", ""))
+
+
+# ══════════════════════════════════════════════════════════════
+# TAB: GENERADOR DE SPECS (contenido original)
+# ══════════════════════════════════════════════════════════════
+with tab_specs:
+    if not st.session_state.current_acta_name:
+        st.info(
+            "👈 Selecciona un **proyecto** y un **acta** en el panel lateral.\n\n"
+            "Las actas con 🆕 son nuevas y necesitan generar specs.\n"
+            "Las actas con ✅ ya fueron procesadas."
+        )
+    else:
+        st.markdown(
+            f"**Proyecto:** `{st.session_state.current_project}` · "
+            f"**Acta:** `{st.session_state.current_acta_name}` · "
+            f"**Estado:** {'✅ Procesada' if is_processed(st.session_state.current_acta_name) else '🆕 Pendiente'}"
+        )
+
+        # Si no hay resultado de extracción, mostrar solo el acta
+        if not st.session_state.extraction_result:
+            st.markdown("---")
+            st.subheader("📄 Transcripción del acta")
+            st.text_area(
+                "Contenido",
+                value=st.session_state.current_acta_text,
+                height=500,
+                disabled=True,
                 label_visibility="collapsed",
             )
-            st.session_state.edited_specs[spec.id] = edited
-
-
-# ─────────────────────────────────────────────────────────────
-# BARRA DE ACCIONES
-# ─────────────────────────────────────────────────────────────
-
-st.markdown("---")
-
-col_save, col_validate, col_notify = st.columns([1, 1, 1])
-
-with col_save:
-    if st.button("💾 Guardar borrador", use_container_width=True):
-        for spec in result.artifacts:
-            spec.content = st.session_state.edited_specs.get(spec.id, spec.content)
-        save_artifacts(result)
-        st.success("✅ Borrador guardado en disco")
-
-with col_validate:
-    if st.button(
-        "✅ Validar y Commitear Specs",
-        use_container_width=True,
-        type="primary",
-    ):
-        for spec in result.artifacts:
-            spec.content = st.session_state.edited_specs.get(spec.id, spec.content)
-
-        if config.GITHUB_TOKEN and config.GITHUB_REPO:
-            try:
-                from committer import commit_artifacts
-                committed = commit_artifacts(
-                    result.artifacts,
-                    source_transcript=result.source_transcript,
-                    project=st.session_state.current_project,
-                )
-                mark_as_processed(
-                    st.session_state.current_acta_name,
-                    [s.id for s in result.artifacts],
-                )
-                st.session_state.validated = True
-                st.success(f"✅ {len(committed)} specs commiteadas a /specs/")
-                for path in committed:
-                    st.code(path, language=None)
-            except Exception as e:
-                st.error(f"❌ Error en commit: {e}")
+            st.info("👈 Pulsa **'🚀 Generar specs'** en el panel lateral para extraer las specs de esta acta.")
         else:
-            save_artifacts(result)
-            mark_as_processed(
-                st.session_state.current_acta_name,
-                [s.id for s in result.artifacts],
-            )
-            st.warning("⚠️ GITHUB_TOKEN/GITHUB_REPO no configurados. Specs guardadas en disco.")
+            # ── VISTA DE VALIDACIÓN: ACTA | SPECS ──
+            result: ExtractionResult = st.session_state.extraction_result
 
-with col_notify:
-    if st.button("📧 Notificar al PMO", use_container_width=True):
-        try:
-            from notifier import send_notification
-            send_notification(result)
-            st.success("✅ Email enviado al PMO")
-        except ImportError:
-            st.warning("⚠️ notifier.py aún no implementado.")
-        except Exception as e:
-            st.error(f"❌ Error: {e}")
+            if result is not None:
+                st.markdown(f"**Resumen:** {result.summary}")
+                st.markdown("---")
 
-if st.session_state.validated:
-    st.balloons()
+                left_col, right_col = st.columns([1, 1], gap="large")
 
+                with left_col:
+                    st.subheader("📄 Acta Original")
+                    st.text_area(
+                        "Transcripción",
+                        value=st.session_state.current_acta_text,
+                        height=600,
+                        disabled=True,
+                        label_visibility="collapsed",
+                    )
 
+                with right_col:
+                    st.subheader(f"🧩 Specs Generadas ({len(result.artifacts)})")
+                    type_icons = {"adr": "🏗️", "dom": "📖", "wrk-task": "✅", "loaded": "📂"}
 
+                    for i, spec in enumerate(result.artifacts):
+                        icon = type_icons.get(spec.type, "📄")
+                        with st.expander(f"{icon} {spec.id} — {spec.title}", expanded=(i == 0)):
+                            edited = st.text_area(
+                                f"Contenido de {spec.id}",
+                                value=st.session_state.edited_specs.get(spec.id, spec.content),
+                                height=350,
+                                key=f"editor_{spec.id}",
+                                label_visibility="collapsed",
+                            )
+                            st.session_state.edited_specs[spec.id] = edited
 
+                # ── BARRA DE ACCIONES ──
+                st.markdown("---")
+                col_save, col_validate, col_notify = st.columns([1, 1, 1])
 
+                with col_save:
+                    if st.button("💾 Guardar borrador", use_container_width=True):
+                        for spec in result.artifacts:
+                            spec.content = st.session_state.edited_specs.get(spec.id, spec.content)
+                        save_artifacts(result)
+                        st.success("✅ Borrador guardado en disco")
 
+                with col_validate:
+                    if st.button(
+                        "✅ Validar y Commitear Specs",
+                        use_container_width=True,
+                        type="primary",
+                    ):
+                        for spec in result.artifacts:
+                            spec.content = st.session_state.edited_specs.get(spec.id, spec.content)
+
+                        if config.GITHUB_TOKEN and config.GITHUB_REPO:
+                            try:
+                                from committer import commit_artifacts
+                                committed = commit_artifacts(
+                                    result.artifacts,
+                                    source_transcript=result.source_transcript,
+                                    project=st.session_state.current_project,
+                                )
+                                mark_as_processed(
+                                    st.session_state.current_acta_name,
+                                    [s.id for s in result.artifacts],
+                                )
+                                st.session_state.validated = True
+                                st.success(f"✅ {len(committed)} specs commiteadas a /specs/")
+                                for path in committed:
+                                    st.code(path, language=None)
+                            except Exception as e:
+                                st.error(f"❌ Error en commit: {e}")
+                        else:
+                            save_artifacts(result)
+                            mark_as_processed(
+                                st.session_state.current_acta_name,
+                                [s.id for s in result.artifacts],
+                            )
+                            st.warning("⚠️ GITHUB_TOKEN/GITHUB_REPO no configurados. Specs guardadas en disco.")
+
+                with col_notify:
+                    if st.button("📧 Notificar al PMO", use_container_width=True):
+                        try:
+                            from notifier import send_notification
+                            send_notification(result)
+                            st.success("✅ Email enviado al PMO")
+                        except ImportError:
+                            st.warning("⚠️ notifier.py aún no implementado.")
+                        except Exception as e:
+                            st.error(f"❌ Error: {e}")
+                if st.session_state.validated:
+                    st.balloons()
 
 
 

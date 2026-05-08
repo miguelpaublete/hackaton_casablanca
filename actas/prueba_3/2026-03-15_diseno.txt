@@ -1,0 +1,12 @@
+# Cumplimiento normativo MiFID II — reportes de transacciones — Diseño técnico solución
+**Fecha:** 2026-03-15
+**Asistentes:** Elena (PMO Regulatorio), Diego (Dev), Mireia (Compliance), Javier (QA)
+
+## Notas de la reunión
+
+- Diego: Propongo un módulo nuevo de transformación XML que aísle el cambio.
+- Javier: QA necesita acceso a un set de transacciones de test que cubra los 12 gaps.
+- Decisión: Se adopta arquitectura de strategy pattern para soportar versiones múltiples del reporte.
+- Tarea: Diego implementará prototipo del módulo antes del 22/03.
+- Tarea: Javier definirá el plan de pruebas con casos para cada gap.
+- Riesgo: Si ESMA cambia el XSD a última hora, hay que rehacer mappings.

@@ -1,0 +1,12 @@
+# Migración de plataforma de pagos a Cloud GCP — Setup de pipelines CI/CD
+**Fecha:** 2026-02-23
+**Asistentes:** Carlos (Arquitecto), Marta (PM), Luis (Dev Lead), Ana (DevOps)
+
+## Notas de la reunión
+
+- Ana: He montado el pipeline base en Cloud Build con stages: build, test, scan, deploy.
+- Luis: Hay que añadir Snyk en la fase de scan, ya está aprobado por seguridad.
+- Decisión: Se usa Artifact Registry como repositorio único de imágenes Docker.
+- Decisión: Despliegues a producción siempre con aprobación manual de PM y arquitecto.
+- Tarea: Luis migrará los 5 servicios de la ola 1 al nuevo pipeline antes de finales de febrero.
+- Bloqueante: Falta token de Snyk en GCP Secret Manager. Ana lo gestionará.

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>KDD PMO Copilot — Presentación Ejecutiva</title>
+<style>
+  :root {
+    --bbva-blue: #004481;
+    --bbva-aqua: #2DCCCD;
+    --bbva-light: #5BBEFF;
+    --bbva-dark: #00273B;
+    --bbva-green: #48AC98;
+    --bbva-yellow: #F5C518;
+    --bbva-orange: #FF6B35;
+    --bg: #0A0F1E;
+    --card: #0D1B2A;
+    --card2: #112233;
+    --text: #E8F4FD;
+    --muted: #7B9DB4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── SLIDE CONTAINER ─────────────────────────────────────── */
+  .slides { position: relative; width: 100vw; height: 100vh; }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 50px 70px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow-y: auto;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  /* ── HEADER COMÚN ─────────────────────────────────────────── */
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--bbva-blue);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--bbva-blue), var(--bbva-aqua));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: white; font-size: 22px;
+  }
+  .brand-text h1 { font-size: 22px; font-weight: 700; color: white; }
+  .brand-text small { color: var(--muted); font-size: 12px; }
+  .slide-num {
+    background: var(--bbva-blue); color: white;
+    padding: 8px 18px; border-radius: 20px;
+    font-weight: 700; font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* ── TITULOS ─────────────────────────────────────────────── */
+  h2.slide-title {
+    font-size: 38px;
+    background: linear-gradient(135deg, var(--bbva-aqua), var(--bbva-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    font-weight: 800;
+  }
+  .slide-subtitle {
+    color: var(--muted); font-size: 15px; margin-bottom: 30px;
+  }
+
+  /* ── SLIDE 1: PRESENTACIÓN ───────────────────────────────── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 28px;
+  }
+  .why-card {
+    background: var(--card);
+    border: 1px solid rgba(45,204,205,0.2);
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .why-card h3 {
+    color: var(--bbva-aqua);
+    font-size: 17px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .why-card p, .why-card li {
+    color: var(--text); font-size: 14px; line-height: 1.6;
+  }
+  .why-card ul { padding-left: 20px; }
+  .pain-point {
+    color: var(--bbva-orange); font-weight: 600;
+  }
+  .goal {
+    color: var(--bbva-green); font-weight: 600;
+  }
+
+  /* DIAGRAMA DE FLUJO */
+  .flow-section {
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 10px;
+  }
+  .flow-section h3 {
+    color: var(--bbva-light);
+    font-size: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    align-items: stretch;
+  }
+  .flow-step {
+    background: linear-gradient(135deg, var(--bbva-blue), var(--bbva-dark));
+    border: 1px solid var(--bbva-aqua);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    position: relative;
+    font-size: 11px;
+  }
+  .flow-step .num {
+    background: var(--bbva-aqua); color: var(--bbva-dark);
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; margin: 0 auto 6px; font-size: 12px;
+  }
+  .flow-step .icon { font-size: 22px; margin-bottom: 4px; }
+  .flow-step .label { font-weight: 700; color: white; font-size: 11px; }
+  .flow-step .tech { color: var(--bbva-aqua); font-size: 10px; margin-top: 3px; }
+  .flow-step::after {
+    content: '→';
+    position: absolute;
+    right: -6px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--bbva-aqua);
+    font-size: 16px;
+    z-index: 2;
+  }
+  .flow-step:last-child::after { display: none; }
+
+  .features-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .feature {
+    background: linear-gradient(135deg, rgba(45,204,205,0.08), rgba(91,190,255,0.08));
+    border: 1px solid rgba(45,204,205,0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .feature .ico { font-size: 22px; margin-bottom: 4px; }
+  .feature .ttl { font-weight: 700; color: var(--bbva-aqua); font-size: 13px; }
+  .feature .desc { color: var(--muted); font-size: 11px; margin-top: 3px; }
+
+  /* ── SLIDE 2: DEMO ───────────────────────────────────────── */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 30px;
+    height: calc(100% - 100px);
+  }
+  .demo-screen {
+    background: var(--card);
+    border: 2px solid var(--bbva-aqua);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .demo-screen::before {
+    content: '● ● ●';
+    position: absolute; top: 14px; left: 18px;
+    color: var(--bbva-aqua); letter-spacing: 4px; font-size: 12px;
+  }
+  .demo-url {
+    text-align: center; color: var(--muted);
+    font-family: monospace; font-size: 13px;
+    margin-bottom: 16px;
+    padding-top: 6px;
+  }
+  .demo-placeholder {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.3);
+    border: 2px dashed var(--bbva-blue);
+    border-radius: 10px;
+    color: var(--muted);
+    flex-direction: column; gap: 10px;
+  }
+  .demo-placeholder .play {
+    font-size: 60px; color: var(--bbva-aqua);
+  }
+  .demo-script h3 {
+    color: var(--bbva-yellow); font-size: 18px; margin-bottom: 12px;
+  }
+  .demo-step {
+    background: var(--card);
+    border-left: 3px solid var(--bbva-aqua);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 0 8px 8px 0;
+  }
+  .demo-step .time {
+    background: var(--bbva-blue); color: white;
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700;
+    display: inline-block; margin-bottom: 4px;
+  }
+  .demo-step .what {
+    color: white; font-weight: 600; font-size: 13px;
+  }
+  .demo-step .detail {
+    color: var(--muted); font-size: 12px; margin-top: 3px;
+  }
+
+  /* ── SLIDE 3: CONCLUSIONES ───────────────────────────────── */
+  .verdict {
+    background: linear-gradient(135deg, var(--bbva-green), var(--bbva-aqua));
+    color: var(--bbva-dark);
+    padding: 18px 30px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 26px;
+    font-size: 26px;
+    font-weight: 900;
+    box-shadow: 0 8px 30px rgba(72,172,152,0.3);
+  }
+  .verdict small { display: block; font-size: 13px; font-weight: 600; opacity: 0.85; margin-top: 4px; }
+
+  .conclusions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  .concl-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px;
+    border-top: 3px solid var(--bbva-aqua);
+  }
+  .concl-card h3 {
+    color: var(--bbva-aqua); font-size: 17px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kpi-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-top: 8px;
+  }
+  .kpi {
+    background: var(--card2);
+    border-radius: 10px; padding: 12px;
+    text-align: center;
+  }
+  .kpi .num {
+    font-size: 28px; font-weight: 900;
+    background: linear-gradient(135deg, var(--bbva-aqua), var(--bbva-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .kpi .lbl { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+  .benefits-list { list-style: none; }
+  .benefits-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(123,157,180,0.15);
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .benefits-list li::before {
+    content: '✓'; color: var(--bbva-green);
+    font-weight: 900; font-size: 16px; flex-shrink: 0;
+  }
+  .benefits-list li:last-child { border: none; }
+
+  /* ── NAV ─────────────────────────────────────────────────── */
+  .nav {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; align-items: center;
+    background: rgba(13,27,42,0.9); backdrop-filter: blur(8px);
+    padding: 10px 18px; border-radius: 30px;
+    border: 1px solid var(--bbva-aqua);
+    z-index: 100;
+  }
+  .nav button {
+    background: var(--bbva-blue); color: white;
+    border: none; width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer; font-size: 16px; font-weight: 700;
+    transition: all 0.2s;
+  }
+  .nav button:hover { background: var(--bbva-aqua); color: var(--bbva-dark); }
+  .nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav .dots { display: flex; gap: 8px; }
+  .nav .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav .dot.active {
+    background: var(--bbva-aqua);
+    transform: scale(1.3);
+  }
+
+  .keyhint {
+    position: fixed; top: 20px; right: 20px;
+    color: var(--muted); font-size: 11px;
+    background: rgba(13,27,42,0.6); padding: 6px 12px;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="keyhint">← → o flechas para navegar · F11 pantalla completa</div>
+
+<div class="slides">
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 1: PRESENTACIÓN DEL CASO                           -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section class="slide active" id="s1">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">K</div>
+        <div class="brand-text">
+          <h1>KDD PMO Copilot</h1>
+          <small>Knowledge-Driven Development · Hackaton Casablanca 2026</small>
+        </div>
+      </div>
+      <div class="slide-num">01 · CASO</div>
+    </div>
+
+    <h2 class="slide-title">El conocimiento del proyecto, automatizado</h2>
+    <p class="slide-subtitle">¿Por qué este caso? ¿Qué buscamos conseguir?</p>
+
+    <div class="why-grid">
+      <div class="why-card">
+        <h3>🔥 Por qué lo hemos elegido</h3>
+        <ul>
+          <li>El <span class="pain-point">PMO dedica 4-6 h/semana</span> a redactar actas, decisiones y tareas</li>
+          <li>El <span class="pain-point">conocimiento se pierde</span> entre PDFs, mails y Drive</li>
+          <li>Cada <span class="pain-point">incorporación nueva</span> tarda 2-3 semanas en estar productiva</li>
+          <li>Las reuniones empiezan <span class="pain-point">sin agenda clara</span> y se diluyen</li>
+        </ul>
+      </div>
+      <div class="why-card">
+        <h3>🎯 Qué buscamos conseguir</h3>
+        <ul>
+          <li><span class="goal">Automatizar</span> la generación de specs (ADR, DOM, Tareas) desde actas</li>
+          <li><span class="goal">Centralizar</span> el conocimiento en un repositorio versionado</li>
+          <li><span class="goal">Acelerar</span> la incorporación de nuevos miembros con onboarding kits IA</li>
+          <li><span class="goal">Preparar</span> reuniones con agendas inteligentes basadas en el histórico</li>
+          <li><span class="goal">Arrancar</span> proyectos nuevos con planificación auto-generada en minutos</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flow-section">
+      <h3>🔄 Flujo end-to-end de la solución</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="num">1</div>
+          <div class="icon">🎙️</div>
+          <div class="label">Reunión</div>
+          <div class="tech">Google Meet</div>
+        </div>
+        <div class="flow-step">
+          <div class="num">2</div>
+          <div class="icon">📄</div>
+          <div class="label">Acta</div>
+          <div class="tech">Apps Script</div>
+        </div>
+        <div class="flow-step">
+          <div class="num">3</div>
+          <div class="icon">📂</div>
+          <div class="label">Repo</div>
+          <div class="tech">GitHub /actas</div>
+        </div>
+        <div class="flow-step">
+          <div class="num">4</div>
+          <div class="icon">🤖</div>
+          <div class="label">Extracción IA</div>
+          <div class="tech">GitHub Models</div>
+        </div>
+        <div class="flow-step">
+          <div class="num">5</div>
+          <div class="icon">📧</div>
+          <div class="label">Aviso PMO</div>
+          <div class="tech">Mailjet</div>
+        </div>
+        <div class="flow-step">
+          <div class="num">6</div>
+          <div class="icon">✅</div>
+          <div class="label">Validación</div>
+          <div class="tech">Streamlit</div>
+        </div>
+        <div class="flow-step">
+          <div class="num">7</div>
+          <div class="icon">🧠</div>
+          <div class="label">Cerebro RAG</div>
+          <div class="tech">Copilot @workspace</div>
+        </div>
+      </div>
+
+      <div class="features-row">
+        <div class="feature">
+          <div class="ico">🧩</div>
+          <div class="ttl">Generador de Specs</div>
+          <div class="desc">ADR + DOM + Tareas desde acta</div>
+        </div>
+        <div class="feature">
+          <div class="ico">📅</div>
+          <div class="ttl">Smart Agenda</div>
+          <div class="desc">Orden del día auto-generado</div>
+        </div>
+        <div class="feature">
+          <div class="ico">🏗️</div>
+          <div class="ttl">Auto-Setup</div>
+          <div class="desc">Planificación nuevo proyecto</div>
+        </div>
+        <div class="feature">
+          <div class="ico">👋</div>
+          <div class="ttl">Onboarding Kit</div>
+          <div class="desc">Bienvenida 100% personalizada</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 2: DEMO                                            -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section class="slide" id="s2">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">K</div>
+        <div class="brand-text">
+          <h1>KDD PMO Copilot</h1>
+          <small>Demo en vivo · 4 minutos</small>
+        </div>
+      </div>
+      <div class="slide-num">02 · DEMO</div>
+    </div>
+
+    <h2 class="slide-title">Demo en vivo</h2>
+    <p class="slide-subtitle">Lo vamos a ver funcionando · 4 minutos · 4 funcionalidades</p>
+
+    <div class="demo-grid">
+      <div class="demo-screen">
+        <div class="demo-url">🔒 localhost:8501 · KDD PMO Copilot</div>
+        <div class="demo-placeholder">
+          <div class="play">▶</div>
+          <div style="font-size:16px; color: var(--bbva-aqua); font-weight:700;">DEMO EN VIVO</div>
+          <div style="font-size:12px;">(o reemplaza este recuadro por un ^lt;video&gt; con la grabación)</div>
+        </div>
+      </div>
+
+      <div class="demo-script">
+        <h3>📋 Guion de la demo (4 min)</h3>
+
+        <div class="demo-step">
+          <span class="time">0:00 — 1:00</span>
+          <div class="what">🧩 Generar Specs desde un acta</div>
+          <div class="detail">Selecciono el proyecto <i>prueba_3 (MiFID II)</i>, elijo un acta y la IA genera 3 ADR + 2 DOM + 5 tareas en 15 segundos.</div>
+        </div>
+
+        <div class="demo-step">
+          <span class="time">1:00 — 2:00</span>
+          <div class="what">📅 Smart Agenda para una reunión</div>
+          <div class="detail">Pido la agenda del weekly de <i>prueba_1 (Migración GCP)</i>. La IA propone 5 puntos, identifica 2 decisiones pendientes y 1 riesgo crítico.</div>
+        </div>
+
+        <div class="demo-step">
+          <span class="time">2:00 — 3:00</span>
+          <div class="what">🏗️ Auto-Setup de un proyecto nuevo</div>
+          <div class="detail">Describo en 3 líneas un proyecto de scoring crediticio. Genera Excel con WBS, 18 entregables, 8 hitos y estructura documental.</div>
+        </div>
+
+        <div class="demo-step">
+          <span class="time">3:00 — 4:00</span>
+          <div class="what">👋 Onboarding Kit para un nuevo recurso</div>
+          <div class="detail">Indico "Analista Junior incorporación 15-mayo". Descargo TXT con bienvenida + glosario + decisiones recientes + tareas para 15 días.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 3: CONCLUSIONES                                    -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section class="slide" id="s3">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">K</div>
+        <div class="brand-text">
+          <h1>KDD PMO Copilot</h1>
+          <small>Conclusiones y siguientes pasos</small>
+        </div>
+      </div>
+      <div class="slide-num">03 · CONCLUSIONES</div>
+    </div>
+
+    <h2 class="slide-title">¿Apostamos por esta idea?</h2>
+    <p class="slide-subtitle">Veredicto tras la fase de viabilidad y prototipo funcional</p>
+
+    <div class="verdict">
+      ✅ SÍ, APOSTEMOS
+      <small>MVP funcional + arquitectura sin coste extra (todo con licencias ya disponibles en BBVA)</small>
+    </div>
+
+    <div class="conclusions-grid">
+      <div class="concl-card">
+        <h3>📊 Resultados de la viabilidad</h3>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="num">~85%</div>
+            <div class="lbl">Specs aceptadas sin retoques</div>
+          </div>
+          <div class="kpi">
+            <div class="num">15s</div>
+            <div class="lbl">Tiempo medio por acta</div>
+          </div>
+          <div class="kpi">
+            <div class="num">0€</div>
+            <div class="lbl">Coste de licencias extra</div>
+          </div>
+          <div class="kpi">
+            <div class="num">4</div>
+            <div class="lbl">Funcionalidades operativas</div>
+          </div>
+        </div>
+        <div style="margin-top:14px; padding:10px; background:var(--card2); border-radius:8px; font-size:12px; color:var(--muted);">
+          <strong style="color:var(--bbva-aqua);">Stack:</strong> GitHub Models (GPT-4.1) + Streamlit + PyGithub + Mailjet · Sin coste cloud adicional, todo bajo licencias corporativas.
+        </div>
+      </div>
+
+      <div class="concl-card">
+        <h3>💎 Beneficios para el día a día</h3>
+        <ul class="benefits-list">
+          <li><strong>4-6 h/semana</strong> liberadas al PMO en redacción de specs y actas</li>
+          <li><strong>Onboarding 3x más rápido</strong>: kits personalizados al instante</li>
+          <li><strong>Reuniones más eficientes</strong>: agenda preparada antes de empezar</li>
+          <li><strong>Conocimiento centralizado</strong> y trazable en Git, no perdido en mails</li>
+          <li><strong>Arranque de proyectos en minutos</strong> con WBS y planificación reutilizable</li>
+          <li><strong>Cumplimiento</strong>: todo el flujo dentro del entorno securizado BBVA</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; background:var(--card); border-radius:12px; padding:18px; border:1px solid var(--bbva-aqua);">
+      <h3 style="color:var(--bbva-yellow); margin-bottom:10px; font-size:16px;">🚀 Próximos pasos propuestos</h3>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; font-size:12px;">
+        <div>
+          <strong style="color:var(--bbva-aqua);">Corto plazo (1 mes)</strong><br>
+          <span style="color:var(--muted);">Piloto en 2 proyectos reales · feedback PMOs · ajuste de prompts</span>
+        </div>
+        <div>
+          <strong style="color:var(--bbva-aqua);">Medio plazo (3 meses)</strong><br>
+          <span style="color:var(--muted);">Integración con Workplace Drive · validación de seguridad · rollout escalonado</span>
+        </div>
+        <div>
+          <strong style="color:var(--bbva-aqua);">Largo plazo (6 meses)</strong><br>
+          <span style="color:var(--muted);">Despliegue a toda la consultora · métricas de adopción · v2 con más recetas</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button id="prev" onclick="go(-1)">←</button>
+  <div class="dots">
+    <div class="dot active" onclick="goto(0)"></div>
+    <div class="dot" onclick="goto(1)"></div>
+    <div class="dot" onclick="goto(2)"></div>
+  </div>
+  <button id="next" onclick="go(1)">→</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  const total = slides.length;
+
+  function render() {
+    slides.forEach((s,i) => s.classList.toggle('active', i === current));
+    dots.forEach((d,i) => d.classList.toggle('active', i === current));
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === total - 1;
+  }
+  function go(delta) {
+    current = Math.max(0, Math.min(total - 1, current + delta));
+    render();
+  }
+  function goto(i) { current = i; render(); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(-1);
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End') goto(total - 1);
+  });
+</script>
+</body>
+</html>
+

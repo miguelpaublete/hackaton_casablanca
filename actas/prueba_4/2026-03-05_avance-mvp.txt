@@ -1,0 +1,13 @@
+# Modernización de la app de banca digital móvil — Avance del MVP
+**Fecha:** 2026-03-05
+**Asistentes:** Lucía (Product Owner), Raúl (Tech Lead), Carmen (UX), Tomás (iOS), Nora (Android)
+
+## Notas de la reunión
+
+- Tomás: iOS MVP al 65%. Login y home funcionando. Falta el módulo de transferencias.
+- Nora: Android al 60%. Mismos hitos pendientes.
+- Carmen: Test con 8 usuarios early adopters fue muy positivo, NPS interno 52.
+- Lucía: ¿Vamos a llegar al beta cerrado del 1/04?
+- Raúl: Apretado pero factible. Necesitamos paralelizar el módulo de transferencias.
+- Decisión: Se contrata 1 dev contractor adicional para acelerar transferencias.
+- Riesgo: Posible retraso del beta de 1 a 2 semanas si seguridad pide cambios.

@@ -1,0 +1,12 @@
+# Cumplimiento normativo MiFID II — reportes de transacciones — Revisión final con Compliance
+**Fecha:** 2026-03-29
+**Asistentes:** Elena (PMO Regulatorio), Diego (Dev), Mireia (Compliance), Javier (QA)
+
+## Notas de la reunión
+
+- Mireia: He revisado los reportes de muestra y todos cumplen con RTS 22 actualizado.
+- Elena: ¿Estamos listos para UAT con Compliance al completo la próxima semana?
+- Javier: Sí, tengo el entorno de UAT con datos enmascarados de producción.
+- Decisión: UAT comienza 5/04, duración 2 semanas, con sign-off formal del CRO.
+- Decisión: Go-live planificado para el 1/06, 30 días antes del deadline regulatorio.
+- Tarea: Elena preparará comunicación al regulador para informar del nuevo flujo.

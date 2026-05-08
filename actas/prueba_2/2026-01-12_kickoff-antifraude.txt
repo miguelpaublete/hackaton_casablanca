@@ -1,0 +1,13 @@
+# Implantación de sistema antifraude con Machine Learning — Kickoff antifraude ML
+**Fecha:** 2026-01-12
+**Asistentes:** Sara (Data Scientist), Pablo (PM), Inés (ML Eng), Roberto (Negocio Riesgos)
+
+## Notas de la reunión
+
+- Pablo: Objetivo: reducir el fraude en pagos con tarjeta un 30% en 12 meses con un modelo ML.
+- Sara: Tenemos 18 meses de histórico de transacciones, 2.3M de etiquetas confirmadas.
+- Roberto: El umbral de falsos positivos no puede superar el 0.5%, es crítico para la experiencia de cliente.
+- Inés: Propongo un ensemble de XGBoost + red neuronal con features de comportamiento.
+- Decisión: Modelo objetivo en producción para Q3 2026.
+- Riesgo: La normativa PSD2 exige explicabilidad de decisiones ML, hay que considerar SHAP.
+- Tarea: Sara preparará el dataset de entrenamiento limpio antes del 26/01.

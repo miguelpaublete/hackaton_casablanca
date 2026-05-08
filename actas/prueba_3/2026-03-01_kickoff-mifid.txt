@@ -1,0 +1,12 @@
+# Cumplimiento normativo MiFID II — reportes de transacciones — Kickoff MiFID II
+**Fecha:** 2026-03-01
+**Asistentes:** Elena (PMO Regulatorio), Diego (Dev), Mireia (Compliance), Javier (QA)
+
+## Notas de la reunión
+
+- Elena: ESMA ha publicado actualización del RTS 22, hay que adaptar el reporting de transacciones antes del 30/06.
+- Mireia: Los principales cambios afectan a 8 campos del esquema XML actual.
+- Diego: El sistema actual reporta diariamente a CNMV, hay que mantener la ventana temporal.
+- Decisión: Se aborda el cambio en 3 sprints de 4 semanas cada uno.
+- Riesgo: Sanción potencial de hasta 5M EUR si no se cumple el plazo.
+- Tarea: Mireia traducirá los cambios regulatorios a requisitos funcionales.

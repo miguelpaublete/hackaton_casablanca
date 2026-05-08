@@ -1,0 +1,13 @@
+# Plataforma de Open Banking — APIs PSD2 — Gestión de consentimientos
+**Fecha:** 2026-01-22
+**Asistentes:** Andrés (API Architect), Beatriz (PM), Hugo (Backend), Clara (Security)
+
+## Notas de la reunión
+
+- Andrés: Endpoint /consents con TTL máximo de 90 días según norma.
+- Beatriz: ¿Cómo gestionamos la renovación de consentimientos?
+- Clara: La renovación requiere SCA completo. No se puede automatizar.
+- Decisión: Se construye dashboard para que el cliente vea y revoque consentimientos activos.
+- Decisión: Notificación automática 7 días antes de vencer cada consentimiento.
+- Tarea: Hugo implementará el módulo de consentimientos antes del 5/02.
+- Bloqueante: Pendiente de recibir lista de TPPs autorizados por Banco de España.

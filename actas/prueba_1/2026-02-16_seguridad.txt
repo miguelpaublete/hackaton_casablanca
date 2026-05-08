@@ -1,0 +1,13 @@
+# Migración de plataforma de pagos a Cloud GCP — Revisión de seguridad y compliance
+**Fecha:** 2026-02-16
+**Asistentes:** Carlos (Arquitecto), Marta (PM), Luis (Dev Lead), Ana (DevOps)
+
+## Notas de la reunión
+
+- Marta: Tenemos hoy a David del equipo de seguridad y a la oficina de cumplimiento.
+- David: La VPC compartida está aprobada con condiciones. Necesitamos VPC Service Controls.
+- Carlos: Implementaremos VPC-SC alrededor de los buckets que contengan datos PCI.
+- Compliance: Recordamos que el log de auditoría debe retenerse 7 años en Cloud Storage clase Archive.
+- Decisión: Se adopta CMEK (Customer Managed Encryption Keys) para todos los datos sensibles.
+- Riesgo: Si no llega aprobación de la AEPD antes de abril, se retrasa la ola 1.
+- Tarea: Ana documentará el ADR-002 sobre CMEK y Cloud KMS.

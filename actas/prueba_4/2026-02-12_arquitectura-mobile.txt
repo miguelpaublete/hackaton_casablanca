@@ -1,0 +1,12 @@
+# Modernización de la app de banca digital móvil — Arquitectura técnica modular
+**Fecha:** 2026-02-12
+**Asistentes:** Lucía (Product Owner), Raúl (Tech Lead), Carmen (UX), Tomás (iOS), Nora (Android)
+
+## Notas de la reunión
+
+- Raúl: Propongo dividir la app en 8 módulos: Auth, Cuentas, Tarjetas, Transferencias, Inversión, Préstamos, Soporte, Marketing.
+- Tomás: En iOS usaremos Swift Package Manager para los módulos.
+- Nora: En Android iremos con Gradle + Kotlin Multiplatform donde tenga sentido.
+- Decisión: Lógica de negocio compartida en KMM (Kotlin Multiplatform Mobile).
+- Decisión: UI nativa en cada plataforma, no usamos cross-platform UI.
+- Tarea: Raúl preparará ADR comparando KMM vs Flutter vs nativo puro.

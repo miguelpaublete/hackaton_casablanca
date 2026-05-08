@@ -1,0 +1,12 @@
+# Plataforma de Open Banking — APIs PSD2 — Lanzamiento de sandbox para TPPs
+**Fecha:** 2026-01-29
+**Asistentes:** Andrés (API Architect), Beatriz (PM), Hugo (Backend), Clara (Security)
+
+## Notas de la reunión
+
+- Andrés: El sandbox está al 80%. Faltan los endpoints de Funds Confirmation.
+- Hugo: He generado 100 cuentas sintéticas con datos realistas para testing.
+- Beatriz: ¿Cuándo invitamos a los primeros TPPs a probar?
+- Decisión: Beta cerrada con 5 TPPs partner desde 15/02. Lanzamiento público 1/04.
+- Riesgo: Si los TPPs encuentran bugs críticos, se retrasa el lanzamiento público.
+- Tarea: Beatriz preparará comunicación a TPPs partner.

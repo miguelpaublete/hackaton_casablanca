@@ -1,0 +1,14 @@
+# Migración de plataforma de pagos a Cloud GCP — Kickoff del proyecto
+**Fecha:** 2026-02-02
+**Asistentes:** Carlos (Arquitecto), Marta (PM), Luis (Dev Lead), Ana (DevOps)
+
+## Notas de la reunión
+
+- Carlos: Presento el alcance: migrar la plataforma de pagos del datacenter on-prem a GCP en 6 meses.
+- Marta: El presupuesto aprobado es de 850k EUR. Tenemos sponsor del CIO.
+- Luis: Primero hay que inventariar los 47 microservicios actuales y clasificarlos.
+- Ana: Propongo usar GKE para los stateless y Cloud SQL para los datos transaccionales.
+- Decisión: Se aprueba arquitectura objetivo basada en GKE + Cloud SQL + Pub/Sub.
+- Tarea: Carlos preparará el ADR de selección cloud antes del próximo viernes.
+- Tarea: Luis hará el inventario de servicios con tags de criticidad.
+- Riesgo identificado: Compliance PCI-DSS en cloud requiere validación con seguridad.

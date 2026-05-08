@@ -1,0 +1,12 @@
+# Modernización de la app de banca digital móvil — Nuevo flujo de login con biometría
+**Fecha:** 2026-02-19
+**Asistentes:** Lucía (Product Owner), Raúl (Tech Lead), Carmen (UX), Tomás (iOS), Nora (Android)
+
+## Notas de la reunión
+
+- Carmen: El nuevo flujo tiene 3 pasos vs los 7 actuales. Tests de usabilidad muy positivos.
+- Tomás: FaceID/TouchID integrado con el secure enclave del dispositivo.
+- Nora: Android usará BiometricPrompt API, soporte desde Android 6.
+- Decisión: Login biométrico opcional, siempre con fallback a PIN de 6 dígitos.
+- Regla de negocio: Tras 3 fallos biométricos, se fuerza re-autenticación con usuario y contraseña.
+- Tarea: Tomás y Nora implementarán login biométrico en sprint 3.

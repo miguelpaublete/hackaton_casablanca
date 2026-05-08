@@ -1,0 +1,12 @@
+# Cumplimiento normativo MiFID II — reportes de transacciones — Análisis gap regulatorio
+**Fecha:** 2026-03-08
+**Asistentes:** Elena (PMO Regulatorio), Diego (Dev), Mireia (Compliance), Javier (QA)
+
+## Notas de la reunión
+
+- Mireia: He identificado 12 gaps entre la implementación actual y la nueva norma.
+- Diego: 8 son cambios de mapeo, 3 son nuevos campos calculados, 1 implica refactor del motor.
+- Decisión: El gap más complejo (clasificación de instrumentos OTC) se aborda primero.
+- Decisión: Mantenemos compatibilidad con esquema antiguo durante 3 meses tras go-live.
+- Tarea: Diego preparará ADR sobre estrategia de versionado dual del esquema.
+- Bloqueante: Pendiente de recibir el XSD actualizado por parte de ESMA.

@@ -1,0 +1,12 @@
+# Plataforma de Open Banking — APIs PSD2 — Kickoff Open Banking
+**Fecha:** 2026-01-08
+**Asistentes:** Andrés (API Architect), Beatriz (PM), Hugo (Backend), Clara (Security)
+
+## Notas de la reunión
+
+- Beatriz: Vamos a publicar las APIs PSD2 en versión 3.0 según estándar Berlin Group.
+- Andrés: La plataforma actual soporta v2.5. Hay que actualizar 14 endpoints.
+- Clara: PSD2 exige SCA (Strong Customer Authentication) con dynamic linking.
+- Decisión: Adoptamos OpenAPI 3.1 como contrato fuente de verdad.
+- Decisión: API Gateway: Apigee X. Sandbox público para TPPs en sandbox.bbva.com.
+- Tarea: Andrés actualizará specs OpenAPI según Berlin Group v1.3.6.

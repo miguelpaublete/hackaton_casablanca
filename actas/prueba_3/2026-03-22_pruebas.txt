@@ -1,0 +1,12 @@
+# Cumplimiento normativo MiFID II — reportes de transacciones — Sesión de pruebas con set regulatorio
+**Fecha:** 2026-03-22
+**Asistentes:** Elena (PMO Regulatorio), Diego (Dev), Mireia (Compliance), Javier (QA)
+
+## Notas de la reunión
+
+- Javier: He ejecutado 1247 casos, 89% pasan. Los fallos son del nuevo campo 'execution venue'.
+- Diego: El problema viene del lookup en la tabla de venues. Mireia, ¿quién la mantiene?
+- Mireia: Esa tabla la actualiza el equipo de Reference Data semanalmente.
+- Decisión: Se incluye validación previa al envío que rechace transacciones con venue desconocido.
+- Tarea: Diego coordinará con Reference Data para sincronización diaria.
+- Riesgo: Si la tabla está desfasada, hay riesgo de reportes erróneos a CNMV.

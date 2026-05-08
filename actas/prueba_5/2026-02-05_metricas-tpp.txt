@@ -1,0 +1,12 @@
+# Plataforma de Open Banking — APIs PSD2 — Métricas y monitorización
+**Fecha:** 2026-02-05
+**Asistentes:** Andrés (API Architect), Beatriz (PM), Hugo (Backend), Clara (Security)
+
+## Notas de la reunión
+
+- Andrés: Necesitamos dashboards de uso por TPP, latencia, errores y SCA exitosos.
+- Hugo: He montado Grafana con métricas de Apigee + logs en BigQuery.
+- Clara: Compliance pide alerta automática si un TPP supera 100 errores 4xx en 1h.
+- Decisión: Se adoptan SLAs publicados: 99.9% disponibilidad, p95 <500ms.
+- Decisión: Throttling por TPP: 100 req/s por defecto, configurable por contrato.
+- Tarea: Hugo implementará alertas y rate limiting antes del go-live.

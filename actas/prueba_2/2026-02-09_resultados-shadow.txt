@@ -1,0 +1,12 @@
+# Implantación de sistema antifraude con Machine Learning — Resultados primer mes de shadow mode
+**Fecha:** 2026-02-09
+**Asistentes:** Sara (Data Scientist), Pablo (PM), Inés (ML Eng), Roberto (Negocio Riesgos)
+
+## Notas de la reunión
+
+- Sara: En shadow el modelo habría detectado 142 fraudes adicionales con 0.3% FPR.
+- Roberto: Equivale a 380k EUR ahorrados en un mes. Negocio muy contento.
+- Pablo: Podemos pasar a active mode el 1 de marzo si seguridad aprueba.
+- Decisión: Go-live progresivo: 10% del tráfico el 1/03, 50% el 8/03, 100% el 15/03.
+- Bloqueante: El equipo de operaciones necesita formación antes del go-live.
+- Tarea: Pablo organizará 2 sesiones de formación para el equipo de fraude.

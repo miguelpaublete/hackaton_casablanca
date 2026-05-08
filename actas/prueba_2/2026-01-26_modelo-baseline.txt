@@ -1,0 +1,12 @@
+# Implantación de sistema antifraude con Machine Learning — Modelo baseline
+**Fecha:** 2026-01-26
+**Asistentes:** Sara (Data Scientist), Pablo (PM), Inés (ML Eng), Roberto (Negocio Riesgos)
+
+## Notas de la reunión
+
+- Sara: Baseline XGBoost da 0.87 AUC, recall 78% al 0.4% FPR. Buen punto de partida.
+- Inés: La red neuronal por sí sola da 0.85, peor. Pero el ensemble llega a 0.91 AUC.
+- Pablo: ¿Cuándo podemos hacer un piloto con datos reales?
+- Decisión: Piloto en modo shadow desde 15/02 durante 4 semanas, sin bloquear transacciones reales.
+- Riesgo: El modelo es sensible a drift, necesitamos monitorización continua.
+- Tarea: Inés implementará el módulo de detección de drift con Evidently AI.

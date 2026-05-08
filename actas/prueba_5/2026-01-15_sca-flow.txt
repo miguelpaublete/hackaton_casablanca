@@ -1,0 +1,12 @@
+# Plataforma de Open Banking — APIs PSD2 — Flujo de SCA
+**Fecha:** 2026-01-15
+**Asistentes:** Andrés (API Architect), Beatriz (PM), Hugo (Backend), Clara (Security)
+
+## Notas de la reunión
+
+- Clara: SCA requiere dos factores de tres categorías: knowledge, possession, inherence.
+- Hugo: Actualmente usamos OTP por SMS (possession) + PIN (knowledge). Cumple.
+- Andrés: El reto es el dynamic linking: el OTP debe estar ligado al importe y al beneficiario exactos.
+- Decisión: Migrar de SMS a push notifications firmadas para reducir fraude SIM-swap.
+- Riesgo: Hay un 12% de clientes sin app móvil instalada, necesitan fallback SMS.
+- Tarea: Hugo implementará servicio de notificación dual (push + SMS).

@@ -1,0 +1,13 @@
+# Migración de plataforma de pagos a Cloud GCP — Avance de la ola 1 de migración
+**Fecha:** 2026-03-02
+**Asistentes:** Carlos (Arquitecto), Marta (PM), Luis (Dev Lead), Ana (DevOps)
+
+## Notas de la reunión
+
+- Luis: Llevamos 3 de 5 servicios desplegados en pre-producción. Funcionan correctamente.
+- Carlos: Las pruebas de carga muestran latencia 18% menor en GCP que on-prem.
+- Marta: ¿Cuándo podemos hacer el go-live de la ola 1?
+- Luis: Si seguridad aprueba el pen-test del viernes, podemos pasar a producción el 10/03.
+- Riesgo: El servicio de conciliación nocturna tiene problemas con el connector a Oracle on-prem.
+- Tarea: Ana investigará si Cloud Interconnect resuelve la latencia con Oracle.
+- Decisión: Posible rollback automático si se supera el 1% de tasa de error tras go-live.

@@ -1,0 +1,54 @@
+SMART AGENDA — Reunión del día 2026-05-07
+Proyecto: prueba_1
+Tipo de reunión: Seguimiento semanal
+======================================================================
+
+# Orden del Día - prueba_1
+
+## 1. Revisión de avances desde la última reunión (10 min)
+- Estado de migración de servicios a GCP
+- Resultados de pruebas de carga y latencia
+
+## 2. Seguimiento de tareas pendientes (10 min)
+- Migración de los servicios restantes de la ola 1
+- Integración de Snyk en el pipeline CI/CD
+- Documentación ADR-002 sobre CMEK y Cloud KMS
+
+## 3. Resolución de bloqueantes y riesgos (15 min)
+- Estado del token de Snyk en GCP Secret Manager
+- Problemas de latencia con el connector a Oracle on-prem
+- Aprobación de la AEPD para datos sensibles
+
+## 4. Decisiones pendientes y próximas acciones (10 min)
+- Go-live de la ola 1: criterios y fecha
+- Estrategia de rollback automático
+- Implementación de VPC Service Controls
+
+## 5. Revisión de cumplimiento y seguridad (10 min)
+- Retención de logs de auditoría
+- Adopción de CMEK para datos sensibles
+
+## 6. Próximos pasos y cierre (5 min)
+- Asignación de responsables
+- Fechas clave y seguimiento
+
+----------------------------------------------------------------------
+PUNTOS CLAVE:
+  • Estado de migración de los servicios de la ola 1 a GCP
+  • Integración de Snyk en el pipeline CI/CD
+  • Problemas de latencia con el connector a Oracle on-prem
+  • Aprobación de la AEPD para datos sensibles
+  • Go-live de la ola 1 y criterios de éxito
+  • Implementación de VPC Service Controls y CMEK
+
+DECISIONES PENDIENTES:
+  • Fecha definitiva y criterios para el go-live de la ola 1
+  • Estrategia de rollback automático en caso de error
+  • Solución para la latencia con Oracle on-prem (Cloud Interconnect u otra alternativa)
+  • Implementación de VPC Service Controls alrededor de buckets PCI
+
+RIESGOS IDENTIFICADOS:
+  • Retraso de la ola 1 por falta de aprobación de la AEPD
+  • Latencia excesiva en el servicio de conciliación nocturna por el connector a Oracle on-prem
+  • Falta de token de Snyk en GCP Secret Manager impidiendo escaneo de seguridad
+  • No cumplimiento de retención de logs de auditoría por 7 años

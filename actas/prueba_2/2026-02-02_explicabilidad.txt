@@ -1,0 +1,12 @@
+# Implantación de sistema antifraude con Machine Learning — Cumplimiento y explicabilidad
+**Fecha:** 2026-02-02
+**Asistentes:** Sara (Data Scientist), Pablo (PM), Inés (ML Eng), Roberto (Negocio Riesgos)
+
+## Notas de la reunión
+
+- Roberto: Compliance ha pedido que cualquier rechazo de pago se pueda justificar al cliente.
+- Sara: Implementaremos SHAP values en cada decisión, con top-3 features que más influyen.
+- Decisión: Se aprueba framework de explicabilidad basado en SHAP.
+- Decisión: Logs de decisiones se guardan 5 años para auditoría regulatoria.
+- Riesgo: Latencia del modelo + SHAP puede superar SLA de 80ms en pico de Black Friday.
+- Tarea: Inés benchmarkeará el coste de SHAP en latencia de inferencia.

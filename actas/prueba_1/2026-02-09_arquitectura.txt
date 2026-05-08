@@ -1,0 +1,14 @@
+# Migración de plataforma de pagos a Cloud GCP — Definición de arquitectura objetivo
+**Fecha:** 2026-02-09
+**Asistentes:** Carlos (Arquitecto), Marta (PM), Luis (Dev Lead), Ana (DevOps)
+
+## Notas de la reunión
+
+- Carlos: He preparado el ADR-001 sobre la elección de GCP frente a AWS y Azure.
+- Luis: El inventario muestra 47 servicios: 32 stateless, 12 con estado, 3 batch.
+- Marta: ¿Qué servicios entran en la primera ola de migración?
+- Carlos: Propongo empezar por los 5 menos críticos para validar el patrón de despliegue.
+- Decisión: Se aprueba el plan de olas. Ola 1 en marzo, ola 2 en mayo, ola 3 en junio.
+- Ana: Necesito que seguridad apruebe la VPC compartida antes de marzo.
+- Acción: Marta agendará reunión con CISO para semana del 16/02.
+- Regla de negocio: Toda transacción debe seguir cifrada en tránsito y en reposo (PCI-DSS).

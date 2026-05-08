@@ -1,0 +1,12 @@
+# Implantación de sistema antifraude con Machine Learning — Ingeniería de features
+**Fecha:** 2026-01-19
+**Asistentes:** Sara (Data Scientist), Pablo (PM), Inés (ML Eng), Roberto (Negocio Riesgos)
+
+## Notas de la reunión
+
+- Sara: He identificado 142 features candidatas, voy a hacer feature selection con mutual info.
+- Inés: Las features de velocidad (txns/hora) son las más predictivas según mi análisis previo.
+- Roberto: Negocio insiste en incluir el merchant category code y la geolocalización.
+- Decisión: Se priorizan 35 features finales: 12 transaccionales, 15 de comportamiento, 8 contextuales.
+- Tarea: Inés montará el feature store en Vertex AI para reutilización.
+- Bloqueante: Falta acuerdo con DPO sobre uso de geolocalización fina.
