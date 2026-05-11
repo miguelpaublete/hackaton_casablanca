@@ -46,39 +46,124 @@ _FRAMEWORK_FILES = [
     "framework/knowledge-architecture/spec-anatomy.md",
 ]
 
+# Presupuesto máximo para el contexto del framework (en chars).
+# 8000 tokens ≈ 6000 palabras ≈ 24000 chars.
+# Reservamos ~12000 chars para el framework, dejando el resto
+# para el prompt template (~6000) + el transcript (~6000).
+_FRAMEWORK_BUDGET_CHARS = 10_000
+
+
+def _extract_framework_essentials(content: str, filename: str) -> str:
+    """
+    Extrae solo las secciones esenciales de un documento del framework,
+    descartando ejemplos extensos, diagramas ASCII grandes y secciones
+    comparativas que no aportan a la generación de specs.
+    """
+    lines = content.splitlines()
+    result_lines = []
+    skip_sections = {
+        "## Differential Advantages",
+        "## Extending to Other Verticals",
+        "## The Knowledge-Work Duality",
+        "## Derived Knowledge Graph",
+        "## Current Tooling vs. Full Activation",
+        "## How Activation Works",
+        "## Activation Matrix",
+        "### vs. GitHub Spec Kit",
+        "### vs. Vibe Coding",
+        "### vs. Waterfall",
+        "## Complete Example: DOM-RISK-001",
+        "## Validation Checklist",
+    }
+    in_skip = False
+    in_code_block = False
+    code_block_lines = 0
+
+    for line in lines:
+        # Detectar bloques de código largos y truncarlos
+        if line.strip().startswith("```"):
+            if in_code_block:
+                in_code_block = False
+                code_block_lines = 0
+                result_lines.append(line)
+                continue
+            else:
+                in_code_block = True
+                code_block_lines = 0
+                result_lines.append(line)
+                continue
+
+        if in_code_block:
+            code_block_lines += 1
+            if code_block_lines <= 8:  # Solo primeras 8 líneas de cada bloque
+                result_lines.append(line)
+            elif code_block_lines == 9:
+                result_lines.append("  ...")
+            continue
+
+        # Detectar secciones a saltar
+        for skip in skip_sections:
+            if line.startswith(skip):
+                in_skip = True
+                break
+
+        if in_skip:
+            # Terminar skip al encontrar un heading del mismo o menor nivel
+            if line.startswith("## ") and not any(line.startswith(s) for s in skip_sections):
+                in_skip = False
+            elif line.startswith("# ") and not line.startswith("## "):
+                in_skip = False
+            else:
+                continue
+
+        result_lines.append(line)
+
+    return "\n".join(result_lines)
+
 
 def load_framework_context() -> str:
     """
     Carga los documentos del framework KDD desde /framework y los
-    concatena como contexto para el modelo.
-    Busca los ficheros relativos a la raíz del repositorio (un nivel
-    por encima de /agent).
+    concatena como contexto compacto para el modelo.
+    Aplica extracción de esenciales + presupuesto de chars.
     """
-    repo_root = Path(__file__).parent.parent  # .../Knowledge driven AI/
+    repo_root = Path(__file__).parent.parent
     sections = []
+    total_chars = 0
+
     for rel_path in _FRAMEWORK_FILES:
         full_path = repo_root / rel_path
         if full_path.exists():
-            content = full_path.read_text(encoding="utf-8")
-            sections.append(
-                f"### {full_path.name}\n\n{content}"
-            )
-            print(f"  [framework] cargado: {rel_path} ({len(content)} chars)")
+            raw = full_path.read_text(encoding="utf-8")
+            compact = _extract_framework_essentials(raw, full_path.name)
+
+            # Respetar presupuesto
+            remaining = _FRAMEWORK_BUDGET_CHARS - total_chars
+            if remaining <= 0:
+                print(f"  [framework] PRESUPUESTO AGOTADO, saltando: {rel_path}")
+                continue
+            if len(compact) > remaining:
+                compact = compact[:remaining] + "\n\n(... truncado por presupuesto de contexto)"
+                print(f"  [framework] truncado: {rel_path} ({remaining} chars de {len(compact)})")
+            else:
+                print(f"  [framework] cargado: {rel_path} ({len(compact)} chars, original {len(raw)})")
+
+            sections.append(f"### {full_path.name}\n\n{compact}")
+            total_chars += len(compact)
         else:
             print(f"  [framework] AVISO: no encontrado: {full_path}")
 
     if not sections:
-        print("  [framework] ADVERTENCIA: ningún fichero del framework encontrado. "
-              "Las specs se generarán sin contexto completo.")
+        print("  [framework] ADVERTENCIA: ningún fichero del framework encontrado.")
         return "(Framework documentation not available — using built-in rules only.)"
 
     header = (
-        "The following documents constitute the authoritative KDD framework. "
-        "Follow them strictly when selecting artifact types, writing frontmatter, "
-        "and structuring body sections.\n\n"
-        "---\n\n"
+        "Follow these framework documents strictly for artifact types, "
+        "frontmatter fields, and body section structure.\n\n---\n\n"
     )
-    return header + "\n\n---\n\n".join(sections)
+    result = header + "\n\n---\n\n".join(sections)
+    print(f"  [framework] TOTAL: {len(result):,} chars ({len(result)//4} tokens aprox)")
+    return result
 
 
 def load_prompt_template() -> str:
@@ -95,12 +180,36 @@ def build_prompt(
     task_offset: int = 1,
     project: str = "tbd",
 ) -> str:
-    """Construye el prompt final inyectando el framework KDD real y los metadatos."""
+    """
+    Construye el prompt final inyectando el framework KDD real y los metadatos.
+    Trunca el transcript si el prompt total supera el presupuesto de tokens.
+    """
     if today is None:
         today = date.today().isoformat()
 
     template = load_prompt_template()
     framework_context = load_framework_context()
+
+    # Calcular cuánto espacio queda para el transcript
+    # Presupuesto total: ~28000 chars ≈ 7000 tokens (dejando margen para los 8000)
+    TOTAL_BUDGET_CHARS = 28_000
+    base_prompt = (
+        template
+        .replace("{FRAMEWORK_CONTEXT}", framework_context)
+        .replace("{TRANSCRIPT}", "")
+        .replace("{TODAY}", today)
+        .replace("{PROJECT}", project)
+        .replace("{ADR_OFFSET}", str(adr_offset))
+        .replace("{DOM_OFFSET}", str(dom_offset))
+        .replace("{TASK_OFFSET}", str(task_offset))
+    )
+    remaining = TOTAL_BUDGET_CHARS - len(base_prompt)
+    if remaining < 1000:
+        remaining = 1000  # mínimo para que tenga sentido
+
+    if len(transcript) > remaining:
+        print(f"  [prompt] Transcript truncado: {len(transcript)} -> {remaining} chars")
+        transcript = transcript[:remaining] + "\n\n(... transcript truncado por límite de tokens)"
 
     prompt = (
         template
@@ -112,6 +221,7 @@ def build_prompt(
         .replace("{DOM_OFFSET}", str(dom_offset))
         .replace("{TASK_OFFSET}", str(task_offset))
     )
+    print(f"  [prompt] Total: {len(prompt):,} chars (~{len(prompt)//4} tokens)")
     return prompt
 # -----------------------------------------------------------------
 # 3. LLAMADA A GITHUB MODELS
