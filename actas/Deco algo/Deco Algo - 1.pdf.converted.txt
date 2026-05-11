@@ -1,0 +1,55 @@
+Punto de Control IMM Analizados los casos de EQ : Incidencia 1 : campo de nominal ajustado informado como nulo. Línea 137 - En ningún caso, de TTERMSAO viene informado el campo COD_USRDEF17 como QIS - En el resto de casos de EQ (donde se multiplica precio unitario x unidades) en nuestra
+
+BBDD viene informado, en ninguno es nulo. Idea: - Caso de prueba 1: COD_USRDEF17 = QIS y nominal informado - Caso de prueba 2: COD_USRDEF17 = QIS y nominal sin informar - Caso de prueba 3: COD_USRDEF17 != QIS y nom.unit con num.units informadas - Caso de prueba 4: COD_USRDEF17 != QIS y nom.unit o num.units sin informar Boletas EQ que entran en el flujo para posibles casos de prueba: 39558255, 40161090, 41185525,
+
+41044442, 40628676, 41283665, 41907619 PREGUNTAR: hay que preguntar qué valores quieren en el caso 2 y sobre todo en el 4. Incidencia 2 : fecha de comienzo siempre sin informar. Línea 84. Se hace una asignación directa. Se puede hacer una lógica para que, en caso de que la operación
+
+sea EQ, se le asigne directamente un ‘’ (null) aunque en la BBDD en todos los casos
+
+viene vacío (correcto). Idea: - Caso de prueba 1: informar a una boleta este campo en la TTERMSAO y ver qué pasa
+
+antes y después de cambiarle la lógica. Analizados los casos de FX : En este caso, las boletas que están tanto en el archivo de incidencias como en BBDD a 27/10
+
+son las siguientes: '51213291', '60319013', '61194579', '64410655', '65400525', '65400515',
+
+'65357319', '65357315', '64342798'. En el caso de la incidencia 3 también se incluye
+
+la '41539005'. Incidencia 3 : nominal largo a nulo. Se comprueba que el campo IMP_LONGNOT asignado a las mismas está a null en la TTERMSAO Incidencia 4 : nominal corto a nulo. Se comprueba que el campo IMP_SHORTNOT asignado a las mismas está a null en la TTERMSAO Incidencia 5 : divisa nominal largo a nulo. Se comprueba que el campo COD_LNNOTCUR asignado a las mismas está a null en la TTERMSAO
+
+Incidencia 6 : divisa nominal corto a nulo. Se comprueba que el campo COD_SHNOTCUR asignado a las mismas está a null en la TTERMSAO. Incidencia 7 : Divisa comprada en los productos de FX a nulo. Se comprueba que el campo COD_LNNOTCUR asignado a las mismas está a null en la TTERMSAO
+
+(Misma incidencia que la 5). Incidencia 8 : Divisa del Nocional del subyacente Auxiliar a nulo. Se comprueba que el campo COD_SHNOTCUR asignado a las mismas está a null en la TTERMSAO
+
+(Misma incidencia que la 6). Incidencia 9 : Fecha del ejercicio no informada cuando el campo cmer_p_strike esta informado.
+
+Busca la boleta de la TTERMSAO en la TTERMASO y si está se pinta en el extracto. Se
+
+ha comprobado que las boletas de la incidencia 9 que se pueden rescatar a 27/10 ('51213291',
+
+'60319013', '61194579', '64410655', '65400525', '65400515', '65357319', '65357315',
+
+'64342798) no están en TTERMASO, por lo que los campos están vacíos. De la TTERMASO intenta rescatar los valores primero el IMP_STKPRVAL y si también está vacío
+
+pues el IMP_UNDPRICE. Incidencia 10 : Indicador operación CALL/PUT no informado cuando el campo cmer_p_strike
+
+esta informado. Actualmente, el campo cmer_p_strike (IMP_STKPRVAL_2) está condicionado a que la operación
+
+esté marcada como opción (XTI_OPTION = 1) en la tabla TTERMSAO. En las operaciones
+
+de FX, esto provoca que, aunque el precio de ejercicio esté informado en la tabla
+
+de extensiones (TTERMASO), el dato se visualice vacío en el extracto final. Sigue la siguiente lógica: DECODE (A.XTI_OPTION, '1', DECODE (B.COD_CALL, 'True', 'C', 'False',
+
+'P', ''), '') AS COD_CALL_2 Filtro Maestro (Tabla A - TTERMSAO): Primero mira el campo A.XTI_OPTION. Solo si este campo
+
+vale '1' (es decir, el sistema reconoce que la boleta es una opción), se molesta en
+
+buscar el tipo. Origen del Valor (Tabla B - TTERMASO): Si es una opción, va a la tabla de extensiones (B) y
+
+lee el campo B.COD_CALL: - Si en la tabla B pone 'True' : Escribe una 'C' (Call) en el informe. - Si en la tabla B pone 'False' : Escribe una 'P' (Put) en el informe. - Si no es ninguna de las dos: Lo deja vacío. Al igual de la incidencia 9, como las boletas no estan en TTERMASO, no se han podido pintar
+
+estos valores. Analizados los casos de IR : Las boletas son '52183305', '64129075', '52228175', '65567952' para todos los casos Incidencia 11 : Divisa nominal a nulo. Se comprueba que el campo COD_NOTCUR asignado a las mismas está a null en la TTERMSAO. Incidencia 12 : Divisa nominal a nulo. Se comprueba que el campo COD_NOTCUR asignado a las mismas está a null en la TTERMSAO.
+
+(Misma incidencia que la 11) Incidencia 13 : fechas inicio y fin a nulo. Se comprueba que los campos FEC_START y FEC_END asignados a las mismas está a null
+
+en la TTERMSAO. (Misma incidencia que la 11)

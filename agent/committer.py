@@ -4,6 +4,13 @@ committer.py — Commit automático de artefactos validados a GitHub.
 Usa git local (subprocess) para commitear y pushear, evitando problemas
 de proxy y permisos de Fine-grained PATs con la REST API.
 
+IMPORTANTE — política de commits:
+  ✅ Las specs validadas se commitean SIEMPRE en:
+       projects/PMO/specs/{proyecto}/{tipo}/
+  🚫 El repositorio global (cib-risk-knowledge/specs/) es SOLO LECTURA.
+     Nunca se escribe en él desde este agente. Solo se usa como
+     fuente de contexto en smart_tools.py.
+
 Uso:
     from committer import commit_artifacts
     paths = commit_artifacts(artifacts_list)
@@ -21,7 +28,14 @@ from extractor import Artifact
 # RUTAS
 # ─────────────────────────────────────────────────────────────
 
-REPO_ROOT = config.PROJECT_ROOT.parent  # raíz del repo git
+# Raíz del repo PMO (donde está el .git del agente PMO)
+# - Standalone:  Knowledge driven AI/
+# - Integrado:   cib-risk-knowledge/projects/PMO/
+REPO_ROOT = config.PROJECT_ROOT.parent
+
+# Destino ÚNICO de los commits: specs/ dentro del repo PMO
+# → cib-risk-knowledge/projects/PMO/specs/{proyecto}/{tipo}/
+# NUNCA se escribe fuera de esta carpeta.
 SPECS_DIR = REPO_ROOT / "specs"
 
 
@@ -182,5 +196,4 @@ if __name__ == "__main__":
 
     paths = commit_artifacts(artifacts, branch=args.branch, project=args.project)
     print(f"\n✅ {len(paths)} artefactos commiteados.")
-
 

@@ -1,0 +1,61 @@
+SMART AGENDA — Reunión del día 2026-05-11
+Proyecto: Deco algo
+Tipo de reunión: Seguimiento semanal
+======================================================================
+
+# Orden del Día - Deco Algo
+
+## 1. Revisión de avances y tareas pendientes (15 min)
+- Estado de ejecución ad hoc de Murex para desbloquear migración de OASms
+- Validación de datos en Smart Data
+
+## 2. Seguimiento de excepciones y riesgos regulatorios (15 min)
+- Plan de excepción temporal para uso de IMTRIX en cálculo de capital económico
+- Estado del análisis de riesgos (ARE) para IMTRIX
+
+## 3. Circuito de aprobación y comunicación de MSA (10 min)
+- Confirmación de envío del MSA liberado a todos los participantes
+- Consulta con Go sobre el circuito de aprobación del MSA
+
+## 4. Coordinación de reuniones y revisión de backlog (10 min)
+- Convocatoria de reunión en México para revisión de backlog Q2
+- Ajuste de reuniones generales y específicas por línea de trabajo
+
+## 5. Seguridad y layouts de data X (10 min)
+- Creación de hilo para compartir layouts de data X con el equipo de seguridad
+- Confirmación de recepción por parte de seguridad
+
+## 6. Preguntas abiertas y próximos pasos (10 min)
+- Definición de criterios para casos de prueba pendientes
+- Alternativas para gestión de capital económico
+
+## 7. Cierre y asignación de tareas (5 min)
+- Resumen de acuerdos
+- Asignación de responsables y plazos
+
+
+----------------------------------------------------------------------
+PUNTOS CLAVE:
+  • Ejecución ad hoc de Murex para desbloquear migración de OASms y verificación de datos en Smart Data
+  • Plan de excepción temporal para uso de IMTRIX en cálculo de capital económico y criterios de excepción
+  • Confirmación del envío y recepción del MSA liberado por todos los participantes
+  • Consulta con Go sobre el circuito de aprobación del MSA
+  • Convocatoria y revisión de backlog Q2 en México
+  • Creación y confirmación de hilo para compartir layouts de data X con seguridad
+  • Definición de criterios para casos de prueba pendientes (EQ y FX)
+
+DECISIONES PENDIENTES:
+  • Aprobación del plan de excepción temporal para IMTRIX por el comité Ciro
+  • Definición de criterios para casos de prueba en incidencias EQ y FX
+  • Confirmación del circuito de aprobación del MSA tras consulta con Go
+  • Validación y modificación del análisis de riesgos (ARE) para IMTRIX
+  • Confirmación de convocatoria y revisión efectiva del backlog Q2 en México
+  • Confirmación de recepción de layouts de data X por parte del equipo de seguridad
+
+RIESGOS IDENTIFICADOS:
+  • Persistencia del bloqueo en la migración de OASms si la ejecución ad hoc de Murex no resuelve la falta de datos
+  • Riesgo regulatorio temporal por uso de IMTRIX sin excepción aprobada
+  • Falta de claridad en el circuito de aprobación del MSA puede retrasar desarrollos
+  • Riesgo de migrar reportes vacíos si no se verifica correctamente la información de Murex en Smart Data
+  • Posible discrepancia entre cifra preliminar y oficial del Bar en Mentor
+  • Retraso en la revisión y actualización del análisis de riesgos (ARE) para IMTRIX

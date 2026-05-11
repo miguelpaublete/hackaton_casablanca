@@ -1,0 +1,93 @@
+📝 Las notas may 7, 2026 [Artica] Integración Kraken - Follow up - SIT Invitado ARKAITZ ALBERDI PÉREZJORGE PIRIS SEGURA RAUL MARTIN JIMENEZEVA MARIA GARCIA VICENTE JOSE MARIA RUIZ-TAPIADOR GUINDEOLUCIA GONZÁLEZ HERNÁNDEZ MARGARITA SEBIO MARTIN JUSTO OJEDA AGUIRREAINARA IGLESIA ALONSO SILVIA GARCIA BAUZAN JAVIER VELASCO ORIHUELA JONATHAN RAMOS QUIÑONEZRAUL GÜEMES ARROYO SILVIA MENENDEZ SAAVEDRAFELIX NUÑEZ DALY GUILLERMO URGEL SUBIAS YOLANDA SANCHEZ HOLGADOFERNANDO GARCIA MARTINEZ ALVARO GONZALEZ CASOROMÁN VALVERDE BELAUSTEGUI SANDRA LUQUE GARRIGÓSJAVI MARQUEZ GARCIA JON ANDER JUSTEL SANCHEZJUAN CARLOS MURILLO DIEZ ARANCHA SANCHEZ PERALVAREZDAVID ABAD CAMARA DAVID HERNANDO VIEITES ANTONIO MALMIERCA MARTIN DAVID MARTIN BELTRANJOSE ELIAS SILVA MANRRIQUEZ ADRIAN MORENO FERNANDEZLUISFER GONZÁLEZ GARCÍA CRISTINA SALLENT PEDROCHEArchivos adjuntos [Artica] Integración Kraken - Follow up - SIT Resumen Revisión de SIT completada y planiﬁcación de UAT deﬁnida con dependencias
+
+técnicas identiﬁcadas para la integración. Estado de casos SIT El equipo mantiene
+
+casos en progreso pendientes de actualizaciones técnicas en Max Trader y conﬁguración
+
+de proveedores. Pruebas técnicas y validación Validaciones de ﬁcheros y pruebas de cifrado requieren coordinación interna
+
+para asegurar la integridad de los datos. Planiﬁcación para UAT La extensión del SIT
+
+prepara la integración, con un kickoff programado para alinear los requisitos ﬁnales.
+
+Próximos pasos [DAVID MARTIN BELTRAN] Generar Fichero: Generar el ﬁchero Duco. Pasarlo a SILVIA MENENDEZ SAAVEDRA para compartirlo con compañeros. [DAVID MARTIN BELTRAN] Validar Envío: Validar con Arancha la conveniencia de enviar el ﬁchero Duco a Termómetro o dejarlo para la UAT. [SILVIA MENENDEZ SAAVEDRA] Revisar Cuenta Errores: Revisar con David Hernando qué pasos se necesitan para dar de alta la cuenta de errores de Kraken.
+
+Deﬁnir pasos para la prueba. [JUSTO OJEDA AGUIRRE] Validar Fichero C204: Validar internamente con David Sabataz los problemas de discrepancia de datos en el ﬁchero C204. Avisar
+
+al grupo de los resultados. [JON ANDER JUSTEL SANCHEZ] Avisar Prueba Julink: Avisar al grupo por el chat cuando se vaya a realizar la prueba de cifrado de colas de Julink. [DAVID MARTIN BELTRAN] Conﬁgurar Kraken: Mover la conﬁguración de Max Trader para que apunte todo a Kraken después de completar el caso de prueba
+
+del ciclo único. Detalles ● Revisión de Casos de Prueba Pendientes (SIT) : El equipo revisó tres casos de prueba
+
+pendientes para el SIT, incluyendo el de conciliación, que depende de una actualización
+
+del tag 118 de Max Trader para la precisión de los decimales. También está pendiente
+
+la liquidación de un ciclo único con dos LP (Liquidity Providers) y una boleta de
+
+error para Max Trader que debe conectar con la cuenta de errores de Kraken. DAVID
+
+MARTIN BELTRAN mencionó que el ﬁchero RTC que proporcionó ya incluía dos LP, pero
+
+JORGE PIRIS SEGURA indicó que no era así, por lo que este caso se mantiene "in progress".
+
+● Tareas Pendientes y Casos de Uso Adicionales : SILVIA MENENDEZ SAAVEDRA
+
+pidió a DAVID MARTIN BELTRAN que generara el ﬁchero Duco para compartirlo con el equipo.
+
+También se discutió la inclusión de la boleta de error de Kraken, lo cual requiere
+
+dar de alta la cuenta de errores de Kraken y aplicar el cambio correspondiente. SILVIA
+
+MENENDEZ SAAVEDRA se comprometió a revisar con David Hernando lo que se necesita para
+
+implementar esta prueba. ● Veriﬁcación del Fichero C204 y Coordinación : JON ANDER JUSTEL SANCHEZ comentó
+
+sobre las pruebas del ﬁchero C204, mencionando que había corregido un precio que estaba
+
+mal y que algunas pruebas ﬁguraban como insatisfactorias. JUSTO OJEDA AGUIRRE indicó
+
+que JON ANDER JUSTEL SANCHEZ debería hablar con DAVID MARTIN BELTRAN sobre el contenido
+
+del ﬁchero para clariﬁcar si el volumen va en la cantidad o viceversa en el caso de
+
+las ventas. Se le indicó a JON ANDER JUSTEL SANCHEZ que validara con David Sabataz,
+
+y JUSTO OJEDA AGUIRRE se ofreció a validar primero para luego notiﬁcarles. ● Requisito de Ventana de Entorno para Prueba de Cifrado : JON ANDER JUSTEL
+
+SANCHEZ solicitó el entorno durante aproximadamente media hora para realizar una prueba
+
+de cifrado de colas relacionada con Julink. SILVIA MENENDEZ SAAVEDRA pidió que avisaran
+
+por el chat para coordinar la disponibilidad, y se acordó que realizarían primero
+
+la operativa para el ciclo y luego la prueba de indisponibilidad. ● Planiﬁcación de SIT y UAT : El equipo planea extender el SIT hasta el ﬁnal de la
+
+semana, dejando la semana siguiente como margen. La principal dependencia externa
+
+es el ﬁx del tag 118 por parte de Max Trader, el cual se desea cerrar antes del UAT.
+
+La intención es reservar las dos últimas semanas a partir del 18 de mayo para los
+
+casos de UAT de integración de Kraken. ● Preparativos para UAT y Kickoff : SILVIA MENENDEZ SAAVEDRA informó que se
+
+compartirá un ﬁchero C204, elaborado por DAVID MARTIN BELTRAN, el viernes o el lunes
+
+con los casos más representativos para el UAT. También se convocará un kickoff breve
+
+para el martes o miércoles de la semana siguiente con el equipo de IT y los usuarios
+
+de las áreas que tengan que validar. El objetivo del kickoff será recordar los artefactos,
+
+los resultados del SIT y deﬁnir lo que se espera del UAT y cuándo ﬁnalizará. ● Coordinación de Pruebas de LP y Ficheros : Se discutió cómo coordinar la prueba
+
+de los dos LP y la conﬁguración de Max Trader con Kraken. El equipo acordó intentar
+
+primero la prueba del caso de ciclo único con dos LP, tal vez usando Ethereum en Kraken y Bitcoin en Bit Stamp, para cerrar este caso. Después
+
+de esa prueba, se moverá toda la conﬁguración de Max Trader a Kraken para la veriﬁcación
+
+que necesita DAVID MARTIN BELTRAN. DAVID MARTIN BELTRAN enviará el ﬁchero Duco a SILVIA
+
+MENENDEZ SAAVEDRA para que ella pueda enviar los ﬁcheros de PS y backoﬃce juntos.
+
+Revisa las notas de Gemini para asegurarte de que sean precisas. Obtén sugerencias y descubre cómo Gemini toma notas Cómo es la calidad de estas notas especíﬁcas? Responde una breve encuesta para darnos tu opinión; por ejemplo, cuán útiles te resultaron las notas.

@@ -1,0 +1,109 @@
+📝 Las notas may 8, 2026 [Artica] Integración Kraken - Follow up - SIT Invitado ARKAITZ ALBERDI PÉREZJORGE PIRIS SEGURA RAUL MARTIN JIMENEZEVA MARIA GARCIA VICENTE JOSE MARIA RUIZ-TAPIADOR GUINDEOLUCIA GONZÁLEZ HERNÁNDEZ MARGARITA SEBIO MARTIN JUSTO OJEDA AGUIRREAINARA IGLESIA ALONSO SILVIA GARCIA BAUZAN JAVIER VELASCO ORIHUELA JONATHAN RAMOS QUIÑONEZRAUL GÜEMES ARROYO SILVIA MENENDEZ SAAVEDRAFELIX NUÑEZ DALY GUILLERMO URGEL SUBIAS YOLANDA SANCHEZ HOLGADOFERNANDO GARCIA MARTINEZ ALVARO GONZALEZ CASOROMÁN VALVERDE BELAUSTEGUI SANDRA LUQUE GARRIGÓSJAVI MARQUEZ GARCIA JON ANDER JUSTEL SANCHEZARANCHA SANCHEZ PERALVAREZ DAVID ABAD CAMARA DAVID HERNANDO VIEITES ANTONIO MALMIERCA MARTIN DAVID MARTIN BELTRAN JOSE ELIAS SILVA MANRRIQUEZADRIAN MORENO FERNANDEZ LUISFER GONZÁLEZ GARCÍA CRISTINA SALLENT PEDROCHE JUAN CARLOS MURILLO DIEZArchivos adjuntos [Artica] Integración Kraken - Follow up - SIT Resumen La reunión revisó cambios en Bitstamp y Kraken mediante la coordinación
+
+de pruebas técnicas y operativas. Actualizaciones de Bitstamp El cambio en la precisión
+
+decimal de Bitstamp no requiere adaptaciones tras las pruebas de impacto. Se informó
+
+al área de negocio para garantizar la transparencia. Coordinación de pruebas UAT La
+
+ejecución de pruebas de riesgos avanza para iniciar la UAT el 18 de mayo. Se priorizó
+
+la resolución de discrepancias decimales entre Kraken y Bitstamp. Pendientes operativos
+
+ﬁnales Se requiere conﬁrmar el tag 118 de Max Trader y gestionar la boleta de error
+
+de Kraken. El equipo espera ﬁnalizar estos casos para concluir la validación. Próximos pasos [SILVIA MENENDEZ SAAVEDRA] Enviar Fichero: Enviar ﬁchero de mercado de PSI pendiente. [DAVID MARTIN BELTRAN] Generar Archivo: Generar archivo de acceso al termómetro. [SILVIA MENENDEZ SAAVEDRA] Gestionar Cuenta Error: Gestionar conﬁguración de la cuenta de errores de Kraken con David Hernando y Arancha. [SILVIA MENENDEZ SAAVEDRA] Conﬁrmar Precisión: Veriﬁcar cómo Max Trader controlará la precisión de decimales para el enfoque 1N. Conﬁrmar detalles
+
+a Arkaitz Alberdi Pérez. [SILVIA MENENDEZ SAAVEDRA] Solicitar Activos: Preguntar al grupo por los activos necesarios para las pruebas de Kraken. Detalles ● Discusión sobre el cambio de Bitstamp : Bitstamp informó un cambio programado
+
+para el 20 de mayo en producción que afecta la precisión decimal del campo de precio,
+
+particularmente para el par Bitcoin-euro. Este cambio amplía la precisión y, según
+
+las pruebas realizadas en las áreas de trading y *backoﬃce*, no se espera un impacto
+
+negativo ni la necesidad de adaptaciones, a diferencia de un cambio anterior con Etherium
+
+que redujo la precisión. El equipo conﬁrmó que se envió una nota a todos los involucrados,
+
+incluida la parte de negocio, para mantenerles informados y permitirles realizar
+
+veriﬁcaciones adicionales, aunque no se observó ninguna afectación. ● Revisión de casos pendientes de Max Trader : Un caso relacionado con la conciliación
+
+en *backoﬃce* sigue pendiente de Max Trader, ya que necesitan conﬁrmar la modiﬁcación
+
+del *tag* 118. El equipo espera una conﬁrmación de la fecha de entrega o una fecha
+
+estimada en la reunión programada para ese día. ● Validación de casos y ﬁcheros : JUSTO OJEDA AGUIRRE conﬁrmó que pudieron
+
+validar los casos que les generaban dudas y que todo está correcto. También avisaron
+
+a Smartdata para que acepten y se adapten a los valores de Kraken una vez que lleguen.
+
+SILVIA MENENDEZ SAAVEDRA pidió a JUSTO OJEDA AGUIRRE que actualice su C20, lo cual
+
+conﬁrmaron que iban a hacer de inmediato. ● Estado de la ejecución de pruebas de riesgos : En cuanto a los ﬁcheros de riesgos,
+
+DAVID MARTIN BELTRAN indicó que ya los enviaron. RAUL MARTIN JIMENEZ aclaró que la
+
+ejecución completa de la prueba está en curso, lo cual es un proceso que dura varias
+
+semanas ya que se debe lanzar todo el *batch*. Anteriormente, se conﬁrmó que el ID
+
+del ﬁchero era el deﬁnitivo, lo que permitió dar inicio a la prueba en marcha. ● Coordinación de riesgos con el inicio de UAT : SILVIA MENENDEZ SAAVEDRA mencionó
+
+que el equipo busca comenzar la Prueba de Aceptación por el Usuario (UAT) a más tardar
+
+el lunes 18 de mayo. RAUL MARTIN JIMENEZ conﬁrmó que, según el ciclo de ejecución
+
+de riesgos, solo se necesita un ciclo completo del *batch* con el ﬁchero deﬁnitivo
+
+para producir lo necesario para la UAT, basándose en la experiencia de la implantación
+
+anterior de Bitstamp. ● Pendientes de Duco y acceso a termómetro : DAVID MARTIN BELTRAN felicitó el
+
+ﬁchero de Duco, el cual SILVIA MENENDEZ SAAVEDRA planea uniﬁcar con el de PSI para
+
+compartirlo con los colegas y recibir su retroalimentación. En cuanto al acceso a
+
+termómetro, se determinó que no es un tema urgente y DAVID MARTIN BELTRAN se encargará
+
+de generar el ﬁchero cuando tenga un momento, ya que es simplemente para veriﬁcación
+
+y no cambia nada. ● Caso pendiente de boleta de error de Kraken : Aún queda pendiente la gestión de
+
+la boleta de error huérfana en la cuenta de errores de Kraken. DAVID MARTIN BELTRAN
+
+conﬁrmó que la cuenta de errores ya está creada en Kraken y se necesita contactar
+
+a Max Trader para pasarles las credenciales y que las asocien a esa cuenta. SILVIA
+
+MENENDEZ SAAVEDRA se comprometió a gestionar este tema con David Hernando y Arancha.
+
+● Discusión sobre la precisión decimal en conciliación : ARKAITZ ALBERDI PÉREZ
+
+planteó que las pruebas con Kraken y Bitstamp están causando incoherencias debido
+
+a la diferencia en los decimales de precisión, especíﬁcamente con Etherium, donde
+
+Kraken usa ocho decimales y Bitstamp seis. ARKAITZ ALBERDI PÉREZ conﬁrmó que ajustaron
+
+la precisión a ocho en integrado para ir acorde con Kraken, pero no están seguros
+
+de cómo manejará Max Trader las precisiones dispares en la conﬁguración "uno a N".
+
+SILVIA MENENDEZ SAAVEDRA se comprometió a hacer una doble veriﬁcación de los detalles
+
+sobre cómo se controlará esto en Max Trader y a dar seguimiento al tema. ● Resumen de elementos restantes para la UAT : Los puntos pendientes para avanzar
+
+incluyen el ajuste del *tag* 118 de Max Trader para la conciliación en *backoﬃce*,
+
+la validación de algunos ﬁcheros, y la resolución del caso de la boleta huérfana contra
+
+la cuenta de errores de Kraken. DAVID MARTIN BELTRAN necesita algunos de los *assets*
+
+para Kraken para completar sus pruebas internas. SILVIA MENENDEZ SAAVEDRA acordó preguntar
+
+en el grupo sobre el estado actual de los *assets* de Kraken y que se convocará una
+
+última reunión para un resumen si los casos se cierran pronto. Revisa las notas de Gemini para asegurarte de que sean precisas. Obtén sugerencias y descubre cómo Gemini toma notas Cómo es la calidad de estas notas especíﬁcas? Responde una breve encuesta para darnos tu opinión; por ejemplo, cuán útiles te resultaron las notas.

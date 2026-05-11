@@ -47,10 +47,33 @@ BUDGET = {
     "max_historical_plans":     5,
 }
 
-ACTAS_DIR            = config.PROJECT_ROOT.parent / "actas"
-SPECS_DIR            = config.PROJECT_ROOT.parent / "specs"
-SMART_AGENDA_DIR     = config.PROJECT_ROOT.parent / "Smart agenda"
-SETUP_DIR            = config.PROJECT_ROOT.parent / "Set-up proyecto"
+# ─────────────────────────────────────────────────────────────
+# PATHS — Dual source:
+#   LOCAL_SPECS_DIR  → specs generadas por el PMO desde actas (../specs)
+#   GLOBAL_SPECS_DIR → specs del KDD global del equipo (cib-risk-knowledge/specs/)
+#   El agente combina AMBAS fuentes para dar contexto más rico.
+# ─────────────────────────────────────────────────────────────
+
+_PMO_ROOT = config.PROJECT_ROOT.parent
+
+# Specs locales del PMO (generadas por el agente desde actas)
+LOCAL_SPECS_DIR = _PMO_ROOT / "specs"
+
+# Specs globales del equipo KDD (auto-detectar si estamos dentro de cib-risk-knowledge/projects/PMO/)
+_candidate_global = _PMO_ROOT.parent.parent / "specs"
+if (_candidate_global.exists()
+    and _candidate_global.resolve() != LOCAL_SPECS_DIR.resolve()
+    and any(_candidate_global.iterdir())):
+    GLOBAL_SPECS_DIR: Path | None = _candidate_global
+else:
+    GLOBAL_SPECS_DIR = None
+
+# Compatibilidad: SPECS_DIR = local (donde se guardan las specs del PMO)
+SPECS_DIR = LOCAL_SPECS_DIR
+
+ACTAS_DIR            = _PMO_ROOT / "actas"
+SMART_AGENDA_DIR     = _PMO_ROOT / "Smart agenda"
+SETUP_DIR            = _PMO_ROOT / "Set-up proyecto"
 HISTORICAL_PLANS_DIR = SETUP_DIR / "_historical"
 
 
@@ -191,24 +214,40 @@ def _gather_global_specs_tiered(
     """
     Tier 2: resúmenes compactos de specs de OTROS proyectos,
     ordenados por relevancia y limitados por presupuesto.
+    Busca en AMBAS fuentes: LOCAL_SPECS_DIR + GLOBAL_SPECS_DIR.
     Lo que no cabe va al Tier 3 (solo listado de IDs).
     """
     used_chars = 0
     chunks = []
     tier3_ids = []
 
-    if not SPECS_DIR.exists():
-        return "(Sin specs globales disponibles)"
+    # Construir lista de directorios de specs a escanear
+    specs_sources: list[tuple[str, Path]] = []
+    if LOCAL_SPECS_DIR.exists():
+        specs_sources.append(("PMO", LOCAL_SPECS_DIR))
+    if GLOBAL_SPECS_DIR and GLOBAL_SPECS_DIR.exists():
+        specs_sources.append(("KDD", GLOBAL_SPECS_DIR))
 
-    # Recopilar y puntuar specs de otros proyectos
+    if not specs_sources:
+        return "(Sin specs disponibles — ni locales ni globales)"
+
+    # Recopilar y puntuar specs de AMBAS fuentes
     all_foreign: list[tuple[int, str, Path, str]] = []
-    for project_dir in sorted(SPECS_DIR.iterdir()):
-        if not project_dir.is_dir() or project_dir.name == exclude_project:
-            continue
-        for sf in project_dir.rglob("*.md"):
-            content = sf.read_text(encoding="utf-8", errors="ignore")
-            score = _score_relevance(content, relevance_keywords)
-            all_foreign.append((score, project_dir.name, sf, content))
+    for source_label, source_dir in specs_sources:
+        for item in sorted(source_dir.iterdir()):
+            if not item.is_dir() or item.name == exclude_project:
+                continue
+            # Saltar carpetas ocultas y README
+            if item.name.startswith(".") or item.name.startswith("_"):
+                continue
+            for sf in item.rglob("*.md"):
+                if sf.name == "README.md":
+                    continue
+                content = sf.read_text(encoding="utf-8", errors="ignore")
+                score = _score_relevance(content, relevance_keywords)
+                # Etiquetar según fuente para claridad en el output
+                proj_label = f"{source_label}/{item.name}"
+                all_foreign.append((score, proj_label, sf, content))
 
     all_foreign.sort(key=lambda x: x[0], reverse=True)
 
@@ -232,7 +271,8 @@ def _gather_global_specs_tiered(
             "por presupuesto):** " + ", ".join(tier3_ids)
         )
 
-    print(f"  [Tier 2 — global] {len(chunks)} specs (~{used_chars:,} chars), "
+    sources_str = " + ".join(sl for sl, _ in specs_sources)
+    print(f"  [Tier 2 — {sources_str}] {len(chunks)} specs (~{used_chars:,} chars), "
           f"{len(tier3_ids)} en Tier 3")
     return result or "(Sin specs globales relevantes)"
 
