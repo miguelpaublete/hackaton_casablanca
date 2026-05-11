@@ -18,38 +18,129 @@ from extractor import call_github_models
 
 
 # ─────────────────────────────────────────────────────────────
-# UTILIDADES COMUNES
-# ─────────────────────────────────────────────────────────────
+# PRESUPUESTO DE CONTEXTO
+# ────────��────────────────────────────────────────────────────
+# Sistema de activación por tiers (basado en unified-taxonomy.md):
+#   Tier 1 — contenido completo:  proyecto propio (actas + specs)
+#   Tier 2 — resumen compacto:    otros proyectos (frontmatter + Intent)
+#   Tier 3 — solo referencia:     lo que no cabe (IDs listados, no inyectados)
+#
+# Esto garantiza que el contexto no explote cuando el repositorio
+# global crezca a 50+ proyectos con cientos de specs.
 
-ACTAS_DIR = config.PROJECT_ROOT.parent / "actas"
-SPECS_DIR = config.PROJECT_ROOT.parent / "specs"
-SMART_AGENDA_DIR = config.PROJECT_ROOT.parent / "Smart agenda"
-SETUP_DIR = config.PROJECT_ROOT.parent / "Set-up proyecto"
+BUDGET = {
+    # Chars máximos por item
+    "acta_per_file":        3_000,
+    "spec_own_project":     2_000,
+    "spec_other_project":     500,   # Tier 2: solo resumen
+    "historical_plan":      3_000,
+    # Totales máximos por función
+    "smart_agenda_total":  20_000,
+    "setup_global_specs":  10_000,
+    "setup_historical":    15_000,
+    "onboarding_project":  20_000,
+    "onboarding_global":    8_000,
+    # Nº máximo de items
+    "max_actas":                5,
+    "max_own_specs":           15,
+    "max_other_specs":         20,
+    "max_historical_plans":     5,
+}
+
+ACTAS_DIR            = config.PROJECT_ROOT.parent / "actas"
+SPECS_DIR            = config.PROJECT_ROOT.parent / "specs"
+SMART_AGENDA_DIR     = config.PROJECT_ROOT.parent / "Smart agenda"
+SETUP_DIR            = config.PROJECT_ROOT.parent / "Set-up proyecto"
 HISTORICAL_PLANS_DIR = SETUP_DIR / "_historical"
 
+
+# ─────────────────────────────────────────────────────────────
+# UTILIDADES DE RELEVANCIA Y CONTEXTO
+# ─────────────────────────────────────────────────────────────
 
 def _slugify(text: str) -> str:
     text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE).strip().lower()
     return re.sub(r"[-\s]+", "-", text)[:60] or "sin-nombre"
 
 
-def _gather_historical_plans() -> str:
-    """Recopila planificaciones históricas de referencia (Set-up proyecto/_historical)."""
-    chunks = []
-    if HISTORICAL_PLANS_DIR.exists():
-        for f in sorted(HISTORICAL_PLANS_DIR.glob("*.md")):
-            content = f.read_text(encoding="utf-8", errors="ignore")
-            chunks.append(f"### Plan histórico: {f.name}\n{content[:3000]}\n")
-    return "\n---\n".join(chunks) if chunks else "(Sin planes históricos cargados)"
+def _extract_keywords(text: str) -> list[str]:
+    """Extrae palabras clave significativas de un texto para filtrar por relevancia."""
+    stopwords = {
+        "de", "la", "el", "en", "y", "a", "los", "las", "por", "para",
+        "con", "que", "un", "una", "es", "se", "del", "al", "le", "su",
+        "the", "an", "of", "in", "and", "to", "for", "with", "is", "are",
+        "was", "were", "be", "been", "have", "has", "had",
+    }
+    words = re.findall(r"\b[a-záéíóúñA-ZÁÉÍÓÚÑ]{4,}\b", text)
+    return list({w.lower() for w in words if w.lower() not in stopwords})[:30]
 
 
-def _gather_project_context(project: str, max_actas: int = 3) -> str:
+def _score_relevance(content: str, keywords: list[str]) -> int:
+    """Cuenta cuántas keywords aparecen en el contenido (case-insensitive)."""
+    content_lower = content.lower()
+    return sum(1 for kw in keywords if kw.lower() in content_lower)
+
+
+def _extract_spec_summary(content: str, max_chars: int = 500) -> str:
     """
-    Recopila contexto de un proyecto: últimas actas + specs existentes.
+    Tier 2: resumen compacto de una spec.
+    Conserva solo campos clave del frontmatter + sección Intent (máx 5 líneas).
     """
+    lines = content.splitlines()
+    summary_lines = []
+    in_frontmatter = False
+    past_frontmatter = False
+    intent_lines = 0
+    in_intent = False
+
+    for line in lines:
+        if line.strip() == "---" and not past_frontmatter:
+            in_frontmatter = not in_frontmatter
+            if not in_frontmatter:
+                past_frontmatter = True
+            summary_lines.append(line)
+            continue
+
+        if in_frontmatter:
+            key = line.split(":")[0].strip()
+            if key in ("id", "type", "layer", "domain", "subdomain",
+                       "status", "confidence", "owner", "project", "tags"):
+                summary_lines.append(line)
+            continue
+
+        if past_frontmatter:
+            if line.startswith("## Intent") or line.startswith("## Objetivo"):
+                in_intent = True
+                summary_lines.append(line)
+                continue
+            if in_intent:
+                if line.startswith("## ") and intent_lines > 0:
+                    break
+                summary_lines.append(line)
+                intent_lines += 1
+                if intent_lines >= 5:
+                    break
+
+    return "\n".join(summary_lines)[:max_chars]
+
+
+def _gather_project_context(
+    project: str,
+    max_actas: int | None = None,
+    relevance_keywords: list[str] | None = None,
+    budget_chars: int | None = None,
+) -> str:
+    """
+    Tier 1: contexto completo del proyecto (actas + specs propias).
+    Las specs se ordenan por relevancia si se proporcionan keywords.
+    Respeta el presupuesto total de chars.
+    """
+    max_actas = max_actas or BUDGET["max_actas"]
+    budget = budget_chars or BUDGET["smart_agenda_total"]
+    used_chars = 0
     chunks = []
 
-    # Últimas actas del proyecto
+    # — Últimas actas del proyecto —
     actas_path = ACTAS_DIR / project
     if actas_path.exists():
         acta_files = sorted(
@@ -61,32 +152,128 @@ def _gather_project_context(project: str, max_actas: int = 3) -> str:
             reverse=True,
         )[:max_actas]
         for af in acta_files:
-            text = read_acta(af)
-            # Limitar a 3000 chars por acta para no reventar el contexto
-            chunks.append(f"### Acta: {af.name}\n{text[:3000]}\n")
+            if used_chars >= budget:
+                break
+            text = read_acta(af)[:BUDGET["acta_per_file"]]
+            chunk = f"### Acta: {af.name}\n{text}\n"
+            chunks.append(chunk)
+            used_chars += len(chunk)
 
-    # Specs existentes del proyecto
+    # — Specs del proyecto (Tier 1: contenido completo) —
     specs_path = SPECS_DIR / project
     if specs_path.exists():
-        spec_files = sorted(specs_path.glob("*.md"))[:10]
-        for sf in spec_files:
-            content = sf.read_text(encoding="utf-8", errors="ignore")
-            chunks.append(f"### Spec: {sf.name}\n{content[:2000]}\n")
+        spec_files = list(specs_path.rglob("*.md"))
+        if relevance_keywords:
+            spec_files.sort(
+                key=lambda f: _score_relevance(
+                    f.read_text(encoding="utf-8", errors="ignore"),
+                    relevance_keywords,
+                ),
+                reverse=True,
+            )
+        for sf in spec_files[:BUDGET["max_own_specs"]]:
+            if used_chars >= budget:
+                break
+            content = sf.read_text(encoding="utf-8", errors="ignore")[:BUDGET["spec_own_project"]]
+            chunk = f"### Spec: {sf.name}\n{content}\n"
+            chunks.append(chunk)
+            used_chars += len(chunk)
 
-    return "\n---\n".join(chunks) if chunks else "(Sin contexto previo disponible)"
+    print(f"  [Tier 1 — {project}] {len(chunks)} items, ~{used_chars:,} chars")
+    return "\n---\n".join(chunks) if chunks else "(Sin contexto previo disponible para este proyecto)"
 
 
-def _gather_all_specs() -> str:
-    """Recopila todas las specs de todos los proyectos (para Auto-Setup y Onboarding)."""
+def _gather_global_specs_tiered(
+    relevance_keywords: list[str],
+    exclude_project: str = "",
+    budget_chars: int = 10_000,
+) -> str:
+    """
+    Tier 2: resúmenes compactos de specs de OTROS proyectos,
+    ordenados por relevancia y limitados por presupuesto.
+    Lo que no cabe va al Tier 3 (solo listado de IDs).
+    """
+    used_chars = 0
     chunks = []
-    if SPECS_DIR.exists():
-        for project_dir in sorted(SPECS_DIR.iterdir()):
-            if project_dir.is_dir():
-                spec_files = sorted(project_dir.glob("*.md"))[:5]
-                for sf in spec_files:
-                    content = sf.read_text(encoding="utf-8", errors="ignore")
-                    chunks.append(f"### [{project_dir.name}] {sf.name}\n{content[:1500]}\n")
-    return "\n---\n".join(chunks[:20]) if chunks else "(Sin specs históricas)"
+    tier3_ids = []
+
+    if not SPECS_DIR.exists():
+        return "(Sin specs globales disponibles)"
+
+    # Recopilar y puntuar specs de otros proyectos
+    all_foreign: list[tuple[int, str, Path, str]] = []
+    for project_dir in sorted(SPECS_DIR.iterdir()):
+        if not project_dir.is_dir() or project_dir.name == exclude_project:
+            continue
+        for sf in project_dir.rglob("*.md"):
+            content = sf.read_text(encoding="utf-8", errors="ignore")
+            score = _score_relevance(content, relevance_keywords)
+            all_foreign.append((score, project_dir.name, sf, content))
+
+    all_foreign.sort(key=lambda x: x[0], reverse=True)
+
+    for score, proj_name, sf, content in all_foreign[:BUDGET["max_other_specs"]]:
+        summary = _extract_spec_summary(content, BUDGET["spec_other_project"])
+        chunk = f"### [{proj_name}] {sf.name} (relevancia: {score})\n{summary}\n"
+
+        if used_chars + len(chunk) > budget_chars:
+            id_match = re.search(r"^id:\s*(.+)$", content, re.MULTILINE)
+            spec_id = id_match.group(1).strip() if id_match else sf.stem
+            tier3_ids.append(f"{spec_id} [{proj_name}]")
+            continue
+
+        chunks.append(chunk)
+        used_chars += len(chunk)
+
+    result = "\n---\n".join(chunks) if chunks else ""
+    if tier3_ids:
+        result += (
+            "\n\n> **Specs adicionales (Tier 3 — disponibles pero no incluidas "
+            "por presupuesto):** " + ", ".join(tier3_ids)
+        )
+
+    print(f"  [Tier 2 — global] {len(chunks)} specs (~{used_chars:,} chars), "
+          f"{len(tier3_ids)} en Tier 3")
+    return result or "(Sin specs globales relevantes)"
+
+
+def _gather_historical_plans(
+    relevance_keywords: list[str] | None = None,
+    budget_chars: int = 15_000,
+) -> str:
+    """
+    Planificaciones históricas de referencia, ordenadas por relevancia
+    y limitadas por presupuesto.
+    """
+    if not HISTORICAL_PLANS_DIR.exists():
+        return "(Sin planes históricos cargados)"
+
+    used_chars = 0
+    chunks = []
+    plan_files = (
+        list(HISTORICAL_PLANS_DIR.glob("*.md")) +
+        list(HISTORICAL_PLANS_DIR.glob("*.txt"))
+    )
+
+    if relevance_keywords:
+        plan_files.sort(
+            key=lambda f: _score_relevance(
+                f.read_text(encoding="utf-8", errors="ignore"),
+                relevance_keywords,
+            ),
+            reverse=True,
+        )
+
+    for f in plan_files[:BUDGET["max_historical_plans"]]:
+        if used_chars >= budget_chars:
+            break
+        content = f.read_text(encoding="utf-8", errors="ignore")[:BUDGET["historical_plan"]]
+        chunk = f"### Plan histórico: {f.name}\n{content}\n"
+        chunks.append(chunk)
+        used_chars += len(chunk)
+
+    print(f"  [Histórico] {len(chunks)} planes, ~{used_chars:,} chars")
+    return "\n---\n".join(chunks) if chunks else "(Sin planes históricos cargados)"
 
 
 # ─────────────────────────────────────────────────────────────
@@ -111,7 +298,13 @@ def generate_smart_agenda(
     """
     Genera una orden del día inteligente basada en el contexto del proyecto.
     """
-    project_context = _gather_project_context(project, max_actas=3)
+    keywords = _extract_keywords(f"{project} {meeting_type} {additional_context}")
+    project_context = _gather_project_context(
+        project,
+        max_actas=3,
+        relevance_keywords=keywords,
+        budget_chars=BUDGET["smart_agenda_total"],
+    )
 
     prompt = f"""You are an expert PMO assistant. Generate a smart meeting agenda in Spanish.
 
@@ -211,8 +404,15 @@ def generate_project_setup(
     Consulta specs históricas + planificaciones históricas como referencia.
     Exporta a Excel en `Set-up proyecto/`.
     """
-    historical_specs = _gather_all_specs()
-    historical_plans = _gather_historical_plans()
+    keywords = _extract_keywords(f"{project_name} {project_description}")
+    historical_plans = _gather_historical_plans(
+        relevance_keywords=keywords,
+        budget_chars=BUDGET["setup_historical"],
+    )
+    historical_specs = _gather_global_specs_tiered(
+        relevance_keywords=keywords,
+        budget_chars=BUDGET["setup_global_specs"],
+    )
 
     prompt = f"""You are a senior PMO in a banking consultancy (BBVA). Generate a complete project setup in Spanish.
 
@@ -222,10 +422,10 @@ def generate_project_setup(
 - Estimated duration: {duration_weeks} weeks
 - Today: {date.today().isoformat()}
 
-## HISTORICAL PROJECT PLANS (use as primary reference for structure):
+## HISTORICAL PROJECT PLANS (primary reference — use their structure and patterns):
 {historical_plans}
 
-## HISTORICAL SPECS (additional context):
+## RELEVANT SPECS FROM OTHER PROJECTS (secondary context, Tier 2 summaries):
 {historical_specs}
 
 ## TASK
@@ -728,8 +928,18 @@ def generate_onboarding_kit(
     """
     Genera un kit de onboarding personalizado para un nuevo integrante.
     """
-    project_context = _gather_project_context(project, max_actas=5)
-    all_specs = _gather_all_specs()
+    keywords = _extract_keywords(f"{project} {person_role} {person_name}")
+    project_context = _gather_project_context(
+        project,
+        max_actas=5,
+        relevance_keywords=keywords,
+        budget_chars=BUDGET["onboarding_project"],
+    )
+    global_specs = _gather_global_specs_tiered(
+        relevance_keywords=keywords,
+        exclude_project=project,
+        budget_chars=BUDGET["onboarding_global"],
+    )
 
     prompt = f"""You are a senior PMO creating an onboarding kit for a new team member. Write everything in Spanish.
 
@@ -739,11 +949,11 @@ def generate_onboarding_kit(
 - Start date: {start_date or 'Next week'}
 - Project: {project}
 
-## PROJECT CONTEXT (recent meetings and specs):
+## PROJECT CONTEXT — Tier 1 (actas recientes y specs del proyecto):
 {project_context}
 
-## ALL TEAM SPECS (for glossary and cross-project context):
-{all_specs}
+## CROSS-PROJECT SPECS — Tier 2 (resúmenes de otros proyectos del equipo):
+{global_specs}
 
 ## TASK
 Generate a comprehensive onboarding kit including:

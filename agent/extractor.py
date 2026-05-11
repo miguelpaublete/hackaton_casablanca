@@ -37,10 +37,56 @@ class ExtractionResult:
 # -----------------------------------------------------------------
 # 2. PREPARAR PROMPT
 # -----------------------------------------------------------------
+
+# Archivos del framework KDD que se inyectan como contexto autoritativo.
+# El orden importa: de más general (taxonomía) a más específico (anatomía).
+_FRAMEWORK_FILES = [
+    "framework/knowledge-architecture/unified-taxonomy.md",
+    "framework/knowledge-architecture/spec-types.md",
+    "framework/knowledge-architecture/spec-anatomy.md",
+]
+
+
+def load_framework_context() -> str:
+    """
+    Carga los documentos del framework KDD desde /framework y los
+    concatena como contexto para el modelo.
+    Busca los ficheros relativos a la raíz del repositorio (un nivel
+    por encima de /agent).
+    """
+    repo_root = Path(__file__).parent.parent  # .../Knowledge driven AI/
+    sections = []
+    for rel_path in _FRAMEWORK_FILES:
+        full_path = repo_root / rel_path
+        if full_path.exists():
+            content = full_path.read_text(encoding="utf-8")
+            sections.append(
+                f"### {full_path.name}\n\n{content}"
+            )
+            print(f"  [framework] cargado: {rel_path} ({len(content)} chars)")
+        else:
+            print(f"  [framework] AVISO: no encontrado: {full_path}")
+
+    if not sections:
+        print("  [framework] ADVERTENCIA: ningún fichero del framework encontrado. "
+              "Las specs se generarán sin contexto completo.")
+        return "(Framework documentation not available — using built-in rules only.)"
+
+    header = (
+        "The following documents constitute the authoritative KDD framework. "
+        "Follow them strictly when selecting artifact types, writing frontmatter, "
+        "and structuring body sections.\n\n"
+        "---\n\n"
+    )
+    return header + "\n\n---\n\n".join(sections)
+
+
 def load_prompt_template() -> str:
     """Carga la plantilla de prompt desde el fichero .md."""
     prompt_path = config.PROMPTS_DIR / "extraction_prompt.md"
     return prompt_path.read_text(encoding="utf-8")
+
+
 def build_prompt(
     transcript: str,
     today: str | None = None,
@@ -49,12 +95,16 @@ def build_prompt(
     task_offset: int = 1,
     project: str = "tbd",
 ) -> str:
-    """Construye el prompt final sustituyendo el transcript y metadatos."""
+    """Construye el prompt final inyectando el framework KDD real y los metadatos."""
     if today is None:
         today = date.today().isoformat()
+
     template = load_prompt_template()
+    framework_context = load_framework_context()
+
     prompt = (
         template
+        .replace("{FRAMEWORK_CONTEXT}", framework_context)
         .replace("{TRANSCRIPT}", transcript)
         .replace("{TODAY}", today)
         .replace("{PROJECT}", project)
